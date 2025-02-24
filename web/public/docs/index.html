@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>HELM | 帮助文档</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Description">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="css/theme.vue.min.css">
+  <link rel="stylesheet" href="css/sidebar.min.css">
+</head>
+
+<body>
+  <div id="app">加载中...</div>
+  <script>
+    window.$docsify = {
+      loadSidebar: true,
+      // name: 'HELM',
+      alias: {
+        '/.*/_sidebar.md': '/_sidebar.md'
+      },
+      subMaxLevel: 6,
+      sidebarDisplayLevel: 1,
+      homepage: 'zh-cn/cpjj.md',
+      search: {
+        noData: {
+          '/': '没有结果!'
+        },
+        paths: 'auto',
+        placeholder: {
+          '/': '搜索'
+        }
+      }
+    }
+  </script>
+  <!-- Docsify v4 -->
+  <script src="js/docsify.min.js"></script>
+  <script src="js/docsify-pagination.min.js"></script>
+  <script src="js/docsify-sidebar-collapse.min.js"></script>
+  <script src="js/zoom-image.min.js"></script>
+  <script src="js/search.min.js"></script>
+</body>
+
+</html>

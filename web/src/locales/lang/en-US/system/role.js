@@ -1,0 +1,46 @@
+export default {
+  'system.role.search.label.role-name': 'Role Name',
+  'system.role.search.label.on': 'On',
+  'system.role.search.label.off': 'Off',
+  'system.role.users': 'User',
+  'system.role.perms': 'Empower',
+  'module.tracker': 'Project management',
+  'module.integration': 'Data Integration',
+  'system.settings': 'System Settings',
+  'personal.settings': 'Personal settings',
+  'system.role.more': 'More',
+  'system.role.a-card-button-refresh':'refresh',
+  'system.role.a-card-button-save':'save',
+
+  'system.role.permission-list': 'Permission List',
+  'system.role.remind.delete.content': 'Are you sure to delete?',
+  'system.role.remind.delete.title': 'Prompt',
+  'system.role.remind.delete.success': 'Delete succeeded!',
+  'system.role.remind.save.success': 'Permission saved successfully!',
+  'system.role.tables.message.info': 'Please select a role first!',
+  'system.role.showtotal': 'total',
+  'system.role.nape': 'items',
+  'system.role.table.number': 'Number',
+  'system.role.table.code': 'Role Code',
+  'system.role.table.desc': 'Describe',
+  'system.role.table.createDate': 'Creation time',
+  'system.role.table.action': 'Operate',
+  'system.role.permission': 'Role permissions',
+  'system.role.permission.save-success': 'Permission saved successfully!',
+  //RoleModal
+  'system.role.modal.label.role-id': 'Role ID',
+  'system.role.modal.label.role-code': 'Role Code',
+  'system.role.modal.role-name.message': 'Please enter a role name',
+  'system.role.modal.role-code.message': 'Please enter a role code',
+  'system.role.modal.desc.message': 'Please enter a description',
+  'system.role.modal.role-name.message-error': 'The role name cannot be duplicate!',
+  'system.role.modal.role-code.message-error': 'Role code cannot be repeated!',
+  'system.role.update-success': 'Update succeeded!',
+  'system.role.save-success': 'Saved successfully!',
+
+  'system.role.list.config-page.title': 'Role management',
+  'system.role.list.config-page.description': 'Set roles and their corresponding permissions',
+
+
+
+  }

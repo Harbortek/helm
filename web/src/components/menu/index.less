@@ -1,0 +1,203 @@
+.shadow {
+  // box-shadow: 0 0.5px 0px @gray-5;
+}
+.side-menu {
+  background-color: #313a4c !important;
+  color: #c3c6cc;
+  overflow-y: auto;
+  z-index: 10;
+
+  .logo {
+    background-color: #313a4c;
+    height: 48px;
+    line-height: 48px;
+    vertical-align: top;
+    display: inline-block;
+    padding: 0 0px 0 12px;
+    font-size: 20px;
+    color: inherit;
+    &.pc {
+      padding: 0 12px 0 0;
+    }
+    img {
+      vertical-align: middle;
+      line-height: 48px;
+      width: 32px;
+    }
+    &.light {
+      h1 {
+        color: white;
+      }
+    }
+    h1 {
+      width: 122px;
+      font-size: 14px;
+      line-height: 14px;
+      margin: 0 0 0 8px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+  .trigger {
+    font-size: 20px;
+    line-height: 48px;
+    padding: 0 24px;
+    cursor: pointer;
+    transition: color 0.3s;
+    &:hover {
+      color: @primary-color;
+    }
+  }
+  /deep/ ul {
+    background-color: #313a4c;
+    border: 0px;
+
+    li {
+      // padding: 0 20px !important;
+      margin: 0;
+      margin-bottom: 0px !important;
+    }
+  }
+
+  /deep/.ant-menu-inline-collapsed {
+    width: 60px;
+  }
+  /deep/ .ant-menu-item > a {
+    color: #acb0b7;
+  }
+  /deep/ .ant-menu {
+    background-color: transparent;
+  }
+  /deep/ .ant-menu-item {
+    &:hover {
+      background-color: #3b4455;
+      transition: color 0.3s;
+    }
+  }
+  /deep/ .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+    background-color: #3b4455;
+    color: #ffffff;
+    font-weight: 500;
+    a {
+      color: #ffffff;
+    }
+    &::before {
+      content: " ";
+      background: #ffffff;
+      position: absolute;
+      display: inline-block;
+      height: 100%;
+      width: 3px;
+      top: 0;
+      left: 0;
+    }
+    &::after {
+      border-right: 0px;
+    }
+  }
+  /deep/ ant-menu-inline-collapsed > .ant-menu-item,
+  .ant-menu-inline-collapsed
+    > .ant-menu-item-group
+    > .ant-menu-item-group-list
+    > .ant-menu-item,
+  .ant-menu-inline-collapsed
+    > .ant-menu-item-group
+    > .ant-menu-item-group-list
+    > .ant-menu-submenu
+    > .ant-menu-submenu-title,
+  .ant-menu-inline-collapsed > .ant-menu-submenu > .ant-menu-submenu-title {
+    padding: 0 20px;
+  }
+
+  .ant-menu-submenu-title {
+    padding-right: 34px;
+    color: #acb0b7;
+  }
+
+  .ant-menu-submenu,
+  .ant-menu-submenu-inline {
+    padding-left: 0px;
+  }
+  .ant-menu-dark .ant-menu-item,
+  .ant-menu-dark .ant-menu-item-group-title,
+  .ant-menu-dark .ant-menu-item > a {
+    color: #acb0b7;
+  }
+  .ant-menu-dark .ant-menu-item-selected > a,
+  .ant-menu-dark .ant-menu-item-selected > a:hover {
+    color: #fefefe;
+  }
+
+  .ant-menu-dark,
+  .ant-menu-dark .ant-menu-sub {
+    color: #acb0b7;
+    background: transparent;
+  }
+
+  .ant-menu-dark .ant-menu-inline.ant-menu-sub {
+    box-shadow: none;
+  }
+
+  .ant-menu-dark .ant-menu-inline.ant-menu-sub {
+    background: transparent;
+  }
+
+  .ant-menu.ant-menu-dark .ant-menu-item-selected,
+  .ant-menu-submenu-popup.ant-menu-dark .ant-menu-item-selected {
+    background-color: #3b4455;
+    color: #ffffff;
+    border-left: solid 2px #fff;
+  }
+}
+
+.menu {
+  padding: 16px 0;
+  height: 40x;
+  margin: 0;
+  max-width: 200px;
+  .ant-menu-item {
+    margin: 0;
+  }
+}
+.config {
+  position: absolute;
+  width: 100%;
+  bottom: 8px;
+  border-top: solid 1px rgba(255, 255, 255, 0.1);
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-top-color: rgba(255, 255, 255, 0.1);
+  background-color: inherit;
+  .menu-config {
+    height: 40x;
+    margin: 0;
+    max-width: 200px;
+    .ant-menu-item {
+      margin: 0;
+    }
+  }
+  .version {
+    height: 18px;
+    opacity: 0.6;
+    line-height: 18px;
+    display: block;
+    color: #b7b8b9;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 10px;
+    margin-left: 20px;
+  }
+  .version-2 {
+    height: 18px;
+    opacity: 0.6;
+    line-height: 18px;
+    display: block;
+    color: #b7b8b9;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 10px;
+    margin-left: 15px;
+  }
+}

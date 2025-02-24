@@ -1,0 +1,25 @@
+export default {
+  "system.log.search.label.log-content": "日志内容",
+  "system.log.success": "成功",
+  "system.log.fail": "失败",
+  "system.log.showtotal": "共",
+  "system.log.nape": "项",
+
+  "system.log.table.number": "序号",
+  "system.log.table.module": "模块",
+  "system.log.table.title": "标题",
+  "system.log.table.content": "内容",
+  "system.log.table.type": "日志类型",
+  "system.log.table.method": "请求方式",
+  "system.log.table.remoteAddr": "请求地址",
+  "system.log.table.params": "请求参数",
+  "system.log.table.createBy": "操作人",
+  "system.log.table.execStatus": "执行状态",
+  "system.log.table.duration": "耗时(ms)",
+  "system.log.table.createDate": "发生时间",
+  "system.log.table.action": "操作",
+
+  "system.log.list.config-page.title": "日志管理",
+  "system.log.list.config-page.description": "查看日志信息",
+  "system.log.list.config-page.input": "请输入名称",
+};

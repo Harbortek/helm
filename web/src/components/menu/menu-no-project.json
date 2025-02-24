@@ -1,0 +1,14 @@
+[
+    {
+        "id": "01",
+        "name": "首页",
+        "icon": "home",
+        "path": "/welcome"
+    },
+    {
+        "id": "02",
+        "name": "工作区",
+        "icon": "project",
+        "path": "/tracker/projectList"
+    }
+]

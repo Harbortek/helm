@@ -1,0 +1,38 @@
+/* slash-command-modal.css */
+.slash-command-modal {
+    position: absolute;
+    // top: 50%;
+    // left: 50%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background: #ffffff;
+    border-radius: 2px;
+    max-height: 50vh;
+    overflow: auto;
+    min-width: 180px;
+
+    box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(45, 45, 46, 0.15) 0px 8px 16px -4px, rgba(45, 45, 46, 0.2) 0px 0px 1px 0px;
+}
+
+.slash-command-button {
+    cursor: pointer;
+    align-items: center;
+    flex: 1;
+    color: #2d2d2e;
+    user-select: none;
+    transition: background 20ms ease-in 0s;
+    width: 100%;
+    height: 32px;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+}
+.active{
+    background-color: #DFE1E5;
+}
+.slash-command-button:hover {
+    background-color: #DFE1E5;
+}

@@ -1,0 +1,33 @@
+[
+    {
+        "id": "996",
+        "name": "产品线中心",
+        "icon": "productline",
+        "path": "/productline",
+        "permission": "PRODUCT_LINE_LIST",
+        "params": {}
+    },
+    {
+        "id": "997",
+        "name": "项目中心",
+        "icon": "project",
+        "path": "/tracker/projectList",
+        "permission": "PROJECT_LIST",
+        "params": {}
+    },
+    {
+        "id": "998",
+        "name": "评审中心",
+        "icon": "form",
+        "path": "/review",
+        "permission": "REVIEW_LIST",
+        "params": {}
+    },
+    {
+        "id": "999",
+        "name": "配置中心",
+        "icon": "setting",
+        "path": "/config",
+        "params": {}
+    }
+]

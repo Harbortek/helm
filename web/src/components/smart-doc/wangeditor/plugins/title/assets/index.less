@@ -1,0 +1,27 @@
+p[data-w-e-type='title'] {
+
+  span[data-slate-zero-width="n"] {
+    position: relative;
+
+    &::before {
+      content: "标题";
+      position: absolute;
+      min-width: 160px;
+      top: 4px;
+      left: 0px;
+      color: #aaa;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+  }
+
+
+  font-weight: bold;
+  font-size: 42px;
+  height: 60px;
+  line-height: 42px;
+  color: #1f2125;
+  padding: 10px 8px 8px 0px !important;
+  margin-bottom: 12px !important;
+  border-bottom: 1px solid rgba(0, 0, 0, .04);
+}

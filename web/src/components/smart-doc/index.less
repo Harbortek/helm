@@ -1,0 +1,56 @@
+@media screen {
+  .editor-holder-wrapper {
+    width: 100%;
+    height: calc(100% - 10px);
+    display: flex;
+    flex-direction: column;
+    /deep/ .w-e-bar {
+      z-index: 99;
+    }
+    .editor-holder {
+
+      :focus-visible {
+        outline: none !important;
+      }
+      width: 100%;
+      flex: 1;
+      // height: calc(100% - 36px - 40px - 36px);
+      background-color: white;
+      
+
+    }
+    .content-editor-holder {
+      display: none;
+    }
+    .editor-comment-bar {
+    }
+  }
+
+  .wi-property-holder {
+    // position: absolute;
+    // right: 0px;
+    width: 100%;
+    height: 100%;
+  }
+
+  .outliner-holder {
+    counter-reset: tocCnt1 0;
+  }
+}
+
+@media print {
+  .editor-holder {
+    width: 100%;
+
+    overflow-y: hidden;
+    height: auto;
+    /deep/ .h-doc-menu-icon{
+      display: none;
+    }
+  }
+}
+
+.smart-doc {
+  width: 100%;
+  height: 100%;
+}

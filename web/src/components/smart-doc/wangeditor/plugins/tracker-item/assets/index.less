@@ -1,0 +1,108 @@
+p[data-w-e-type='tracker-item'] {
+  // border: 1px solid #e8e8e8;
+  background-color: #f9f9f9;
+  margin-top: 5px!important;
+  p[data-w-e-type='tracker-item-title'] {
+    font-weight: bold;
+
+    span[itemno] {
+      position: relative;
+
+      &::before {
+        content: attr(itemno);
+      }
+    }
+
+    span[data-slate-zero-width="n"] {
+      position: relative;
+
+      &::before {
+        content: "请输入工作项标题";
+        position: absolute;
+        min-width: 160px;
+        top: 4px;
+        font-size: 14px;
+        line-height: 14px;
+        left: 0px;
+        color: #aaa;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+
+      }
+    }
+  }
+
+  p[data-w-e-type='tracker-item-description'] {
+    p:only-child {
+      span[data-slate-zero-width="n"] {
+        position: relative;
+        &::before {
+          content: "请输入工作项内容";
+          position: absolute;
+          min-width: 160px;
+          top: 4px;
+          font-size: 14px;
+          line-height: 14px;
+          left: 0px;
+          color: #aaa;
+          pointer-events: none;
+          transition: opacity 0.2s ease;
+        }
+      }
+    }
+  }
+
+  p[data-w-e-type='tracker-item-extra'] {
+    .tracker-item-extra-fields {
+
+      .ant-select-selection__placeholder,
+      .ant-select-search__field__placeholder {
+        top: 20%;
+      }
+
+      .ant-select-selection__clear {
+        top: 35%;
+      }
+
+      .ant-select-selection__clear {
+        top: 35%;
+      }
+
+      .ant-select-arrow {
+        top: 35%;
+      }
+
+      >div:not(.col-full) {
+        flex: 1;
+        padding-left: 5px;
+        padding-right: 5px;
+
+        &:first-child {
+          padding-left: 0px;
+          padding-right: 5px;
+        }
+
+        &:last-child {
+          padding-right: 0px;
+          padding-left: 5px;
+        }
+
+        max-width: 150px;
+      }
+
+      >div.col-full {
+        width: 100%;
+      }
+    }
+  }
+
+  p {
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+  }
+
+  .itemNo {
+    color: blue;
+    margin-right: 20px;
+  }
+}

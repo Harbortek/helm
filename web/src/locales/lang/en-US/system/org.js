@@ -1,0 +1,62 @@
+export default {
+    'system.org.button.top-org.add': 'Add top-level structure',
+    'system.org.button.child-org.add': 'Add child structure',
+    'system.org.button.move-up': 'MoveUp',
+    'system.org.button.move-down': 'MoveDown',
+    'system.org.button.import': 'Leading-In',
+    'system.org.button.export': 'Leading-Out',
+    'system.org.organiztion.add': 'New Organization',
+    'system.org.organiztion.name': 'Organization Name',
+    'system.org.organiztion.top': 'Parent Organization',
+    'system.org.organiztion.import': 'Organization import',
+    'system.org.table.name': 'Member Name',
+    'system.org.table.call-no': 'Number of logins',
+    'system.org.table.status': 'Status',
+    'system.org.table.update-time': 'Update time',
+    'system.org.table.action': 'Operate',
+    'system.org.remind.delete.content': 'Are you sure you want to delete this organization?',
+    'system.org.remind.delete.success': 'Delete succeeded!',
+    'system.org.button.org.add.success': 'Successfully added organization!',
+    'system.org.button.move-up.success': 'Successfully moved organization up!',
+    'system.org.button.move-down.success': 'Successfully moved down the organization!',
+    'system.org.button.import.title.first': 'Upload file',
+    'system.org.button.import.title.second': 'Data validation',
+    'system.org.button.import.title.third': 'Confirm Import',
+
+
+    'system.org.button.import.previous-step': 'Previous step',
+    'system.org.button.import.next-step': 'nextStep',
+    'system.org.button.import.ok': 'Confirm Import',
+
+    'system.org.button.import.download-template': 'Download Template:',
+    'system.org.button.import.download-template.i': 'Download Organization Import Template',
+    'system.org.button.import.upload-document': 'Upload Document:',
+    'system.org.button.import.select-file': 'Pick File',
+    'system.org.button.import.operating-steps': 'Operating Steps:',
+    'system.org.button.import.operating-steps-1': '1.Download the institution import template and organize the data to be imported according to the template;',
+    'system.org.button.import.operating-steps-2': '2.Select the upload file and click "Next". The system will automatically perform data verification;',
+    'system.org.button.import.operating-steps-3': '3.If the data verification fails, please download the error report, correct the data according to the error report, and then return to the previous step to upload and verify again;',
+    'system.org.button.import.operating-steps-4': '4.If the data has passed validation, click "Confirm Import" and the system will start importing the data. Do not perform any other operations during the process of importing the data. After the prompt "Import succeeded" is displayed, the import is complete.',
+
+    'system.org.button.import.data-validation.error-1': 'Data validation failed, total',
+    'system.org.button.import.data-validation.error-2': 'data, where',
+    'system.org.button.import.data-validation.error-3': 'error (s). Please download the error report and correct the data before re importing.',
+    'system.org.button.import.data-validation.error-download': 'Download Error Data Report',
+
+    'system.org.button.import.data-validationing': 'Data validation in progress',
+    'system.org.button.import.data-validation.success': 'After data validation is completed, please "Confirm Import" to import the required data into the system. The relevant data can also be changed in the imported system.',
+    'system.org.button.import.file.error': 'Error importing file. Please reselect the file.',
+    'system.org.button.import.data.loading': 'Please be patient while the data is being imported.',
+    'system.org.button.import.data-success': "The data was successfully imported, please 'return'.",
+
+    'system.org.table.title': 'Line number',
+    'system.org.table.error': 'Error',
+
+    'system.org.button.import.message.error-1': 'Uploaded files can only be in xlsx or xls format!',
+    'system.org.button.import.message.error-2': 'The size of the uploaded file cannot exceed 5MB!',
+    'system.org.button.import.message.remind': 'You have not imported data yet',
+
+    "system.org.list.config-page.title": "Department Management",
+    "system.org.list.config-page.description": "Set up organizational structure",
+
+}

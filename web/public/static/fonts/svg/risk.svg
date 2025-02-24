@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1em" height="1em" viewBox="0 0 14 16" version="1.1"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>风险</title>
+    <g id="页面-1" stroke="currentColor" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="风险" fill="currentColor">
+            <path d="M6.2,4 L6.2,9.5 C6.2,9.9 6.5,10.3 7,10.3 C7.5,10.3 7.8,10 7.8,9.5 L7.8,4 C7.8,3.6 7.5,3.2 7,3.2 C6.5,3.2 6.2,3.6 6.2,4 Z" id="路径"></path>
+            <circle id="椭圆形" cx="7" cy="12" r="1"></circle>
+            <path d="M13.3,1.7 L7.5,0.1 C7.2,-5.2388649e-16 6.8,-5.2388649e-16 6.5,0.1 L0.7,1.7 L0.7,1.7 C0.3,1.8 0,2.2 0,2.7 L0,9 C0,10.7 1.1,12.4 3.1,14 C4.4,15 6.3,16 7,16 C7.7,16 9.5,15 10.9,14 C12.9,12.4 14,10.7 14,9 L14,2.7 C14,2.2 13.7,1.8 13.3,1.7 Z M13,9 C13,10.4 12.1,11.8 10.3,13.2 C8.9,14.3 7.3,15 7,15 C6.7,15 5.1,14.3 3.7,13.2 C1.9,11.8 1,10.4 1,9 L1,2.7 L6.7,1 C6.9,1 7.1,1 7.3,1 L13,2.7 L13,9 Z" id="形状" fill-rule="nonzero"></path>
+        </g>
+    </g>
+</svg>
