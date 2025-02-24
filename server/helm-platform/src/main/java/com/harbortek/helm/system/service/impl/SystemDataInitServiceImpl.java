@@ -17,7 +17,6 @@
 package com.harbortek.helm.system.service.impl;
 
 import com.harbortek.helm.common.config.module.ModuleManager;
-import com.harbortek.helm.common.constants.Constants;
 import com.harbortek.helm.common.vo.BaseIdentity;
 import com.harbortek.helm.common.vo.IdNameReference;
 import com.harbortek.helm.common.vo.PermissionDefinition;
@@ -61,7 +60,7 @@ public class SystemDataInitServiceImpl implements SystemDataInitService {
         UserVo adminUser = userService.findOneUser(1L);
         if (adminUser == null) {
             adminUser =
-                    UserVo.builder().id(1L).name("胡隽").loginName("admin").password("admin").status(Constants.ENABLE).build();
+                    UserVo.builder().id(1L).name("胡隽").loginName("admin").password("admin").disabled(false).build();
             userService.createUser(adminUser);
         }
 

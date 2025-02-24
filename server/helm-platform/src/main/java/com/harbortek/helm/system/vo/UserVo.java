@@ -54,10 +54,7 @@ public class UserVo extends BaseVo {
     String language = "zh_CN";
     String remoteAddress;
 
-    /**
-     * 1 启用 2 禁用
-     */
-    String status;
+    Boolean disabled;
 
     @Builder.Default
     List<RoleVo> roles = new ArrayList<>();

@@ -21,7 +21,7 @@ import com.harbortek.helm.system.config.SystemModulePermissions;
 import com.harbortek.helm.system.service.FileService;
 import com.harbortek.helm.system.service.SystemService;
 import com.harbortek.helm.system.vo.SystemVo;
-import com.harbortek.helm.util.PathUtil;
+import com.harbortek.helm.util.DateUtils;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,11 +79,11 @@ public class SystemApi {
 	@RequestMapping(value = "", method = RequestMethod.PUT)
 	public ResponseEntity<SystemVo> updateSystem(SystemVo system,MultipartFile file,MultipartFile loginFile) throws Exception {
 		if(file != null){
-			String fileUrl = fileService.upload(file, PathUtil.defaultStorePath());
+			String fileUrl = fileService.upload(file, DateUtils.getCurrDate());
 			system.setLogo(fileUrl);
 		}
 		if(loginFile != null){
-			String fileUrl = fileService.upload(loginFile, PathUtil.defaultStorePath());
+			String fileUrl = fileService.upload(loginFile, DateUtils.getCurrDate());
 			system.setLoginLogo(fileUrl);
 		}
 		SystemVo p = systemService.updateSystem(system);

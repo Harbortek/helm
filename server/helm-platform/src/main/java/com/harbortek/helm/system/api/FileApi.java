@@ -16,12 +16,14 @@
 
 package com.harbortek.helm.system.api;
 
+import com.harbortek.helm.common.exception.ServiceException;
 import com.harbortek.helm.system.service.FileService;
+import com.harbortek.helm.util.DateUtils;
 import com.harbortek.helm.util.IDUtils;
-import com.harbortek.helm.util.PathUtil;
 import eu.medsea.mimeutil.detector.ExtensionMimeDetector;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -41,38 +43,39 @@ import java.net.URLEncoder;
 import java.util.*;
 
 @Controller
+@Slf4j
 public class FileApi {
     static Logger logger = LoggerFactory.getLogger(FileApi.class);
 
     @Autowired
     FileService fileService;
 
-    @Parameter(name="增加文件")
+    @Parameter(name = "增加文件")
 
     @RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
     ResponseEntity<Map<String, String>> uploadFile(
             @RequestParam(value = "uploadFile", required = true) MultipartFile uploadFile) {
+        String destPath = DateUtils.getCurrDate();
         try {
-            String destPath = PathUtil.defaultStorePath();
-
             String url = fileService.upload(uploadFile, destPath);
             String fileName = uploadFile.getOriginalFilename();
 
-			Map<String, String> result = new HashMap<>();
-			result.put("id", IDUtils.getId()+"");
-			result.put("origin_name", fileName);
-			result.put("url", url);
-			result.put("fileSize",uploadFile.getSize()+"");
-			result.put("status","done");
+            Map<String, String> result = new HashMap<>();
+            result.put("id", IDUtils.getId() + "");
+            result.put("origin_name", fileName);
+            result.put("url", url);
+            result.put("fileSize", uploadFile.getSize() + "");
+            result.put("status", "done");
 
             return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
+
+        }catch (Exception e){
+            log.error("文件上传失败", e);
+            throw new ServiceException("文件上传失败");
         }
     }
 
-    @Parameter(name="增加文件")
+    @Parameter(name = "增加文件")
 
     @RequestMapping(value = "/uploadFile2", method = RequestMethod.POST)
     ResponseEntity<Map<String, Object>> uploadFile2(MultipartFile file, MultipartFile image) {
@@ -80,18 +83,10 @@ public class FileApi {
             file = image;
         }
         try {
-            String destPath = PathUtil.defaultStorePath();
+            String destPath = DateUtils.getCurrDate();
 
             String url = fileService.upload(file, destPath);
             String fileName = file.getOriginalFilename();
-
-//			 "file": {
-//		            "url" : "https://www.tesla.com/tesla_theme/assets/img/_vehicle_redesign/roadster_and_semi/roadster/hero.jpg",
-//		            "size": 91,
-//		            "name": "hero.jpg",
-//		            "extension": "jpg"
-//		        },
-//		        "title": "Hero"
 
             Map<String, Object> result = new HashMap<>();
             Map<String, String> fileMap = new HashMap<>();
@@ -102,8 +97,8 @@ public class FileApi {
 
             result.put("errno", 0);
             return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Throwable e) {
+            log.error("文件上传失败", e);
             Map<String, Object> result = new HashMap<>();
             result.put("errno", 1);
             result.put("message", e.getMessage());
@@ -111,38 +106,9 @@ public class FileApi {
         }
     }
 
-    @Parameter(name= "批量上传文件")
-
-    @RequestMapping(value = "/uploadFiles", method = RequestMethod.POST)
-    public ResponseEntity<List<Map<String, String>>> uploadFiles(
-            @RequestParam("uploadFile") MultipartFile[] uploadFile) {
-        // 多文件上传
-        List<Map<String, String>> list = new ArrayList<Map<String, String>>();
-        try {
-            if (uploadFile != null && uploadFile.length >= 1) {
-                for (int i = 0; i < uploadFile.length; i++) {
-                    String destPath = PathUtil.defaultStorePath();
-                    String url = fileService.upload(uploadFile[i], destPath);
-                    String fileName = uploadFile[i].getOriginalFilename();
-                    Map<String, String> result = new HashMap<>();
-                    result.put("name", fileName);
-                    result.put("url", url);
-                    list.add(result);
-
-                }
-            }
-            return ResponseEntity.ok(list);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @Parameter(name= "获取文件")
-
     @RequestMapping(value = "/file", method = RequestMethod.GET)
     ResponseEntity<Void> downloadFile(HttpServletResponse response,
-                                @RequestParam("path") String path) {
+                                      @RequestParam("path") String path) {
         try {
             Collection<eu.medsea.mimeutil.MimeType> mimetypes = new ExtensionMimeDetector().getMimeTypesFileName(path);
             if (!mimetypes.isEmpty()) {
@@ -158,16 +124,15 @@ public class FileApi {
 
             InputStream inputStream = fileService.download(path);
             IOUtils.copy(inputStream, response.getOutputStream());
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             logger.error("error", ex);
         }
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
-    @Parameter(name= "获取文件")
-
+    @Parameter(name = "获取文件")
     @RequestMapping(value = "/download", method = RequestMethod.GET)
-    ResponseEntity downloadFileWithName(HttpServletResponse response, @RequestParam("name") String name,
+    ResponseEntity<Void> downloadFileWithName(HttpServletResponse response, @RequestParam("name") String name,
                                         @RequestParam("url") String url) {
         try {
             Collection<eu.medsea.mimeutil.MimeType> mimetypes = new ExtensionMimeDetector().getMimeTypesFileName(url);
@@ -184,7 +149,7 @@ public class FileApi {
 
             InputStream inputStream = fileService.download(url);
             IOUtils.copy(inputStream, response.getOutputStream());
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             logger.error("error", ex);
         }
         return new ResponseEntity<Void>(HttpStatus.OK);

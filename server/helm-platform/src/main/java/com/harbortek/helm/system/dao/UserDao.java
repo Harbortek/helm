@@ -16,7 +16,6 @@
 
 package com.harbortek.helm.system.dao;
 
-import com.harbortek.helm.common.constants.Constants;
 import com.harbortek.helm.common.dao.BaseJdbcDao;
 import com.harbortek.helm.common.entity.BaseEntity;
 import com.harbortek.helm.system.entity.UserEntity;
@@ -29,7 +28,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
-import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -98,7 +96,7 @@ public class UserDao extends BaseJdbcDao {
     public UserEntity findOneUserByLoginName(String loginName) {
         Criteria criteria = Criteria.where(UserEntity.Fields.loginName).is(loginName);
         criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(false));
-        criteria = criteria.and(Criteria.where(UserEntity.Fields.status).is(Constants.ENABLE));
+        criteria = criteria.and(Criteria.where(UserEntity.Fields.disabled).is(false));
         Query query = Query.query(criteria);
         return findOne(query, UserEntity.class);
     }

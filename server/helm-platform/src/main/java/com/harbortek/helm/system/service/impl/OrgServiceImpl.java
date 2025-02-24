@@ -18,7 +18,6 @@ package com.harbortek.helm.system.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import com.harbortek.helm.common.constants.Constants;
 import com.harbortek.helm.system.dao.OrgDao;
 import com.harbortek.helm.system.dao.UserDao;
 import com.harbortek.helm.system.entity.OrgEntity;
@@ -97,7 +96,7 @@ public class OrgServiceImpl implements OrgService {
         Page<OrgVo> data = findOrganizations("", Pageable.unpaged());
         List<Long> orgIds = MenuTreeUtil.ChildOrdId(data.getContent(), orgId);
         Page<UserEntity> users = userDao.findUsers(null, Pageable.unpaged(), orgIds);
-        if(ObjectUtils.isNotEmpty(users.getContent())){
+        if (ObjectUtils.isNotEmpty(users.getContent())) {
             return Boolean.FALSE;
         }
 
@@ -218,9 +217,6 @@ public class OrgServiceImpl implements OrgService {
                         OrgEntity existOrg = orgDao.findOneOrgByHierarchyCode(hierarchyCode);
                         String result = null;
 
-//				if(hierarchyCode.length() >= 3 && !hierarchyCode.substring(0,3).equals("001") || hierarchyCode.length() < 3 || hierarchyCode.length()%3 != 0 ){
-//					result = MessageFormat.format("根目录已存在,错误层级代码为 [{0}]", hierarchyCode);
-//				}
                         if (!isNumeric(hierarchyCode)) {
                             result = MessageFormat.format("层级代码必须位数字,错误层级代码为 [{0}]", hierarchyCode);
                         }
@@ -228,15 +224,6 @@ public class OrgServiceImpl implements OrgService {
                             result = MessageFormat.format("组织层级代码 [{0}] 已存在", hierarchyCode);
                         }
 
-//				String orgName = org.getOrgName();
-//				OrgEntity queryOrg = orgDao.findOneOrgByOrgName( orgName);
-//				if (queryOrg != null) {
-//					if (result != null) {
-//						result += MessageFormat.format("组织名称 [{0}] 已存在", orgName);
-//					} else {
-//						result = MessageFormat.format("组织名称 [{0}] 已存在", orgName);
-//					}
-//				}
                         return result;
                     });
 
@@ -251,7 +238,7 @@ public class OrgServiceImpl implements OrgService {
                 ExcelUtil.exportExcel(headers, logList, outputStream, "yyy-MM-dd");
                 IOUtils.closeQuietly(outputStream);
 
-                String destPath = Constants.BASE_PATH + "/" + DateUtils.getCurrDate() + "/";
+                String destPath = DateUtils.getCurrDate();
                 FileInputStream inputStream1 = new FileInputStream(tempFile);
                 String errorLogFilePath = fileService.upload(inputStream1, tempFile.getName(), destPath);
                 logs.setErrorLogFilePath(errorLogFilePath);

@@ -20,7 +20,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-@ConfigurationProperties(prefix = "oss.local", ignoreUnknownFields = false)
+@ConfigurationProperties(prefix = "oss.local", ignoreUnknownFields = true)
 @ConditionalOnExpression("'${oss.type}'.equals('local')")
 @Configuration
 public class LocalFileSystemConfig {
@@ -28,8 +28,6 @@ public class LocalFileSystemConfig {
     // 存储的根目录
     private String rootPath;
     // 访问地址
-    private String baseUrl;
-
     public String getRootPath() {
         return rootPath;
     }
@@ -38,11 +36,4 @@ public class LocalFileSystemConfig {
         this.rootPath = rootPath;
     }
 
-    public String getBaseUrl() {
-        return baseUrl;
-    }
-
-    public void setBaseUrl(String baseUrl) {
-        this.baseUrl = baseUrl;
-    }
 }
