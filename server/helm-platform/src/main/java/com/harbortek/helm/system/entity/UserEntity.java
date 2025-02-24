@@ -20,6 +20,7 @@ import com.harbortek.helm.common.entity.BaseEntity;
 import lombok.*;
 import lombok.experimental.FieldNameConstants;
 import lombok.experimental.SuperBuilder;
+import org.docx4j.org.apache.xpath.operations.Bool;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.Date;
@@ -47,10 +48,6 @@ public class UserEntity extends BaseEntity {
 
     Long orgId;
 
-//    @Builder.Default
-//    @EntityReference(RoleEntity.class)
-//    List<Long> roleIds = new ArrayList<>();
-
     List<String> mayAuthorize;
 
     String wechatOpenId;
@@ -61,11 +58,7 @@ public class UserEntity extends BaseEntity {
 
     String remoteAddress;
 
-//	 Boolean deleted;
-    /**
-     * 1 启用 2 禁用
-     */
-    String status;
+    Boolean disabled;
 
 
 

@@ -27,7 +27,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MinIOConfig {
 
-    private String baseUrl;
     private String endpoint;
     private String bucketName;
     private String accessKey;
@@ -63,14 +62,6 @@ public class MinIOConfig {
 
     public void setSecretKey(String secretKey) {
         this.secretKey = secretKey;
-    }
-
-    public String getBaseUrl() {
-        return baseUrl;
-    }
-
-    public void setBaseUrl(String baseUrl) {
-        this.baseUrl = baseUrl;
     }
 
 
