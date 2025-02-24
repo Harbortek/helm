@@ -1,0 +1,54 @@
+<TOOL-EXTENSIONS>
+    <REQ-IF-TOOL-EXTENSION>
+        <DOORS-RIF-DEFINITION xmlns="http://www.ibm.com/rdm/doors/REQIF/xmlns/1.0">
+            <IDENTIFIER>_87a29aa4-4f26-4cb6-98dc-3a015d12baa4</IDENTIFIER>
+            <MODULE-DEFINITION>
+                <DDC-MODE>DDC_FULL_MODULE</DDC-MODE>
+                <SPECIFICATION-REF xmlns="http://www.omg.org/spec/ReqIF/20110401/reqif.xsd">
+                    _0dda093b-e9f7-4dd5-abd3-a303d14510da
+                </SPECIFICATION-REF>
+            </MODULE-DEFINITION>
+        </DOORS-RIF-DEFINITION>
+        <READONLY-ATTRIBUTES xmlns="http://www.ibm.com/rdm/doors/REQIF/xmlns/1.0">
+            <ATTRIBUTE-DEFINITION-STRING-REF xmlns="http://www.omg.org/spec/ReqIF/20110401/reqif.xsd">
+                rmf-1547b3c6-5578-42e3-8785-8f17344cda3e
+            </ATTRIBUTE-DEFINITION-STRING-REF>
+            <ATTRIBUTE-DEFINITION-STRING-REF xmlns="http://www.omg.org/spec/ReqIF/20110401/reqif.xsd">
+                rmf-4d6a26f2-4c2f-4465-a888-5ca7abe5219e
+            </ATTRIBUTE-DEFINITION-STRING-REF>
+            <ATTRIBUTE-DEFINITION-DATE-REF xmlns="http://www.omg.org/spec/ReqIF/20110401/reqif.xsd">
+                rmf-77df6ced-d79d-40e9-bc36-58c80b6360f6
+            </ATTRIBUTE-DEFINITION-DATE-REF>
+            <ATTRIBUTE-DEFINITION-STRING-REF xmlns="http://www.omg.org/spec/ReqIF/20110401/reqif.xsd">
+                rmf-a3bbaa5d-b9bb-4010-abff-b0c0bc8d8627
+            </ATTRIBUTE-DEFINITION-STRING-REF>
+            <ATTRIBUTE-DEFINITION-XHTML-REF xmlns="http://www.omg.org/spec/ReqIF/20110401/reqif.xsd">
+                rmf-f0fa5353-39d0-432f-bf08-54a173e79554
+            </ATTRIBUTE-DEFINITION-XHTML-REF>
+            <ATTRIBUTE-DEFINITION-STRING-REF xmlns="http://www.omg.org/spec/ReqIF/20110401/reqif.xsd">
+                rmf-575b8e0e-fd6c-4fb3-ab48-45cfd0b5dca7
+            </ATTRIBUTE-DEFINITION-STRING-REF>
+            <ATTRIBUTE-DEFINITION-STRING-REF xmlns="http://www.omg.org/spec/ReqIF/20110401/reqif.xsd">
+                rmf-235635fd-73dd-4e84-90db-2a2854361f5b
+            </ATTRIBUTE-DEFINITION-STRING-REF>
+            <ATTRIBUTE-DEFINITION-DATE-REF xmlns="http://www.omg.org/spec/ReqIF/20110401/reqif.xsd">
+                rmf-d1c6556c-c428-4f99-b94b-75c22c9eccd6
+            </ATTRIBUTE-DEFINITION-DATE-REF>
+            <ATTRIBUTE-DEFINITION-STRING-REF xmlns="http://www.omg.org/spec/ReqIF/20110401/reqif.xsd">
+                rmf-7cdb1aea-77e2-4bc8-a866-4097ade57506
+            </ATTRIBUTE-DEFINITION-STRING-REF>
+            <ATTRIBUTE-DEFINITION-XHTML-REF xmlns="http://www.omg.org/spec/ReqIF/20110401/reqif.xsd">
+                rmf-7113dc5d-d88b-4147-b4d6-c5d164d41bcb
+            </ATTRIBUTE-DEFINITION-XHTML-REF>
+            <ATTRIBUTE-DEFINITION-STRING-REF xmlns="http://www.omg.org/spec/ReqIF/20110401/reqif.xsd">
+                rmf-7368f23a-023a-4390-933c-7d032de2a2ab
+            </ATTRIBUTE-DEFINITION-STRING-REF>
+            <ATTRIBUTE-DEFINITION-ENUMERATION-REF xmlns="http://www.omg.org/spec/ReqIF/20110401/reqif.xsd">
+                rmf-87a7cc38-220e-412a-a482-b9a5793ba397
+            </ATTRIBUTE-DEFINITION-ENUMERATION-REF>
+            <ATTRIBUTE-DEFINITION-ENUMERATION-REF xmlns="http://www.omg.org/spec/ReqIF/20110401/reqif.xsd">
+                rmf-555a69e6-44b8-4b42-b13a-ebfbdb705094
+            </ATTRIBUTE-DEFINITION-ENUMERATION-REF>
+        </READONLY-ATTRIBUTES>
+    </REQ-IF-TOOL-EXTENSION>
+</TOOL-EXTENSIONS>

@@ -1,0 +1,310 @@
+db.createView('V_TrackerItems','T_TrackerItems',
+    [
+        {
+            $match:{ deleted:false}
+        },
+        {
+            "$project" : {
+                "_id" : NumberInt(0),
+                "t" : "$$ROOT"
+            }
+        },
+        {
+            "$lookup" : {
+                "localField" : "t.ownerId",
+                "from" : "S_Users",
+                "foreignField" : "_id",
+                "as" : "u1"
+            }
+        },
+        {
+            "$lookup" : {
+                "localField" : "t.createBy",
+                "from" : "S_Users",
+                "foreignField" : "_id",
+                "as" : "u2"
+            }
+        },
+        {
+            "$lookup" : {
+                "localField" : "t.lastModifiedBy",
+                "from" : "S_Users",
+                "foreignField" : "_id",
+                "as" : "u3"
+            }
+        },
+        {
+            "$lookup" : {
+                "localField" : "t.assignedToId",
+                "from" : "S_Users",
+                "foreignField" : "_id",
+                "as" : "u4"
+            }
+        },
+        {
+            "$lookup" : {
+                "localField" : "t.projectId",
+                "from" : "T_Projects",
+                "foreignField" : "_id",
+                "as" : "p"
+            }
+        },
+        {
+            "$lookup" : {
+                "localField" : "t.projectId",
+                "from" : "T_Products",
+                "foreignField" : "projectId",
+                "as" : "prod"
+            }
+        },
+        {
+            "$lookup" : {
+                "localField" : "prod.productLineId",
+                "from" : "T_ProductLines",
+                "foreignField" : "_id",
+                "as" : "prodline"
+            }
+        },
+        {
+            "$lookup" : {
+                "localField" : "t.trackerId",
+                "from" : "T_Trackers",
+                "foreignField" : "_id",
+                "as" : "tracker"
+            }
+        },
+        {
+            "$lookup" : {
+                "localField" : "t.sprintId",
+                "from" : "T_Sprints",
+                "foreignField" : "_id",
+                "as" : "sprint"
+            }
+        },
+        {
+            "$lookup" : {
+                "localField" : "sprint.targetVersionId",
+                "from" : "T_TargetVersions",
+                "foreignField" : "_id",
+                "as" : "version"
+            }
+        },
+        {
+            "$unwind" : {
+                "path" : "$u1",
+                "preserveNullAndEmptyArrays" : true
+            }
+        },
+        {
+            "$unwind" : {
+                "path" : "$u2",
+                "preserveNullAndEmptyArrays" : true
+            }
+        },
+        {
+            "$unwind" : {
+                "path" : "$u3",
+                "preserveNullAndEmptyArrays" : true
+            }
+        },
+         {
+            "$unwind" : {
+                "path" : "$u4",
+                "preserveNullAndEmptyArrays" : true
+            }
+        },
+        {
+            "$unwind" : {
+                "path" : "$p",
+                "preserveNullAndEmptyArrays" : true
+            }
+        },
+        {
+            "$unwind" : {
+                "path" : "$prod",
+                "preserveNullAndEmptyArrays" : true
+            }
+        },
+        {
+            "$unwind" : {
+                "path" : "$prodline",
+                "preserveNullAndEmptyArrays" : true
+            }
+        },
+        {
+            "$unwind" : {
+                "path" : "$tracker",
+                "preserveNullAndEmptyArrays" : true
+            }
+        },
+        {
+            "$unwind" : {
+                "path" : "$sprint",
+                "preserveNullAndEmptyArrays" : true
+            }
+        },
+        {
+            "$unwind" : {
+                "path" : "$version",
+                "preserveNullAndEmptyArrays" : true
+            }
+        },
+        {
+            "$project" : {
+                "itemId" : "$t._id",
+                "itemName" : "$t.name",
+                "description": "$t.description",
+                "revision":"$t.revision",
+                "itemNo": {$concat: [ "$p.keyName", "-", "$t.itemNo" ]}  ,
+                "projectId":"$t.projectId",
+                "projectName":"$p.name",
+                "productId":"$prod._id",
+                "productName":"$prod.name",
+                "productLineId":"$prodline._id",
+                "productLineName":"$prodline.name",
+                "trackerId":"$t.trackerId",
+                "trackerName":"$tracker.name",
+                "sprintId":"$t.sprintId",
+                "sprintName":"$sprint.name",
+                "targetVersionId":"$sprint.targetVersionId",
+                "targetVersionName":"$version.name",
+                "ownerId" : "$t.ownerId",
+                "ownerName" : "$u1.name",
+                "status":"$t.statusName",
+                "meaning":"$t.meaningName",
+                "priority":"$t.priorityName",
+                "assignedToId":"$t.assignedToId",
+                "assignedToName":"$u4.name",
+                "assignedDate": "$t.assignedDate",
+                "closeDate":"$t.closeDate",
+                "planStartDate": "$t.planStartDate",
+                "planEndDate": "$t.planEndDate",
+                "realStartDate":"$t.realStartDate",
+                "realEndDate":"$t.realEndDate",
+                "progress": {$toInt:"$t.progress"},
+                "estimateWorkingHours":{$toDecimal: "$t.estimateWorkingHours"},
+                "registeredWorkingHours":{$toDecimal: "$t.registeredWorkingHours"},
+                "remainingWorkingHours":{$toDecimal: "$t.remainingWorkingHours"},
+                "createBy": "$t.createBy",
+                "createByName":"$u2.name",
+                "createByDate": "$t.createByDate",
+                "lastModifiedBy":"$t.lastModifiedBy",
+                "lastModifiedName": "$u3.name",
+                "lastModifiedDate":"$t.lastModifiedDate"
+            }
+        },
+        {$sort :{'itemNo':1}}
+    ]
+);
+
+db.createView('V_Sprints','T_Sprints',
+    [
+        {
+            $match:{ deleted:false}
+        },
+        {
+            "$project" : {
+                "_id" : NumberInt(0),
+                "t" : "$$ROOT"
+            }
+        },
+        {
+            "$lookup" : {
+                "localField" : "t.ownerId",
+                "from" : "S_Users",
+                "foreignField" : "_id",
+                "as" : "u1"
+            }
+        },
+        {
+            "$lookup" : {
+                "localField" : "t.createBy",
+                "from" : "S_Users",
+                "foreignField" : "_id",
+                "as" : "u2"
+            }
+        },
+        {
+            "$lookup" : {
+                "localField" : "t.lastModifiedBy",
+                "from" : "S_Users",
+                "foreignField" : "_id",
+                "as" : "u3"
+            }
+        },
+        {
+            "$lookup" : {
+                "localField" : "t.projectId",
+                "from" : "T_Projects",
+                "foreignField" : "_id",
+                "as" : "p"
+            }
+        },
+        {
+            "$lookup" : {
+                "localField" : "t.targetVersionId",
+                "from" : "T_TargetVersions",
+                "foreignField" : "_id",
+                "as" : "v"
+            }
+        },
+        {
+            "$unwind" : {
+                "path" : "$u1",
+                "preserveNullAndEmptyArrays" : true
+            }
+        },
+        {
+            "$unwind" : {
+                "path" : "$u2",
+                "preserveNullAndEmptyArrays" : true
+            }
+        },
+        {
+            "$unwind" : {
+                "path" : "$u3",
+                "preserveNullAndEmptyArrays" : true
+            }
+        },
+        {
+            "$unwind" : {
+                "path" : "$p",
+                "preserveNullAndEmptyArrays" : true
+            }
+        },
+        {
+            "$unwind" : {
+                "path" : "$v",
+                "preserveNullAndEmptyArrays" : true
+            }
+        },
+        {
+            "$project" : {
+                "sprintId" : "$t._id",
+                "sprintName" : "$t.name",
+                "description": "$t.description",
+                "itemNo": {$concat: [ "$p.keyName", "-", "$t.itemNo" ]}  ,
+                "projectId":"$t.projectId",
+                "projectName":"$p.name",
+                "ownerId" : "$t.ownerId",
+                "ownerName" : "$u1.name",
+                "meaning":"$t.meaning",
+                "planStartDate": "$t.planStartDate",
+                "planEndDate": "$t.planEndDate",
+                "realStartDate":"$t.realStartDate",
+                "realEndDate":"$t.realEndDate",
+                "progress": {$toInt:"$t.progress"},
+                "duration": {$toInt:"$t.duration"},
+                "targetVersionId":"$t.targetVersionId",
+                "targetVersionName":"$v.name",
+                "createBy": "$t.createBy",
+                "createByName":"$u2.name",
+                "createByDate": "$t.createByDate",
+                "lastModifiedBy":"$t.lastModifiedBy",
+                "lastModifiedName": "$u3.name",
+                "lastModifiedDate":"$t.lastModifiedDate"
+            }
+        },
+        {$sort :{'itemNo':1}}
+    ]
+);

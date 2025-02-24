@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<roles>
+    <role name="项目管理员" specialRole="false">
+        <members></members>
+    </role>
+    <role name="需求工程师" specialRole="false"/>
+    <role name="质量保证工程师" specialRole="false"/>
+    <role name="功能安全工程师" specialRole="false"/>
+    <role name="硬件工程师" specialRole="false"/>
+    <role name="软件工程师" specialRole="false"/>
+    <role name="外部合作伙伴" specialRole="false"/>
+</roles>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pages>
+    <folder name="需求" icon="requirement">
+        <page name="系统需求规格" type="wiki" definition="pages/Requirements/SystemRequirementSpec.xml" />
+        <page name="系统测试用例规格"  type="wiki" definition="pages/Requirements/SystemTestCaseSpec.xml"  />
+    </folder>
+    <folder name="设计" icon="design">
+        <page name="软件需求规格" type="wiki" definition=""  />
+        <page name="软件测试用例规格"  type="wiki" definition=""  />
+    </folder>
+    <folder name="风险" icon="risk">
+        <page name="风险规格" type="wiki" definition=""  />
+    </folder>
+    <folder name="计划" icon="schedule">
+        <page name="计划与发布统计" type="report" definition=""  />
+    </folder>
+    <folder name="开发" icon="code">
+
+    </folder>
+    <folder name="测试" icon="test">
+        <page name="软件验证计划"  type="wiki" definition="" />
+        <page name="系统验证计划"  type="wiki" definition="pages/Tests/SystemVerificationPlan.xml"  />
+    </folder>
+    <folder name="运维" icon="maintenance">
+        <page name="变更请求统计"  type="report" definition="pages/Maintenance/ChangeRequestStatistics.xml"  />
+    </folder>
+</pages>

@@ -1,0 +1,2214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<template name="测试管理项目模版"
+          description="通过内置的敏捷研发管理组件，可以轻松实现迭代管控、需求分配、缺陷管理等核心研发工作，通过各类报表实时掌控项目进度状况。"
+          iconUrl="" imageUrl="">
+    <roles>
+        <role name="Project Admin" displayAsRole="true" autoIncludeProjectOwner="true"
+              permissions="PROJECT_ADMIN，PROJECT_VIEW"/>
+        <role name="Test Engineer" displayAsRole="true"
+              permissions="PROJECT_VIEW"/>
+        <role name="Test Lead" displayAsRole="true"
+              permissions="PROJECT_VIEW"/>
+        <role name="Tester" displayAsRole="true"
+              permissions="PROJECT_VIEW"/>
+    </roles>
+    <trackers>
+        <tracker name="Test Runs" shortName="TESTRUN" visible="true" workflow="true">
+            <statuses>
+                <status name="-"/>
+                <status name="Suspended"/>
+                <status name="Finished"/>
+                <status name="Ready for execution"/>
+                <status name="To be approved"/>
+                <status name="In progress"/>
+                <status name="Closed"/>
+                <status name="Rejected"/>
+            </statuses>
+            <permissions>
+                <permission roleName="Project Admin"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+                <permission roleName="Test Engineer"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+                <permission roleName="Tester"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+                <permission roleName="Test Lead"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+            </permissions>
+            <state-transitions>
+                <state-transition name="Suspend" hidden="false" from="-" to="Suspended"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Finish" hidden="false" from="-" to="Finished"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Move to ready for execution" hidden="false" from="-" to="Ready for execution"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Ready for approval" hidden="false" from="-" to="To be approved"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Suspend" hidden="false" from="In progress" to="Suspended"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Finish" hidden="false" from="In progress" to="Finished"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Resume" hidden="false" from="Suspended" to="In progress"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Restart" hidden="false" from="Finished" to="In progress"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Close" hidden="false" from="Finished" to="Closed"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Start" hidden="false" from="Ready for execution" to="In progress"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Suspend" hidden="false" from="Ready for execution" to="Suspended"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Finish" hidden="false" from="Ready for execution" to="Finished"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Approve" hidden="false" from="To be approved" to="Ready for execution"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Reject" hidden="false" from="To be approved" to="Rejected"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+            </state-transitions>
+            <fields>
+                <field type="INTEGER" name="ID" showInList="true">
+                    <permission type="Unrestricted"/>
+                </field>
+                <field type="WORK_ITEM" name="Parent" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Priority" title="P" showInList="true" aggregationRule="Maximum"
+                       distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TEXT" name="Name" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Status" showInList="true" distributionRule="Close restricted">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WORK_ITEM" name="Test Set" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WORK_ITEM" name="Test Configuration" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Release" showInList="true" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TEXT" name="Build" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="MEMBERS" name="Assigned To" showInList="true" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Category" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Result" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Assigned At" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Submit At" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="USER" name="Submit By" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Modify At" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="USER" name="Modify By" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="MEMBERS" name="Owner" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TABLE" name="Test Cases" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="INTEGER" name="Story Points" title="Points" showInList="true" aggregationRule="Sum/Total">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Start Date" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Greatest">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DURATION" name="Planned Effort" title="Planned Effort" showInList="false"
+                       aggregationRule="Sum/Total">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="End Date" showInList="false" aggregationRule="Maximum"
+                       distributionRule="Least">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DURATION" name="Running Time" showInList="false" aggregationRule="Sum/Total">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DECIMAL" name="% Spent / Plan" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WORK_ITEM" name="Reported bug(s)" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TABLE" name="Test Step Results" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Formality" showInList="true">
+                    <items>
+                        <option id="1" name="Regular"/>
+                        <option id="2" name="Formal"/>
+                    </items>
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Close at" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WIKI" name="Description" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="REFERENCE" name="Comments/Attachments" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+            </fields>
+        </tracker>
+        <tracker name="Test Sets" shortName="TESTSET" visible="true" workflow="true">
+            <statuses>
+                <status name="-"/>
+                <status name="Suspended"/>
+                <status name="Finished"/>
+                <status name="Ready for execution"/>
+                <status name="To be approved"/>
+                <status name="In progress"/>
+                <status name="Closed"/>
+                <status name="Rejected"/>
+            </statuses>
+            <permissions>
+                <permission roleName="Project Admin"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+                <permission roleName="Test Engineer"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+                <permission roleName="Tester"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+                <permission roleName="Test Lead"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+            </permissions>
+            <state-transitions>
+                <state-transition name="Suspend" hidden="false" from="-" to="Suspended"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Finish" hidden="false" from="-" to="Finished"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Move to ready for execution" hidden="false" from="-" to="Ready for execution"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Ready for approval" hidden="false" from="-" to="To be approved"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Suspend" hidden="false" from="In progress" to="Suspended"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Finish" hidden="false" from="In progress" to="Finished"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Resume" hidden="false" from="Suspended" to="In progress"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Restart" hidden="false" from="Finished" to="In progress"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Close" hidden="false" from="Finished" to="Closed"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Start" hidden="false" from="Ready for execution" to="In progress"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Suspend" hidden="false" from="Ready for execution" to="Suspended"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Finish" hidden="false" from="Ready for execution" to="Finished"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Approve" hidden="false" from="To be approved" to="Ready for execution"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Reject" hidden="false" from="To be approved" to="Rejected"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+            </state-transitions>
+            <fields>
+                <field type="INTEGER" name="ID" showInList="true">
+                    <permission type="Unrestricted"/>
+                </field>
+                <field type="WORK_ITEM" name="Parent" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Priority" title="P" showInList="true" aggregationRule="Maximum"
+                       distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TEXT" name="Name" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Status" showInList="true" distributionRule="Close restricted">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WORK_ITEM" name="Test Set" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WORK_ITEM" name="Test Configuration" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Release" showInList="true" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TEXT" name="Build" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="MEMBERS" name="Assigned To" showInList="true" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Category" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Result" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Assigned At" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Submit At" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="USER" name="Submit By" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Modify At" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="USER" name="Modify By" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="MEMBERS" name="Owner" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TABLE" name="Test Cases" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="INTEGER" name="Story Points" title="Points" showInList="true" aggregationRule="Sum/Total">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Start Date" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Greatest">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DURATION" name="Planned Effort" title="Planned Effort" showInList="false"
+                       aggregationRule="Sum/Total">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="End Date" showInList="false" aggregationRule="Maximum"
+                       distributionRule="Least">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DURATION" name="Running Time" showInList="false" aggregationRule="Sum/Total">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DECIMAL" name="% Spent / Plan" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WORK_ITEM" name="Reported bug(s)" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TABLE" name="Test Step Results" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Formality" showInList="true">
+                    <items>
+                        <option id="1" name="Regular"/>
+                        <option id="2" name="Formal"/>
+                    </items>
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Close at" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WIKI" name="Description" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="REFERENCE" name="Comments/Attachments" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+            </fields>
+        </tracker>
+        <tracker name="Test Cases" shortName="TCS" visible="true" workflow="true">
+            <statuses>
+                <status name="-"/>
+                <status name="Suspended"/>
+                <status name="Finished"/>
+                <status name="Ready for execution"/>
+                <status name="To be approved"/>
+                <status name="In progress"/>
+                <status name="Closed"/>
+                <status name="Rejected"/>
+            </statuses>
+            <permissions>
+                <permission roleName="Project Admin"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+                <permission roleName="Test Engineer"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+                <permission roleName="Tester"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+                <permission roleName="Test Lead"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+            </permissions>
+            <state-transitions>
+                <state-transition name="Suspend" hidden="false" from="-" to="Suspended"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Finish" hidden="false" from="-" to="Finished"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Move to ready for execution" hidden="false" from="-" to="Ready for execution"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Ready for approval" hidden="false" from="-" to="To be approved"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Suspend" hidden="false" from="In progress" to="Suspended"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Finish" hidden="false" from="In progress" to="Finished"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Resume" hidden="false" from="Suspended" to="In progress"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Restart" hidden="false" from="Finished" to="In progress"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Close" hidden="false" from="Finished" to="Closed"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Start" hidden="false" from="Ready for execution" to="In progress"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Suspend" hidden="false" from="Ready for execution" to="Suspended"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Finish" hidden="false" from="Ready for execution" to="Finished"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Approve" hidden="false" from="To be approved" to="Ready for execution"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Reject" hidden="false" from="To be approved" to="Rejected"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+            </state-transitions>
+            <fields>
+                <field type="INTEGER" name="ID" showInList="true">
+                    <permission type="Unrestricted"/>
+                </field>
+                <field type="WORK_ITEM" name="Parent" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Priority" title="P" showInList="true" aggregationRule="Maximum"
+                       distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TEXT" name="Name" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Status" showInList="true" distributionRule="Close restricted">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WORK_ITEM" name="Test Set" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WORK_ITEM" name="Test Configuration" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Release" showInList="true" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TEXT" name="Build" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="MEMBERS" name="Assigned To" showInList="true" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Category" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Result" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Assigned At" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Submit At" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="USER" name="Submit By" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Modify At" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="USER" name="Modify By" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="MEMBERS" name="Owner" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TABLE" name="Test Cases" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="INTEGER" name="Story Points" title="Points" showInList="true" aggregationRule="Sum/Total">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Start Date" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Greatest">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DURATION" name="Planned Effort" title="Planned Effort" showInList="false"
+                       aggregationRule="Sum/Total">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="End Date" showInList="false" aggregationRule="Maximum"
+                       distributionRule="Least">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DURATION" name="Running Time" showInList="false" aggregationRule="Sum/Total">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DECIMAL" name="% Spent / Plan" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WORK_ITEM" name="Reported bug(s)" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TABLE" name="Test Step Results" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Formality" showInList="true">
+                    <items>
+                        <option id="1" name="Regular"/>
+                        <option id="2" name="Formal"/>
+                    </items>
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Close at" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WIKI" name="Description" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="REFERENCE" name="Comments/Attachments" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+            </fields>
+        </tracker>
+        <tracker name="Test Configuration" shortName="TC" visible="true" workflow="true">
+            <statuses>
+                <status name="-"/>
+                <status name="Suspended"/>
+                <status name="Finished"/>
+                <status name="Ready for execution"/>
+                <status name="To be approved"/>
+                <status name="In progress"/>
+                <status name="Closed"/>
+                <status name="Rejected"/>
+            </statuses>
+            <permissions>
+                <permission roleName="Project Admin"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+                <permission roleName="Test Engineer"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+                <permission roleName="Tester"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+                <permission roleName="Test Lead"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+            </permissions>
+            <state-transitions>
+                <state-transition name="Suspend" hidden="false" from="-" to="Suspended"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Finish" hidden="false" from="-" to="Finished"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Move to ready for execution" hidden="false" from="-" to="Ready for execution"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Ready for approval" hidden="false" from="-" to="To be approved"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Suspend" hidden="false" from="In progress" to="Suspended"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Finish" hidden="false" from="In progress" to="Finished"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Resume" hidden="false" from="Suspended" to="In progress"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Restart" hidden="false" from="Finished" to="In progress"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Close" hidden="false" from="Finished" to="Closed"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Start" hidden="false" from="Ready for execution" to="In progress"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Suspend" hidden="false" from="Ready for execution" to="Suspended"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Finish" hidden="false" from="Ready for execution" to="Finished"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Approve" hidden="false" from="To be approved" to="Ready for execution"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Reject" hidden="false" from="To be approved" to="Rejected"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+            </state-transitions>
+            <fields>
+                <field type="INTEGER" name="ID" showInList="true">
+                    <permission type="Unrestricted"/>
+                </field>
+                <field type="WORK_ITEM" name="Parent" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Priority" title="P" showInList="true" aggregationRule="Maximum"
+                       distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TEXT" name="Name" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Status" showInList="true" distributionRule="Close restricted">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WORK_ITEM" name="Test Set" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WORK_ITEM" name="Test Configuration" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Release" showInList="true" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TEXT" name="Build" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="MEMBERS" name="Assigned To" showInList="true" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Category" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Result" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Assigned At" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Submit At" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="USER" name="Submit By" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Modify At" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="USER" name="Modify By" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="MEMBERS" name="Owner" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TABLE" name="Test Cases" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="INTEGER" name="Story Points" title="Points" showInList="true" aggregationRule="Sum/Total">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Start Date" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Greatest">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DURATION" name="Planned Effort" title="Planned Effort" showInList="false"
+                       aggregationRule="Sum/Total">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="End Date" showInList="false" aggregationRule="Maximum"
+                       distributionRule="Least">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DURATION" name="Running Time" showInList="false" aggregationRule="Sum/Total">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DECIMAL" name="% Spent / Plan" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WORK_ITEM" name="Reported bug(s)" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TABLE" name="Test Step Results" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Formality" showInList="true">
+                    <items>
+                        <option id="1" name="Regular"/>
+                        <option id="2" name="Formal"/>
+                    </items>
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Close at" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WIKI" name="Description" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="REFERENCE" name="Comments/Attachments" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+            </fields>
+        </tracker>
+        <tracker name="Bugs" shortName="BUG" visible="true" workflow="true">
+            <statuses>
+                <status name="-"/>
+                <status name="Suspended"/>
+                <status name="Finished"/>
+                <status name="Ready for execution"/>
+                <status name="To be approved"/>
+                <status name="In progress"/>
+                <status name="Closed"/>
+                <status name="Rejected"/>
+            </statuses>
+            <permissions>
+                <permission roleName="Project Admin"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+                <permission roleName="Test Engineer"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+                <permission roleName="Tester"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+                <permission roleName="Test Lead"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+            </permissions>
+            <state-transitions>
+                <state-transition name="Suspend" hidden="false" from="-" to="Suspended"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Finish" hidden="false" from="-" to="Finished"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Move to ready for execution" hidden="false" from="-" to="Ready for execution"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Ready for approval" hidden="false" from="-" to="To be approved"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Suspend" hidden="false" from="In progress" to="Suspended"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Finish" hidden="false" from="In progress" to="Finished"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Resume" hidden="false" from="Suspended" to="In progress"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Restart" hidden="false" from="Finished" to="In progress"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Close" hidden="false" from="Finished" to="Closed"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Start" hidden="false" from="Ready for execution" to="In progress"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Suspend" hidden="false" from="Ready for execution" to="Suspended"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Finish" hidden="false" from="Ready for execution" to="Finished"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Approve" hidden="false" from="To be approved" to="Ready for execution"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Reject" hidden="false" from="To be approved" to="Rejected"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+            </state-transitions>
+            <fields>
+                <field type="INTEGER" name="ID" showInList="true">
+                    <permission type="Unrestricted"/>
+                </field>
+                <field type="WORK_ITEM" name="Parent" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Priority" title="P" showInList="true" aggregationRule="Maximum"
+                       distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TEXT" name="Name" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Status" showInList="true" distributionRule="Close restricted">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WORK_ITEM" name="Test Set" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WORK_ITEM" name="Test Configuration" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Release" showInList="true" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TEXT" name="Build" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="MEMBERS" name="Assigned To" showInList="true" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Category" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Result" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Assigned At" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Submit At" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="USER" name="Submit By" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Modify At" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="USER" name="Modify By" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="MEMBERS" name="Owner" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TABLE" name="Test Cases" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="INTEGER" name="Story Points" title="Points" showInList="true" aggregationRule="Sum/Total">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Start Date" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Greatest">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DURATION" name="Planned Effort" title="Planned Effort" showInList="false"
+                       aggregationRule="Sum/Total">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="End Date" showInList="false" aggregationRule="Maximum"
+                       distributionRule="Least">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DURATION" name="Running Time" showInList="false" aggregationRule="Sum/Total">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DECIMAL" name="% Spent / Plan" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WORK_ITEM" name="Reported bug(s)" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TABLE" name="Test Step Results" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Formality" showInList="true">
+                    <items>
+                        <option id="1" name="Regular"/>
+                        <option id="2" name="Formal"/>
+                    </items>
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Close at" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WIKI" name="Description" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="REFERENCE" name="Comments/Attachments" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+            </fields>
+        </tracker>
+        <tracker name="Documents" shortName="Documents" visible="true" workflow="true">
+            <statuses>
+                <status name="-"/>
+                <status name="Suspended"/>
+                <status name="Finished"/>
+                <status name="Ready for execution"/>
+                <status name="To be approved"/>
+                <status name="In progress"/>
+                <status name="Closed"/>
+                <status name="Rejected"/>
+            </statuses>
+            <permissions>
+                <permission roleName="Project Admin"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+                <permission roleName="Test Engineer"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+                <permission roleName="Tester"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+                <permission roleName="Test Lead"
+                            permissions="ITEM_VIEW,ITEM_CREATE,ITEM_EDIT,ITEM_CHANGE_STATUS,ITEM_DELETE,ITEM_MANAGE_WATCHER,ITEM_EDIT_ASSOCIATIONS,ITEM_EXPORT"/>
+            </permissions>
+            <state-transitions>
+                <state-transition name="Suspend" hidden="false" from="-" to="Suspended"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Finish" hidden="false" from="-" to="Finished"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Move to ready for execution" hidden="false" from="-" to="Ready for execution"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Ready for approval" hidden="false" from="-" to="To be approved"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Suspend" hidden="false" from="In progress" to="Suspended"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Finish" hidden="false" from="In progress" to="Finished"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Resume" hidden="false" from="Suspended" to="In progress"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Restart" hidden="false" from="Finished" to="In progress"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Close" hidden="false" from="Finished" to="Closed"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Start" hidden="false" from="Ready for execution" to="In progress"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Suspend" hidden="false" from="Ready for execution" to="Suspended"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Finish" hidden="false" from="Ready for execution" to="Finished"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Approve" hidden="false" from="To be approved" to="Ready for execution"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+                <state-transition name="Reject" hidden="false" from="To be approved" to="Rejected"
+                                  permitted="Project Admin,Test Engineer,Tester,Test Lead"/>
+            </state-transitions>
+            <fields>
+                <field type="INTEGER" name="ID" showInList="true">
+                    <permission type="Unrestricted"/>
+                </field>
+                <field type="WORK_ITEM" name="Parent" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Priority" title="P" showInList="true" aggregationRule="Maximum"
+                       distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TEXT" name="Name" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Status" showInList="true" distributionRule="Close restricted">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WORK_ITEM" name="Test Set" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WORK_ITEM" name="Test Configuration" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Release" showInList="true" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TEXT" name="Build" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="MEMBERS" name="Assigned To" showInList="true" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Category" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Result" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Assigned At" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Submit At" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="USER" name="Submit By" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Modify At" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="USER" name="Modify By" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="MEMBERS" name="Owner" showInList="false" distributionRule="Default">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TABLE" name="Test Cases" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="INTEGER" name="Story Points" title="Points" showInList="true" aggregationRule="Sum/Total">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Start Date" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Greatest">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DURATION" name="Planned Effort" title="Planned Effort" showInList="false"
+                       aggregationRule="Sum/Total">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="End Date" showInList="false" aggregationRule="Maximum"
+                       distributionRule="Least">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DURATION" name="Running Time" showInList="false" aggregationRule="Sum/Total">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DECIMAL" name="% Spent / Plan" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WORK_ITEM" name="Reported bug(s)" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="TABLE" name="Test Step Results" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="false" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="false" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="false" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="OPTIONS" name="Formality" showInList="true">
+                    <items>
+                        <option id="1" name="Regular"/>
+                        <option id="2" name="Formal"/>
+                    </items>
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="DATE" name="Close at" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="false"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="false"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="WIKI" name="Description" showInList="true">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+                <field type="REFERENCE" name="Comments/Attachments" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="Tester" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Lead" read="true" edit="true"/>
+                            <role-read-edit roleName="Test Engineer" read="true" edit="true"/>
+                            <role-read-edit roleName="Project Admin" read="true" edit="true"/>
+                        </roles>
+                    </permission>
+                </field>
+            </fields>
+        </tracker>
+    </trackers>
+    <tracker-groups>
+        <tracker-group name="Test Runs" trackers="Test Runs"></tracker-group>
+        <tracker-group name="Test Sets" trackers="Test Sets"></tracker-group>
+        <tracker-group name="Test Cases" trackers="Test Cases"></tracker-group>
+        <tracker-group name="Test Configuration" trackers="Test Configuration,Bugs,Documents"></tracker-group>
+    </tracker-groups>
+</template>

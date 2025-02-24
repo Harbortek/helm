@@ -1,0 +1,15 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<title>$title</title>
+
+</head>
+<body>
+    <table>
+    <tr><td>项目名称</td><td>$project.name</td></tr>
+    <tr><td>工作项类型</td><td>$tracker.name</td></tr>
+    <tr><td>工作项操作</td><td><a href="$href">$title</a></td></tr>
+    </table>
+
+</body>
+</html>

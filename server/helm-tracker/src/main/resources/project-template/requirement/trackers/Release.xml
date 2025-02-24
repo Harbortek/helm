@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tracker name="发布"  type="发布">
+    <statuses>
+        <status name="未开始" meaning="未开始" initial="true"/>
+        <status name="未发布" meaning="进行中"/>
+        <status name="已发布" meaning="已解决"/>
+        <status name="生命周期结束" meaning="已关闭"/>
+    </statuses>
+    <permissions>
+        <permission name="ITEM_VIEW">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_CREATE">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_EDIT">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_CHANGE_STATUS">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_DELETE">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_MANAGE_WATCHER">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_EDIT_ASSOCIATIONS">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_EXPORT">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_MANAGE_ESTIMATE_WORK_HOURS">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_MANAGE_ALL_REGISTERED_WORK_HOURS">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_MANAGE_OWN_REGISTERED_WORK_HOURS">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+    </permissions>
+    <state-transitions>
+        <state-transition name="定义" hidden="false" from="未开始" to="未发布">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </state-transition>
+        <state-transition name="发布" hidden="false" from="未发布" to="已发布">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </state-transition>
+        <state-transition name="撤回" hidden="false" from="已发布" to="未发布">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </state-transition>
+        <state-transition name="标记生命周期结束" hidden="false" from="已发布" to="生命周期结束">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </state-transition>
+        <state-transition name="撤回生命周期结束" hidden="false" from="生命周期结束" to="未发布">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </state-transition>
+    </state-transitions>
+    <fields>
+        <field type="DATE" name="计划开始日期" aggregationRule="Minimum"
+               distributionRule="Greatest">
+            <permission type="Unrestricted"/>
+        </field>
+
+        <field type="INTEGER" name="故事点" title="Points" aggregationRule="Sum/Total">
+            <permission type="Unrestricted"/>
+        </field>
+
+        <field type="DATE" name="计划发布日期">
+            <permission type="Unrestricted"/>
+        </field>
+
+        <field type="DATE" name="实际发布日期">
+            <permission type="Unrestricted"/>
+        </field>
+
+        <field type="DATE" name="计划生命周期结束日期">
+            <permission type="Unrestricted"/>
+        </field>
+
+        <field type="OPTIONS" name="发布方式">
+            <items>
+                <option id="1" name="Scrum"/>
+                <option id="2" name="Kanban"/>
+                <option id="3" name="Waterfall"/>
+            </items>
+            <permission type="Unrestricted"/>
+        </field>
+    </fields>
+    <layouts>
+        <layout name="NEW">
+            <fields>
+                <field name="计划开始日期"/>
+                <field name="故事点"/>
+                <field name="计划发布日期"/>
+                <field name="实际发布日期"/>
+                <field name="计划生命周期结束日期"/>
+                <field name="发布方式"/>
+            </fields>
+            <sections>
+                <section name="DETAIL"/>
+                <section name="WORK_ITEMS"/>
+                <section name="ATTACHMENTS"/>
+            </sections>
+            <key-fields>
+                <field name="负责人"/>
+                <field name="状态"/>
+                <field name="优先级"/>
+            </key-fields>
+        </layout>
+        <layout name="DETAIL">
+            <fields>
+                <field name="计划开始日期"/>
+                <field name="故事点"/>
+                <field name="计划发布日期"/>
+                <field name="实际发布日期"/>
+                <field name="计划生命周期结束日期"/>
+                <field name="发布方式"/>
+            </fields>
+            <sections>
+                <section name="DETAIL"/>
+                <section name="WORK_ITEMS"/>
+                <section name="ATTACHMENTS"/>
+            </sections>
+            <key-fields>
+                <field name="负责人"/>
+                <field name="状态"/>
+                <field name="优先级"/>
+            </key-fields>
+        </layout>
+        <layout name="LIST">
+            <fields>
+                <field name="优先级"/>
+                <field name="负责人"/>
+                <field name="标题"/>
+                <field name="描述"/>
+                <field name="状态"/>
+            </fields>
+        </layout>
+    </layouts>
+    <notifications>
+        <system-config>
+            <notification eventName="CREATE_ITEM" useMessage="true" useEmail="true">
+                <grant-to-special-role>工作项负责人</grant-to-special-role>
+                <grant-to-special-role>工作项创建者</grant-to-special-role>
+            </notification>
+            <notification eventName="CHANGE_ITEM_OWNER" useMessage="true" useEmail="true">
+                <grant-to-special-role>工作项关注者</grant-to-special-role>
+                <grant-to-special-role>工作项负责人</grant-to-special-role>
+                <grant-to-special-role>工作项创建者</grant-to-special-role>
+            </notification>
+        </system-config>
+        <customer-config>
+            <notification fieldName="实际发布日期" useMessage="true" useEmail="true">
+                <grant-to-special-role>工作项关注者</grant-to-special-role>
+                <grant-to-special-role>工作项负责人</grant-to-special-role>
+                <grant-to-special-role>工作项创建者</grant-to-special-role>
+            </notification>
+        </customer-config>
+    </notifications>
+</tracker>

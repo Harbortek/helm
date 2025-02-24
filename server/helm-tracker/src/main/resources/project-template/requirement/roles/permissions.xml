@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<permissions>
+    <permission name="PROJECT_ADMIN">
+        <grant-to-role>项目管理员</grant-to-role>
+        <grant-to-special-role>项目负责人</grant-to-special-role>
+        <!--            <grant-to-user></grant-to-user>-->
+    </permission>
+    <permission name="PROJECT_VIEW">
+        <grant-to-special-role>所有项目成员</grant-to-special-role>
+    </permission>
+</permissions>

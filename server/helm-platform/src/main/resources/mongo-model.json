@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "defaultSchema": "mongo",
+  "schemas": [
+    {
+      "type": "custom",
+      "name": "helm",
+      "factory": "org.apache.calcite.adapter.mongodb.MongoSchemaFactory",
+      "operand": {
+        "host": "mongodb://121.196.210.168",
+        "port": "27017",
+        "database": "helm",
+        "authMechanism": "SCRAM-SHA-1",
+        "username": "helm",
+        "password": "harbortek123",
+        "authDatabase": "admin"
+      }
+    },
+    {
+      "name": "mongo",
+      "tables": [
+        {
+          "name": "TRACKER_ITEMS",
+          "type": "view",
+          "sql": "select \ncast(_MAP['itemId'] AS BIGINT) as itemId ,\ncast(_MAP['itemNo'] AS VARCHAR(1024)) as itemNo ,cast(_MAP['itemName'] AS VARCHAR(1024)) as itemName ,  \ncast(_MAP['description'] AS VARCHAR(1024)) as description,\ncast(_MAP['revision'] AS BIGINT) as revision , \ncast(_MAP['projectId'] AS BIGINT) as projectId,\ncast(_MAP['projectName'] AS VARCHAR(1024)) as projectName ,\ncast(_MAP['productId'] AS BIGINT) as productId,\ncast(_MAP['productName'] AS VARCHAR(1024)) as productName,\ncast(_MAP['productLineId'] AS BIGINT) as productLineId,\ncast(_MAP['productLineName'] AS VARCHAR(1024)) as productLineName, \ncast(_MAP['trackerId'] AS BIGINT) as trackerId,\ncast(_MAP['trackerName'] AS VARCHAR(1024)) as trackerName , \ncast(_MAP['sprintId'] AS BIGINT) as sprintId,\ncast(_MAP['sprintName'] AS VARCHAR(1024)) as sprintName ,\ncast(_MAP['targetVersionId'] AS BIGINT) as targetVersionId,\ncast(_MAP['targetVersionName'] AS VARCHAR(1024)) as targetVersionName ,  \ncast(_MAP['ownId'] AS BIGINT) as ownId,\ncast(_MAP['ownName'] AS VARCHAR(1024)) as ownName , \ncast(_MAP['status'] AS VARCHAR(1024)) as status , \ncast(_MAP['meaning'] AS VARCHAR(1024)) as meaning , \ncast(_MAP['priority'] AS VARCHAR(1024)) as priority , \ncast(_MAP['assignedToId'] AS BIGINT) as assignedToId,\ncast(_MAP['assignedToName'] AS VARCHAR(1024)) as assignedToName , \ncast(_MAP['assignedDate'] AS DATE) as assignedDate ,\ncast(_MAP['closeDate'] AS DATE) as closeDate ,\ncast(_MAP['planStartDate'] AS DATE) as planStartDate ,\ncast(_MAP['planEndDate'] AS DATE) as planEndDate ,\ncast(_MAP['realStartDate'] AS DATE) as realStartDate ,\ncast(_MAP['realEndDate'] AS DATE) as realEndDate ,\ncast(_MAP['progress'] AS INTEGER) as progress ,\ncast(_MAP['estimateWorkingHours'] AS DECIMAL) as estimateWorkingHours ,\ncast(_MAP['registeredWorkingHours'] AS DECIMAL) as registeredWorkingHours ,\ncast(_MAP['remainingWorkingHours'] AS DECIMAL) as remainingWorkingHours ,\ncast(_MAP['createBy'] AS BIGINT) as createBy ,\ncast(_MAP['createByName'] AS VARCHAR(1024)) as createByName ,\ncast(_MAP['createDate'] AS DATE) as createDate ,\ncast(_MAP['lastModifiedBy'] AS BIGINT) as lastModifiedBy ,\ncast(_MAP['lastModifiedName'] AS VARCHAR(1024)) as lastModifiedName ,\ncast(_MAP['lastModifiedDate'] AS DATE) as lastModifiedDate \nfrom \"helm\".\"V_TrackerItems\""
+         },
+        {
+          "name": "SPRINTS",
+          "type": "view",
+          "sql": "select \ncast(_MAP['sprintId'] AS BIGINT) as sprintId,\ncast(_MAP['sprintName'] AS VARCHAR(1024)) as sprintName , \ncast(_MAP['itemNo'] AS VARCHAR(1024)) as itemNo , \ncast(_MAP['description'] AS VARCHAR(1024)) as description,\ncast(_MAP['projectId'] AS BIGINT) as projectId,\ncast(_MAP['projectName'] AS VARCHAR(1024)) as projectName , \ncast(_MAP['targetVersionId'] AS BIGINT) as targetVersionId,\ncast(_MAP['targetVersionName'] AS VARCHAR(1024)) as targetVersionName , \ncast(_MAP['ownId'] AS BIGINT) as ownId,\ncast(_MAP['ownName'] AS VARCHAR(1024)) as ownName , \ncast(_MAP['meaning'] AS VARCHAR(1024)) as meaning , \ncast(_MAP['planStartDate'] AS DATE) as planStartDate ,\ncast(_MAP['planEndDate'] AS DATE) as planEndDate ,\ncast(_MAP['realStartDate'] AS DATE) as realStartDate ,\ncast(_MAP['realEndDate'] AS DATE) as realEndDate ,\ncast(_MAP['progress'] AS INTEGER) as progress ,\ncast(_MAP['duration'] AS INTEGER) as duration ,\ncast(_MAP['createBy'] AS BIGINT) as createBy ,\ncast(_MAP['createByName'] AS VARCHAR(1024)) as createByName ,\ncast(_MAP['createDate'] AS DATE) as createDate ,\ncast(_MAP['lastModifiedBy'] AS BIGINT) as lastModifiedBy ,\ncast(_MAP['lastModifiedName'] AS VARCHAR(1024)) as lastModifiedName ,\ncast(_MAP['lastModifiedDate'] AS DATE) as lastModifiedDate \nfrom \"helm\".\"V_Sprints\""
+        }
+      ]
+    }
+  ]
+}

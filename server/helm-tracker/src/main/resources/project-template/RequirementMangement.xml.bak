@@ -1,0 +1,1712 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<template name="需求管理项目模版" description="需求管理项目模版" iconUrl="" imageUrl="">
+    <roles>
+        <role name="项目管理员" specialRole="false">
+            <members></members>
+        </role>
+        <role name="需求工程师" specialRole="false"/>
+        <role name="质量保证工程师" specialRole="false"/>
+        <role name="功能安全工程师" specialRole="false"/>
+        <role name="硬件工程师" specialRole="false"/>
+        <role name="软件工程师" specialRole="false"/>
+        <role name="外部合作伙伴" specialRole="false"/>
+    </roles>
+    <permissions>
+        <permission name="PROJECT_ADMIN">
+            <grant-to-role>项目管理员</grant-to-role>
+            <grant-to-special-role>项目负责人</grant-to-special-role>
+            <!--            <grant-to-user></grant-to-user>-->
+        </permission>
+        <permission name="PROJECT_VIEW">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+    </permissions>
+    <trackers>
+        <tracker name="发布" shortName="RELEASE" type="RELEASE" visible="true" workflow="true" defaultLayout="table">
+            <statuses>
+                <status name="未开始" meaning="未开始" initial="true"/>
+                <status name="未发布" meaning="进行中"/>
+                <status name="已发布" meaning="已解决"/>
+                <status name="生命周期结束" meaning="已关闭"/>
+            </statuses>
+            <permissions>
+                <permission name="ITEM_VIEW">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CREATE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CHANGE_STATUS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_DELETE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_MANAGE_WATCHER">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT_ASSOCIATIONS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EXPORT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+            </permissions>
+            <state-transitions>
+                <state-transition name="定义" hidden="false" from="未开始" to="未发布">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="发布" hidden="false" from="未发布" to="已发布">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="撤回" hidden="false" from="已发布" to="未发布">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="标记生命周期结束" hidden="false" from="已发布" to="生命周期结束">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="撤回生命周期结束" hidden="false" from="生命周期结束" to="未发布">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+            </state-transitions>
+            <fields>
+                <field type="DATE" name="计划开始日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Greatest">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="INTEGER" name="故事点" title="Points" showInList="true" aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="计划发布日期" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="实际发布日期" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="计划生命周期结束日期" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="MEMBERS" name="监管者" showInList="true" distributionRule="Default">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="发布方式" showInList="true">
+                    <items>
+                        <option id="1" name="Scrum"/>
+                        <option id="2" name="Kanban"/>
+                        <option id="3" name="Waterfall"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+            </fields>
+            <notifications>
+                <system-config>
+                    <notification eventName="CREATE_ITEM" useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                    <notification eventName="CHANGE_ITEM_OWNER"  useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </system-config>
+                <customer-config>
+                    <notification fieldName="实际发布日期"  useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </customer-config>
+            </notifications>
+        </tracker>
+        <tracker name="用户需求" shortName="CRS" type="REQUIREMENT" visible="true" workflow="true"
+                 defaultLayout="document">
+            <statuses>
+                <status name="未开始" meaning="未开始" initial="true"/>
+                <status name="新建" meaning="未开始"/>
+                <status name="草案" meaning="进行中"/>
+                <status name="待核准" meaning="已解决"/>
+                <status name="拒绝" meaning="已关闭"/>
+                <status name="已接受" meaning="已关闭"/>
+            </statuses>
+            <permissions>
+                <permission name="ITEM_VIEW">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CREATE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CHANGE_STATUS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_DELETE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_MANAGE_WATCHER">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT_ASSOCIATIONS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EXPORT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+            </permissions>
+            <state-transitions>
+                <state-transition name="新建" hidden="false" from="未开始" to="新建">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="新建" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="待核准" hidden="false" from="新建" to="待核准">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="拒绝" hidden="false" from="新建" to="拒绝">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="新建" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="待核准" hidden="false" from="草案" to="待核准">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="拒绝" hidden="false" from="草案" to="拒绝">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="草案" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="待核准" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="待核准" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="拒绝" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="已接受" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+            </state-transitions>
+            <fields>
+                <field type="OPTIONS" name="覆盖情况" showInList="true">
+                    <items>
+                        <option id="1" name="Not Covered"/>
+                        <option id="2" name="Not Completed"/>
+                        <option id="3" name="Not Run"/>
+                        <option id="4" name="Not Passed"/>
+                        <option id="5" name="Failed"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="类型" showInList="true">
+                    <items>
+                        <option id="1" name="目录"/>
+                        <option id="2" name="功能需求"/>
+                        <option id="3" name="非功能需求"/>
+                        <option id="4" name="约束"/>
+                        <option id="5" name="合规"/>
+                        <option id="6" name="兼容性"/>
+                        <option id="7" name="集成需求"/>
+                        <option id="8" name="安装需求"/>
+                        <option id="9" name="维护性需求"/>
+                        <option id="10" name="性能需求"/>
+                        <option id="11" name="扩展性需求"/>
+                        <option id="12" name="安全需求"/>
+                        <option id="13" name="可用性需求"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="复杂度" showInList="true">
+                    <items>
+                        <option id="1" name="简单"/>
+                        <option id="2" name="标准"/>
+                        <option id="3" name="复杂"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="解决情况" showInList="true">
+                    <items>
+                        <option id="1" name="无效"/>
+                        <option id="2" name="重复"/>
+                        <option id="3" name="推迟"/>
+                        <option id="4" name="部分实现"/>
+                        <option id="5" name="已实现"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="发布" showInList="false">
+                    <permission type="Single">
+                        <roles>
+                            <role-read-edit roleName="项目管理员" read="true" edit="false"/>
+                            <role-read-edit roleName="质量保证工程师" read="true" edit="false"/>
+                            <role-read-edit roleName="功能安全工程师" read="true" edit="false"/>
+                            <role-read-edit roleName="硬件工程师" read="true" edit="false"/>
+                            <role-read-edit roleName="软件工程师" read="true" edit="false"/>
+                            <role-read-edit roleName="外部合作伙伴" read="true" edit="false"/>
+                        </roles>
+                    </permission>
+                </field>
+
+                <field type="DATE" name="开始日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Greatest">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="结束日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Least">
+                    <permission type="Unrestricted"/>
+                </field>
+
+
+                <field type="DURATION" name="计划投入工作量" title="Planned Effort" showInList="false"
+                       aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DECIMAL" name="实际工作量" showInList="false" aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+                <field type="DECIMAL" name="实际/计划工作量比" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="关闭日期" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+            </fields>
+            <notifications>
+                <system-config>
+                    <notification eventName="CREATE_ITEM" useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                    <notification eventName="CHANGE_ITEM_OWNER"  useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </system-config>
+                <customer-config useDefault="true">
+                    <notification default="true"  useMessage="true" useEmail="false">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </customer-config>
+            </notifications>
+        </tracker>
+        <tracker name="系统需求" shortName="SRS" type="REQUIREMENT" visible="true" workflow="true"
+                 defaultLayout="document">
+            <statuses>
+                <status name="未开始" meaning="未开始" initial="true"/>
+                <status name="新建" meaning="未开始"/>
+                <status name="草案" meaning="进行中"/>
+                <status name="待核准" meaning="已解决"/>
+                <status name="拒绝" meaning="已关闭"/>
+                <status name="已接受" meaning="已关闭"/>
+            </statuses>
+            <permissions>
+                <permission name="ITEM_VIEW">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CREATE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CHANGE_STATUS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_DELETE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_MANAGE_WATCHER">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT_ASSOCIATIONS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EXPORT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+            </permissions>
+            <state-transitions>
+                <state-transition name="新建" hidden="false" from="未开始" to="新建">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="新建" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="待核准" hidden="false" from="新建" to="待核准">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="拒绝" hidden="false" from="新建" to="拒绝">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="新建" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="待核准" hidden="false" from="草案" to="待核准">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="拒绝" hidden="false" from="草案" to="拒绝">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="草案" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="待核准" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="待核准" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="拒绝" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="已接受" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+            </state-transitions>
+            <fields>
+                <field type="OPTIONS" name="覆盖情况" showInList="true">
+                    <items>
+                        <option id="1" name="Not Covered"/>
+                        <option id="2" name="Not Completed"/>
+                        <option id="3" name="Not Run"/>
+                        <option id="4" name="Not Passed"/>
+                        <option id="5" name="Failed"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="类型" showInList="true">
+                    <items>
+                        <option id="1" name="目录"/>
+                        <option id="2" name="功能需求"/>
+                        <option id="3" name="非功能需求"/>
+                        <option id="4" name="约束"/>
+                        <option id="5" name="合规"/>
+                        <option id="6" name="兼容性"/>
+                        <option id="7" name="集成需求"/>
+                        <option id="8" name="安装需求"/>
+                        <option id="9" name="维护性需求"/>
+                        <option id="10" name="性能需求"/>
+                        <option id="11" name="扩展性需求"/>
+                        <option id="12" name="安全需求"/>
+                        <option id="13" name="可用性需求"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="复杂度" showInList="true">
+                    <items>
+                        <option id="1" name="简单"/>
+                        <option id="2" name="标准"/>
+                        <option id="3" name="复杂"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="解决情况" showInList="true">
+                    <items>
+                        <option id="1" name="无效"/>
+                        <option id="2" name="重复"/>
+                        <option id="3" name="推迟"/>
+                        <option id="4" name="部分实现"/>
+                        <option id="5" name="已实现"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="发布" showInList="false">
+                    <permission type="Single">
+                        <grant-to-special-role>所有项目成员</grant-to-special-role>
+                    </permission>
+                </field>
+
+                <field type="DATE" name="开始日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Greatest">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="结束日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Least">
+                    <permission type="Unrestricted"/>
+                </field>
+
+
+                <field type="DURATION" name="计划投入工作量" title="Planned Effort" showInList="false"
+                       aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DECIMAL" name="实际工作量" showInList="false" aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+                <field type="DECIMAL" name="实际/计划工作量比" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="关闭日期" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+
+            </fields>
+            <notifications>
+                <system-config>
+                    <notification eventName="CREATE_ITEM" useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                    <notification eventName="CHANGE_ITEM_OWNER"  useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </system-config>
+                <customer-config useDefault="true">
+                    <notification default="true"  useMessage="true" useEmail="false">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </customer-config>
+            </notifications>
+        </tracker>
+        <tracker name="硬件安全需求" shortName="HARDREQ" type="REQUIREMENT" visible="true" workflow="true"
+                 defaultLayout="document">
+            <statuses>
+                <status name="未开始" meaning="未开始" initial="true"/>
+                <status name="新建" meaning="未开始"/>
+                <status name="草案" meaning="进行中"/>
+                <status name="待核准" meaning="已解决"/>
+                <status name="拒绝" meaning="已关闭"/>
+                <status name="已接受" meaning="已关闭"/>
+            </statuses>
+            <permissions>
+                <permission name="ITEM_VIEW">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CREATE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CHANGE_STATUS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_DELETE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_MANAGE_WATCHER">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT_ASSOCIATIONS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EXPORT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+            </permissions>
+            <state-transitions>
+                <state-transition name="新建" hidden="false" from="未开始" to="新建">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="新建" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="待核准" hidden="false" from="新建" to="待核准">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="拒绝" hidden="false" from="新建" to="拒绝">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="新建" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="待核准" hidden="false" from="草案" to="待核准">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="拒绝" hidden="false" from="草案" to="拒绝">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="草案" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="待核准" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="待核准" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="拒绝" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="已接受" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+            </state-transitions>
+            <fields>
+                <field type="OPTIONS" name="覆盖情况" showInList="true">
+                    <items>
+                        <option id="1" name="Not Covered"/>
+                        <option id="2" name="Not Completed"/>
+                        <option id="3" name="Not Run"/>
+                        <option id="4" name="Not Passed"/>
+                        <option id="5" name="Failed"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="类型" showInList="true">
+                    <items>
+                        <option id="1" name="目录"/>
+                        <option id="2" name="功能需求"/>
+                        <option id="3" name="非功能需求"/>
+                        <option id="4" name="约束"/>
+                        <option id="5" name="合规"/>
+                        <option id="6" name="兼容性"/>
+                        <option id="7" name="集成需求"/>
+                        <option id="8" name="安装需求"/>
+                        <option id="9" name="维护性需求"/>
+                        <option id="10" name="性能需求"/>
+                        <option id="11" name="扩展性需求"/>
+                        <option id="12" name="安全需求"/>
+                        <option id="13" name="可用性需求"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="复杂度" showInList="true">
+                    <items>
+                        <option id="1" name="简单"/>
+                        <option id="2" name="标准"/>
+                        <option id="3" name="复杂"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="解决情况" showInList="true">
+                    <items>
+                        <option id="1" name="无效"/>
+                        <option id="2" name="重复"/>
+                        <option id="3" name="推迟"/>
+                        <option id="4" name="部分实现"/>
+                        <option id="5" name="已实现"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="发布" showInList="false">
+                    <permission type="Single">
+                        <grant-to-special-role>所有项目成员</grant-to-special-role>
+                    </permission>
+                </field>
+
+                <field type="DATE" name="开始日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Greatest">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="结束日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Least">
+                    <permission type="Unrestricted"/>
+                </field>
+
+
+                <field type="DURATION" name="计划投入工作量" title="Planned Effort" showInList="false"
+                       aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DECIMAL" name="实际工作量" showInList="false" aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+                <field type="DECIMAL" name="实际/计划工作量比" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="关闭日期" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+
+            </fields>
+            <notifications>
+                <system-config>
+                    <notification eventName="CREATE_ITEM" useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                    <notification eventName="CHANGE_ITEM_OWNER"  useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </system-config>
+                <customer-config useDefault="true">
+                    <notification default="true"  useMessage="true" useEmail="false">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </customer-config>
+            </notifications>
+        </tracker>
+        <tracker name="软件安全需求" shortName="SOFTREQ" type="REQUIREMENT" visible="true" workflow="true"
+                 defaultLayout="document">
+            <statuses>
+                <status name="未开始" meaning="未开始" initial="true"/>
+                <status name="新建" meaning="未开始"/>
+                <status name="草案" meaning="进行中"/>
+                <status name="待核准" meaning="已解决"/>
+                <status name="拒绝" meaning="已关闭"/>
+                <status name="已接受" meaning="已关闭"/>
+            </statuses>
+            <permissions>
+                <permission name="ITEM_VIEW">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CREATE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CHANGE_STATUS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_DELETE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_MANAGE_WATCHER">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT_ASSOCIATIONS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EXPORT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+            </permissions>
+            <state-transitions>
+                <state-transition name="新建" hidden="false" from="未开始" to="新建">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="新建" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="待核准" hidden="false" from="新建" to="待核准">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="拒绝" hidden="false" from="新建" to="拒绝">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="新建" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="待核准" hidden="false" from="草案" to="待核准">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="拒绝" hidden="false" from="草案" to="拒绝">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="草案" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="待核准" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="待核准" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="拒绝" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="已接受" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+            </state-transitions>
+            <fields>
+                <field type="OPTIONS" name="覆盖情况" showInList="true">
+                    <items>
+                        <option id="1" name="Not Covered"/>
+                        <option id="2" name="Not Completed"/>
+                        <option id="3" name="Not Run"/>
+                        <option id="4" name="Not Passed"/>
+                        <option id="5" name="Failed"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="类型" showInList="true">
+                    <items>
+                        <option id="1" name="目录"/>
+                        <option id="2" name="功能需求"/>
+                        <option id="3" name="非功能需求"/>
+                        <option id="4" name="约束"/>
+                        <option id="5" name="合规"/>
+                        <option id="6" name="兼容性"/>
+                        <option id="7" name="集成需求"/>
+                        <option id="8" name="安装需求"/>
+                        <option id="9" name="维护性需求"/>
+                        <option id="10" name="性能需求"/>
+                        <option id="11" name="扩展性需求"/>
+                        <option id="12" name="安全需求"/>
+                        <option id="13" name="可用性需求"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="复杂度" showInList="true">
+                    <items>
+                        <option id="1" name="简单"/>
+                        <option id="2" name="标准"/>
+                        <option id="3" name="复杂"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="解决情况" showInList="true">
+                    <items>
+                        <option id="1" name="无效"/>
+                        <option id="2" name="重复"/>
+                        <option id="3" name="推迟"/>
+                        <option id="4" name="部分实现"/>
+                        <option id="5" name="已实现"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="发布" showInList="false">
+                    <permission type="Single">
+                        <grant-to-special-role>所有项目成员</grant-to-special-role>
+                    </permission>
+                </field>
+
+                <field type="DATE" name="开始日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Greatest">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="结束日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Least">
+                    <permission type="Unrestricted"/>
+                </field>
+
+
+                <field type="DURATION" name="计划投入工作量" title="Planned Effort" showInList="false"
+                       aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DECIMAL" name="实际工作量" showInList="false" aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+                <field type="DECIMAL" name="实际/计划工作量比" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="关闭日期" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+            </fields>
+            <notifications>
+                <system-config>
+                    <notification eventName="CREATE_ITEM" useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                    <notification eventName="CHANGE_ITEM_OWNER"  useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </system-config>
+                <customer-config useDefault="true">
+                    <notification default="true"  useMessage="true" useEmail="false">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </customer-config>
+            </notifications>
+        </tracker>
+        <tracker name="功能安全需求" shortName="FSR" type="REQUIREMENT" visible="true" workflow="true"
+                 defaultLayout="document">
+            <statuses>
+                <status name="未开始" meaning="未开始" initial="true"/>
+                <status name="新建" meaning="未开始"/>
+                <status name="草案" meaning="进行中"/>
+                <status name="待核准" meaning="已解决"/>
+                <status name="拒绝" meaning="已关闭"/>
+                <status name="已接受" meaning="已关闭"/>
+            </statuses>
+            <permissions>
+                <permission name="ITEM_VIEW">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CREATE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CHANGE_STATUS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_DELETE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_MANAGE_WATCHER">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT_ASSOCIATIONS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EXPORT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+            </permissions>
+            <state-transitions>
+                <state-transition name="新建" hidden="false" from="未开始" to="新建">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="新建" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="待核准" hidden="false" from="新建" to="待核准">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="拒绝" hidden="false" from="新建" to="拒绝">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="新建" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="待核准" hidden="false" from="草案" to="待核准">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="拒绝" hidden="false" from="草案" to="拒绝">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="草案" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="待核准" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="待核准" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="拒绝" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="已接受" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+            </state-transitions>
+            <fields>
+                <field type="OPTIONS" name="覆盖情况" showInList="true">
+                    <items>
+                        <option id="1" name="Not Covered"/>
+                        <option id="2" name="Not Completed"/>
+                        <option id="3" name="Not Run"/>
+                        <option id="4" name="Not Passed"/>
+                        <option id="5" name="Failed"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="类型" showInList="true">
+                    <items>
+                        <option id="1" name="目录"/>
+                        <option id="2" name="功能需求"/>
+                        <option id="3" name="非功能需求"/>
+                        <option id="4" name="约束"/>
+                        <option id="5" name="合规"/>
+                        <option id="6" name="兼容性"/>
+                        <option id="7" name="集成需求"/>
+                        <option id="8" name="安装需求"/>
+                        <option id="9" name="维护性需求"/>
+                        <option id="10" name="性能需求"/>
+                        <option id="11" name="扩展性需求"/>
+                        <option id="12" name="安全需求"/>
+                        <option id="13" name="可用性需求"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="复杂度" showInList="true">
+                    <items>
+                        <option id="1" name="简单"/>
+                        <option id="2" name="标准"/>
+                        <option id="3" name="复杂"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="解决情况" showInList="true">
+                    <items>
+                        <option id="1" name="无效"/>
+                        <option id="2" name="重复"/>
+                        <option id="3" name="推迟"/>
+                        <option id="4" name="部分实现"/>
+                        <option id="5" name="已实现"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="发布" showInList="false">
+                    <permission type="Single">
+                        <grant-to-special-role>所有项目成员</grant-to-special-role>
+                    </permission>
+                </field>
+
+                <field type="DATE" name="开始日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Greatest">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="结束日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Least">
+                    <permission type="Unrestricted"/>
+                </field>
+
+
+                <field type="DURATION" name="计划投入工作量" title="Planned Effort" showInList="false"
+                       aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DECIMAL" name="实际工作量" showInList="false" aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+                <field type="DECIMAL" name="实际/计划工作量比" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="关闭日期" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+
+            </fields>
+            <notifications>
+                <system-config>
+                    <notification eventName="CREATE_ITEM" useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                    <notification eventName="CHANGE_ITEM_OWNER"  useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </system-config>
+                <customer-config useDefault="true">
+                    <notification default="true"  useMessage="true" useEmail="false">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </customer-config>
+            </notifications>
+        </tracker>
+        <tracker name="硬件任务" shortName="HARDTASK" type="TASK" visible="true" workflow="true" defaultLayout="table">
+            <statuses>
+                <status name="未开始" meaning="未开始" initial="true"/>
+                <status name="新建" meaning="未开始"/>
+                <status name="草案" meaning="进行中"/>
+                <status name="待核准" meaning="已解决"/>
+                <status name="拒绝" meaning="已关闭"/>
+                <status name="已接受" meaning="已关闭"/>
+            </statuses>
+            <permissions>
+                <permission name="ITEM_VIEW">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CREATE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CHANGE_STATUS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_DELETE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_MANAGE_WATCHER">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT_ASSOCIATIONS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EXPORT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+            </permissions>
+            <state-transitions>
+                <state-transition name="新建" hidden="false" from="未开始" to="新建">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="新建" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="待核准" hidden="false" from="新建" to="待核准">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="拒绝" hidden="false" from="新建" to="拒绝">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="新建" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="待核准" hidden="false" from="草案" to="待核准">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="拒绝" hidden="false" from="草案" to="拒绝">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="草案" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="待核准" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="待核准" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="拒绝" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="已接受" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+            </state-transitions>
+            <fields>
+                <field type="OPTIONS" name="解决情况" showInList="true">
+                    <items>
+                        <option id="1" name="无效"/>
+                        <option id="2" name="重复"/>
+                        <option id="3" name="推迟"/>
+                        <option id="4" name="部分实现"/>
+                        <option id="5" name="已实现"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="发布" showInList="false">
+                    <permission type="Single">
+                        <grant-to-special-role>所有项目成员</grant-to-special-role>
+                    </permission>
+                </field>
+
+                <field type="DATE" name="开始日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Greatest">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="结束日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Least">
+                    <permission type="Unrestricted"/>
+                </field>
+
+
+                <field type="DURATION" name="计划投入工作量" title="Planned Effort" showInList="false"
+                       aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DECIMAL" name="实际工作量" showInList="false" aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+                <field type="DECIMAL" name="实际/计划工作量比" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="关闭日期" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+            </fields>
+            <notifications>
+                <system-config>
+                    <notification eventName="CREATE_ITEM" useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                    <notification eventName="CHANGE_ITEM_OWNER"  useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </system-config>
+                <customer-config useDefault="true">
+                    <notification default="true"  useMessage="true" useEmail="false">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </customer-config>
+            </notifications>
+        </tracker>
+        <tracker name="软件任务" shortName="SOFTTASK" type="TASK" visible="true" workflow="true" defaultLayout="table">
+            <statuses>
+                <status name="未开始" meaning="未开始" initial="true"/>
+                <status name="新建" meaning="未开始"/>
+                <status name="草案" meaning="进行中"/>
+                <status name="待核准" meaning="已解决"/>
+                <status name="拒绝" meaning="已关闭"/>
+                <status name="已接受" meaning="已关闭"/>
+            </statuses>
+            <permissions>
+                <permission name="ITEM_VIEW">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CREATE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CHANGE_STATUS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_DELETE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_MANAGE_WATCHER">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT_ASSOCIATIONS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EXPORT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+            </permissions>
+            <state-transitions>
+                <state-transition name="新建" hidden="false" from="未开始" to="新建">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="新建" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="待核准" hidden="false" from="新建" to="待核准">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="拒绝" hidden="false" from="新建" to="拒绝">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="新建" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="待核准" hidden="false" from="草案" to="待核准">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="拒绝" hidden="false" from="草案" to="拒绝">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="草案" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="待核准" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="待核准" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="拒绝" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="已接受" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+            </state-transitions>
+            <fields>
+                <field type="OPTIONS" name="解决情况" showInList="true">
+                    <items>
+                        <option id="1" name="无效"/>
+                        <option id="2" name="重复"/>
+                        <option id="3" name="推迟"/>
+                        <option id="4" name="部分实现"/>
+                        <option id="5" name="已实现"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="发布" showInList="false">
+                    <permission type="Single">
+                        <grant-to-special-role>所有项目成员</grant-to-special-role>
+                    </permission>
+                </field>
+
+                <field type="DATE" name="开始日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Greatest">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="结束日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Least">
+                    <permission type="Unrestricted"/>
+                </field>
+
+
+                <field type="DURATION" name="计划投入工作量" title="Planned Effort" showInList="false"
+                       aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DECIMAL" name="实际工作量" showInList="false" aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+                <field type="DECIMAL" name="实际/计划工作量比" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="关闭日期" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+            </fields>
+            <notifications>
+                <system-config>
+                    <notification eventName="CREATE_ITEM" useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                    <notification eventName="CHANGE_ITEM_OWNER"  useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </system-config>
+                <customer-config useDefault="true">
+                    <notification default="true"  useMessage="true" useEmail="false">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </customer-config>
+            </notifications>
+        </tracker>
+        <tracker name="变更请求" shortName="CRQ" type="CHANGE" visible="true" workflow="true" defaultLayout="table">
+            <statuses>
+                <status name="未开始" meaning="未开始" initial="true"/>
+                <status name="新建" meaning="未开始"/>
+                <status name="草案" meaning="进行中"/>
+                <status name="待核准" meaning="已解决"/>
+                <status name="拒绝" meaning="已关闭"/>
+                <status name="已接受" meaning="已关闭"/>
+            </statuses>
+            <permissions>
+                <permission name="ITEM_VIEW">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CREATE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CHANGE_STATUS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_DELETE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_MANAGE_WATCHER">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT_ASSOCIATIONS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EXPORT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+            </permissions>
+            <state-transitions>
+                <state-transition name="新建" hidden="false" from="未开始" to="新建">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="新建" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="待核准" hidden="false" from="新建" to="待核准">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="拒绝" hidden="false" from="新建" to="拒绝">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="新建" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="待核准" hidden="false" from="草案" to="待核准">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="拒绝" hidden="false" from="草案" to="拒绝">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="草案" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="待核准" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="已接受" hidden="false" from="待核准" to="已接受">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="拒绝" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="已接受" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+            </state-transitions>
+            <fields>
+                <field type="OPTIONS" name="解决情况" showInList="true">
+                    <items>
+                        <option id="1" name="无效"/>
+                        <option id="2" name="重复"/>
+                        <option id="3" name="推迟"/>
+                        <option id="4" name="部分实现"/>
+                        <option id="5" name="已实现"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="发布" showInList="false">
+                    <permission type="Single">
+                        <grant-to-special-role>所有项目成员</grant-to-special-role>
+                    </permission>
+                </field>
+
+                <field type="DATE" name="开始日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Greatest">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="结束日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Least">
+                    <permission type="Unrestricted"/>
+                </field>
+
+
+                <field type="DURATION" name="计划投入工作量" title="Planned Effort" showInList="false"
+                       aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DECIMAL" name="实际工作量" showInList="false" aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+                <field type="DECIMAL" name="实际/计划工作量比" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="关闭日期" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+            </fields>
+            <notifications>
+                <system-config>
+                    <notification eventName="CREATE_ITEM" useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                    <notification eventName="CHANGE_ITEM_OWNER"  useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </system-config>
+                <customer-config useDefault="true">
+                    <notification default="true"  useMessage="true" useEmail="false">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </customer-config>
+            </notifications>
+        </tracker>
+        <tracker name="风险" shortName="RISK" type="RISK" visible="true" workflow="true" defaultLayout="document">
+            <statuses>
+                <status name="未开始" meaning="未开始" initial="true"/>
+                <status name="新建" meaning="未开始"/>
+                <status name="已验证" meaning="未开始"/>
+                <status name="已缓解" meaning="已解决"/>
+                <status name="安排计划" meaning="进行中"/>
+            </statuses>
+            <permissions>
+                <permission name="ITEM_VIEW">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CREATE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CHANGE_STATUS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_DELETE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_MANAGE_WATCHER">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT_ASSOCIATIONS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EXPORT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+            </permissions>
+            <state-transitions>
+                <state-transition name="提交" hidden="false" from="未开始" to="新建">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="验证" hidden="false" from="新建" to="已验证">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="无用" hidden="false" from="新建" to="已缓解">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="安排计划" hidden="false" from="已验证" to="安排计划">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="缓解" hidden="false" from="安排计划" to="已缓解">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+            </state-transitions>
+            <fields>
+                <field type="OPTIONS" name="解决情况" showInList="true">
+                    <items>
+                        <option id="1" name="无效"/>
+                        <option id="2" name="重复"/>
+                        <option id="3" name="推迟"/>
+                        <option id="4" name="部分实现"/>
+                        <option id="5" name="已实现"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="发布" showInList="false">
+                    <permission type="Single">
+                        <grant-to-special-role>所有项目成员</grant-to-special-role>
+                    </permission>
+                </field>
+
+                <field type="DATE" name="开始日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Greatest">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="结束日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Least">
+                    <permission type="Unrestricted"/>
+                </field>
+
+
+                <field type="DURATION" name="计划投入工作量" title="Planned Effort" showInList="false"
+                       aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DECIMAL" name="实际工作量" showInList="false" aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+                <field type="DECIMAL" name="实际/计划工作量比" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="关闭日期" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+            </fields>
+            <notifications>
+                <system-config>
+                    <notification eventName="CREATE_ITEM" useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                    <notification eventName="CHANGE_ITEM_OWNER"  useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </system-config>
+                <customer-config useDefault="true">
+                    <notification default="true"  useMessage="true" useEmail="false">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </customer-config>
+            </notifications>
+        </tracker>
+        <tracker name="文档" shortName="Documents" type="Document" visible="true" workflow="true"
+                 defaultLayout="document">
+            <statuses>
+                <status name="未开始" meaning="未开始" initial="true"/>
+                <status name="草案" meaning="进行中"/>
+                <status name="待核准" meaning="已解决"/>
+                <status name="已完成" meaning="已关闭"/>
+            </statuses>
+            <permissions>
+                <permission name="ITEM_VIEW">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CREATE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_CHANGE_STATUS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_DELETE">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_MANAGE_WATCHER">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EDIT_ASSOCIATIONS">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+                <permission name="ITEM_EXPORT">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </permission>
+            </permissions>
+            <state-transitions>
+                <state-transition name="草案" hidden="false" from="未开始" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="请求核准" hidden="false" from="草案" to="待核准">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="完成" hidden="false" from="草案" to="已完成">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="拒绝" hidden="false" from="待核准" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="批准" hidden="false" from="待核准" to="已完成">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+                <state-transition name="草案" hidden="false" from="已完成" to="草案">
+                    <grant-to-special-role>所有项目成员</grant-to-special-role>
+                </state-transition>
+            </state-transitions>
+            <fields>
+                <field type="OPTIONS" name="类型" showInList="true">
+                    <items>
+                        <option id="1" name="目录"/>
+                        <option id="2" name="功能需求"/>
+                        <option id="3" name="非功能需求"/>
+                        <option id="4" name="约束"/>
+                        <option id="5" name="合规"/>
+                        <option id="6" name="兼容性"/>
+                        <option id="7" name="集成需求"/>
+                        <option id="8" name="安装需求"/>
+                        <option id="9" name="维护性需求"/>
+                        <option id="10" name="性能需求"/>
+                        <option id="11" name="扩展性需求"/>
+                        <option id="12" name="安全需求"/>
+                        <option id="13" name="可用性需求"/>
+                        <option id="14" name="Information"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="OPTIONS" name="解决情况" showInList="true">
+                    <items>
+                        <option id="1" name="无效"/>
+                        <option id="2" name="重复"/>
+                        <option id="3" name="推迟"/>
+                        <option id="4" name="部分实现"/>
+                        <option id="5" name="已实现"/>
+                    </items>
+                    <permission type="Unrestricted"/>
+                </field>
+                <field type="DATE" name="开始日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Greatest">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="结束日期" showInList="false" aggregationRule="Minimum"
+                       distributionRule="Least">
+                    <permission type="Unrestricted"/>
+                </field>
+
+
+                <field type="DURATION" name="计划投入工作量" title="Planned Effort" showInList="false"
+                       aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DECIMAL" name="实际工作量" showInList="false" aggregationRule="Sum/Total">
+                    <permission type="Unrestricted"/>
+                </field>
+                <field type="DECIMAL" name="实际/计划工作量比" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+
+                <field type="DATE" name="关闭日期" showInList="false">
+                    <permission type="Unrestricted"/>
+                </field>
+            </fields>
+            <notifications>
+                <system-config>
+                    <notification eventName="CREATE_ITEM" useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                    <notification eventName="CHANGE_ITEM_OWNER"  useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </system-config>
+                <customer-config>
+                    <notification fieldName="结束日期"  useMessage="true" useEmail="true">
+                        <grant-to-special-role>工作项关注者</grant-to-special-role>
+                        <grant-to-special-role>工作项负责人</grant-to-special-role>
+                        <grant-to-special-role>工作项创建者</grant-to-special-role>
+                    </notification>
+                </customer-config>
+            </notifications>
+        </tracker>
+    </trackers>
+    <tracker-groups>
+        <tracker-group name="需求"
+                       trackers="发布,用户需求,系统需求,硬件安全需求,软件安全需求,功能安全需求"></tracker-group>
+        <tracker-group name="任务" trackers="硬件任务,软件任务"></tracker-group>
+        <tracker-group name="操作" trackers="变更请求,风险"></tracker-group>
+        <tracker-group name="文档" trackers="文档"></tracker-group>
+    </tracker-groups>
+</template>

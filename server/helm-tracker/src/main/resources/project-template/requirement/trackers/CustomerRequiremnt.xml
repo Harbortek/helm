@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tracker name="用户需求" type="需求">
+    <statuses>
+        <status name="未开始" meaning="未开始" initial="true"/>
+        <status name="新建" meaning="未开始"/>
+        <status name="草案" meaning="进行中"/>
+        <status name="待核准" meaning="已解决"/>
+        <status name="拒绝" meaning="已关闭"/>
+        <status name="已接受" meaning="已关闭"/>
+    </statuses>
+    <permissions>
+        <permission name="ITEM_VIEW">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_CREATE">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_EDIT">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_CHANGE_STATUS">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_DELETE">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_MANAGE_WATCHER">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_EDIT_ASSOCIATIONS">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_EXPORT">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_MANAGE_ESTIMATE_WORK_HOURS">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_MANAGE_ALL_REGISTERED_WORK_HOURS">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+        <permission name="ITEM_MANAGE_OWN_REGISTERED_WORK_HOURS">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </permission>
+    </permissions>
+    <state-transitions>
+        <state-transition name="新建" hidden="false" from="未开始" to="新建">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </state-transition>
+        <state-transition name="草案" hidden="false" from="新建" to="草案">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </state-transition>
+        <state-transition name="待核准" hidden="false" from="新建" to="待核准">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </state-transition>
+        <state-transition name="拒绝" hidden="false" from="新建" to="拒绝">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </state-transition>
+        <state-transition name="已接受" hidden="false" from="新建" to="已接受">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </state-transition>
+        <state-transition name="待核准" hidden="false" from="草案" to="待核准">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </state-transition>
+        <state-transition name="拒绝" hidden="false" from="草案" to="拒绝">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </state-transition>
+        <state-transition name="已接受" hidden="false" from="草案" to="已接受">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </state-transition>
+        <state-transition name="草案" hidden="false" from="待核准" to="草案">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </state-transition>
+        <state-transition name="已接受" hidden="false" from="待核准" to="已接受">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </state-transition>
+        <state-transition name="草案" hidden="false" from="拒绝" to="草案">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </state-transition>
+        <state-transition name="草案" hidden="false" from="已接受" to="草案">
+            <grant-to-special-role>所有项目成员</grant-to-special-role>
+        </state-transition>
+    </state-transitions>
+    <fields>
+
+
+        <field type="OPTIONS" name="类型" showInList="true">
+            <items>
+                <option id="1" name="目录"/>
+                <option id="2" name="功能需求"/>
+                <option id="3" name="非功能需求"/>
+                <option id="4" name="约束"/>
+                <option id="5" name="合规"/>
+                <option id="6" name="兼容性"/>
+                <option id="7" name="集成需求"/>
+                <option id="8" name="安装需求"/>
+                <option id="9" name="维护性需求"/>
+                <option id="10" name="性能需求"/>
+                <option id="11" name="扩展性需求"/>
+                <option id="12" name="安全需求"/>
+                <option id="13" name="可用性需求"/>
+            </items>
+            <permission type="Unrestricted"/>
+        </field>
+
+        <field type="OPTIONS" name="复杂度" showInList="true">
+            <items>
+                <option id="1" name="简单"/>
+                <option id="2" name="标准"/>
+                <option id="3" name="复杂"/>
+            </items>
+            <permission type="Unrestricted"/>
+        </field>
+
+        <field type="OPTIONS" name="解决情况" showInList="true">
+            <items>
+                <option id="1" name="无效"/>
+                <option id="2" name="重复"/>
+                <option id="3" name="推迟"/>
+                <option id="4" name="部分实现"/>
+                <option id="5" name="已实现"/>
+            </items>
+            <permission type="Unrestricted"/>
+        </field>
+
+        <field type="OPTIONS" name="覆盖情况" showInList="true">
+            <items>
+                <option id="1" name="Not Covered"/>
+                <option id="2" name="Not Completed"/>
+                <option id="3" name="Not Run"/>
+                <option id="4" name="Not Passed"/>
+                <option id="5" name="Failed"/>
+            </items>
+            <permission type="Unrestricted"/>
+        </field>
+
+        <field type="WORK_ITEM" name="发布">
+            <permission type="Unrestricted"/>
+        </field>
+
+    </fields>
+    <layouts>
+        <layout name="NEW">
+            <fields>
+                <field name="类型"/>
+                <field name="复杂度"/>
+                <field name="解决情况"/>
+                <field name="覆盖情况"/>
+            </fields>
+            <sections>
+                <section name="DETAIL"/>
+                <section name="WORK_ITEMS"/>
+                <section name="ATTACHMENTS"/>
+            </sections>
+            <key-fields>
+                <field name="负责人"/>
+                <field name="状态"/>
+                <field name="优先级"/>
+            </key-fields>
+        </layout>
+        <layout name="DETAIL">
+            <fields>
+                <field name="类型"/>
+                <field name="复杂度"/>
+                <field name="解决情况"/>
+                <field name="覆盖情况"/>
+            </fields>
+            <sections>
+                <section name="DETAIL"/>
+                <section name="WORK_ITEMS"/>
+                <section name="ATTACHMENTS"/>
+            </sections>
+            <key-fields>
+                <field name="负责人"/>
+                <field name="状态"/>
+                <field name="优先级"/>
+            </key-fields>
+        </layout>
+        <layout name="LIST">
+            <fields>
+                <field name="优先级"/>
+                <field name="负责人"/>
+                <field name="标题"/>
+                <field name="描述"/>
+                <field name="状态"/>
+            </fields>
+        </layout>
+    </layouts>
+    <notifications>
+        <system-config>
+            <notification eventName="CREATE_ITEM" useMessage="true" useEmail="true">
+                <grant-to-special-role>工作项负责人</grant-to-special-role>
+                <grant-to-special-role>工作项创建者</grant-to-special-role>
+            </notification>
+            <notification eventName="CHANGE_ITEM_OWNER"  useMessage="true" useEmail="true">
+                <grant-to-special-role>工作项关注者</grant-to-special-role>
+                <grant-to-special-role>工作项负责人</grant-to-special-role>
+                <grant-to-special-role>工作项创建者</grant-to-special-role>
+            </notification>
+        </system-config>
+        <customer-config useDefault="true">
+            <notification default="true"  useMessage="true" useEmail="false">
+                <grant-to-special-role>工作项关注者</grant-to-special-role>
+                <grant-to-special-role>工作项负责人</grant-to-special-role>
+                <grant-to-special-role>工作项创建者</grant-to-special-role>
+            </notification>
+        </customer-config>
+    </notifications>
+</tracker>

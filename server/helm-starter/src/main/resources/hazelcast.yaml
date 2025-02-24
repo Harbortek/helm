@@ -1,0 +1,4 @@
+hazelcast:
+  cache:
+    object_cache:
+      management-enabled: true

@@ -1,0 +1,14 @@
+${AnsiColor.BRIGHT_BLUE}
+
+ ____  ____   ________    _____      ____    ____
+|_   ||   _| |_   __  |  |_   _|    |_   \  /   _|
+  | |__| |     | |_ \_|    | |        |   \/   |
+  |  __  |     |  _| _     | |   _    | |\  /| |
+ _| |  | |_   _| |__/ |   _| |__/ |  _| |_\/_| |_
+|____||____| |________|  |________| |____|  |____|
+
+
+${AnsiColor.BRIGHT_GREEN}
+HELM Version: 0.1.0
+Spring Boot Version: ${spring-boot.version}${spring-boot.formatted-version}
+${AnsiColor.BLACK}

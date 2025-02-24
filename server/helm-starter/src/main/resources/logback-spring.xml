@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <appender name="Console"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- 输出格式，${CONSOLE_LOG_PATTERN} 是在 defaults.xml 中引入的变量 -->
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <!-- 设置字符集 -->
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="Console" />
+    </root>
+    <logger name="com.harbortek.helm" level="INFO" additivity="false">
+        <appender-ref ref="Console" />
+    </logger>
+
+</configuration>
