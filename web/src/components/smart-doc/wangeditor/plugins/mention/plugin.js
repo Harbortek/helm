@@ -1,10 +1,4 @@
-import { IDomEditor } from '@wangeditor/editor';
 import { DomEditor, SlateEditor, SlateRange, SlateTransforms } from '@wangeditor/editor';
-import { IExtendConfig, SearchItem } from './interface';
-import { BaseRange } from 'slate';
-import { MentionElement } from './custom-types';
-import { mount, unmount } from './template';
-import { editor } from 'monaco-editor';
 
 function getMentionConfig(editor) {
     if (!editor) return;

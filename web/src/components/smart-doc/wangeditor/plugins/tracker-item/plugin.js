@@ -2,17 +2,17 @@
  * @description editor 插件，重写 editor API
  */
 
-import { IDomEditor, DomEditor, SlateTransforms,SlateNode,SlateElement,SlatePoint } from "@wangeditor/editor";
+import { IDomEditor, DomEditor, SlateEditor, SlateTransforms, SlateElement, SlatePoint } from '@wangeditor/editor'
 
 const DESC = 'tracker-item-description';
 const TITLE = 'tracker-item-title';
 const EXTRA = 'tracker-item-extra';
 const TRACKER_ITEM = 'tracker-item';
 function getTopSelectedElemsBySelection(editor) {
-    return DomEditor.nodes(editor, {
-      at: editor.selection || undefined,
-      match: (n) => DomEditor.findPath(editor, n).length === 1, // 只匹配顶级元素
-    });
+    return SlateEditor.nodes(editor, {
+        at: editor.selection || undefined,
+        match: n => DomEditor.findPath(editor, n).length === 1, // 只匹配顶级元素
+    })
 }
 /**
  * 判断该 location 有没有命中 tracker-item
@@ -20,13 +20,13 @@ function getTopSelectedElemsBySelection(editor) {
  * @param location location
  */
 function checkLocation(editor, location, checkType) {
-    const trackerItems = DomEditor.nodes(editor, {
-      at: location,
-      match: (n) => {
-        const type = DomEditor.getNodeType(n);
-        return type === checkType;
-      },
-    });
+    const trackerItems = SlateEditor.nodes(editor, {
+        at: location,
+        match: n => {
+            const type = DomEditor.getNodeType(n)
+            return type === checkType
+        },
+    })
     let hasTracekrItem = false
     for (const table of trackerItems) {
         hasTracekrItem = true // 找到了 table
@@ -37,15 +37,15 @@ function checkDeleteHandlerStart(newEditor, checkType) {
     const { selection } = newEditor
     if (selection == null) return false
 
-    const [cellNodeEntry] = DomEditor.nodes(newEditor, {
+    const [cellNodeEntry] = SlateEditor.nodes(newEditor, {
         match: n => DomEditor.checkNodeType(n, checkType),
     })
     if (cellNodeEntry) {
         const [, cellPath] = cellNodeEntry
-        const start = DomEditor.start(newEditor, cellPath);
+        const start = SlateEditor.start(newEditor, cellPath)
 
         if (SlatePoint.equals(selection.anchor, start)) {
-          return true; // 阻止删除 cell
+            return true // 阻止删除 cell
         }
     }
 
@@ -55,15 +55,15 @@ function checkDeleteHandlerEnd(newEditor, checkType) {
     const { selection } = newEditor
     if (selection == null) return false
 
-    const [cellNodeEntry] = DomEditor.nodes(newEditor, {
-      match: (n) => DomEditor.checkNodeType(n, checkType),
-    });
+    const [cellNodeEntry] = SlateEditor.nodes(newEditor, {
+        match: n => DomEditor.checkNodeType(n, checkType),
+    })
     if (cellNodeEntry) {
         const [, cellPath] = cellNodeEntry
-        const end = DomEditor.end(newEditor, cellPath);
+        const end = SlateEditor.end(newEditor, cellPath)
 
         if (SlatePoint.equals(selection.anchor, end)) {
-          return true; // 阻止删除 cell
+            return true // 阻止删除 cell
         }
     }
 
@@ -98,7 +98,7 @@ function withTrackerItem(editor) {
         //2、如果是tracker-item-title，则在description下 换行
         const selectedTitleNode = DomEditor.getSelectedNodeByType(newEditor, TITLE)
         if (selectedTitleNode != null) {
-            const after = DomEditor.after(newEditor, selection); // 前一个 location
+            const after = SlateEditor.after(newEditor, selection) // 前一个 location
             if (after) {
                 const isDescOnAfterLocation = checkLocation(newEditor, after, DESC) // before 是否是 desc
                 if (isDescOnAfterLocation) {
@@ -123,7 +123,7 @@ function withTrackerItem(editor) {
         const { selection } = newEditor
         if (selection) {
             //1. 防止从 tracker-item 后面的 p 删除时，删除最后一个 desc
-            const before = Editor.before(newEditor, selection) // 前一个 location
+            const before = SlateEditor.before(newEditor, selection) // 前一个 location
             if (before) {
                 const isTrackerItemOnBeforeLocation = checkLocation(newEditor, before, TRACKER_ITEM) // before 是否是 table
                 const isTrackerItemOnCurSelection = checkLocation(newEditor, selection, TRACKER_ITEM) // 当前是否是 tracker-item
@@ -153,12 +153,12 @@ function withTrackerItem(editor) {
         if (res) return
         if (selection) {
             //1. 防止从 tracker-item 前面的 p 删除时，删除最后一个 desc
-            const after = DomEditor.after(newEditor, selection); // 前一个 location
+            const after = SlateEditor.after(newEditor, selection) // 前一个 location
             if (after) {
                 const isTrackerItemOnAfterLocation = checkLocation(newEditor, after, TRACKER_ITEM) // before 是否是 table
                 const isTrackerItemOnCurSelection = checkLocation(newEditor, selection, TRACKER_ITEM) // 当前是否是 tracker-item
                 if (isTrackerItemOnAfterLocation && !isTrackerItemOnCurSelection) {
-                    
+
                     return // 如果当前不是 table ，前面是 table ，则不执行删除。否则会删除 table 最后一个 cell
                 }
             }
@@ -180,48 +180,33 @@ function withTrackerItem(editor) {
     newEditor.normalizeNode = ([node, path]) => {
         const { type, ref } = node;
         if (SlateElement.isElement(node) && type === TRACKER_ITEM) {
-          // 如果段落节点没有子节点，添加一个空的文本节点
-          const titleChild = node.children.find(
-            (child) => child.type === TITLE
-          );
-          const descChild = node.children.find((child) => child.type === DESC);
-          const extraChild = node.children.find(
-            (child) => child.type === EXTRA
-          );
-          if (!titleChild) {
-            SlateTransforms.insertNodes(
-              editor,
-              {
-                ref,
-                type: TITLE,
-                children: [{ text: "" }],
-              },
-              { at: [...path, 0] }
-            );
-          }
-          if (!descChild) {
-            SlateTransforms.insertNodes(
-              editor,
-              {
-                ref,
-                type: DESC,
-                children: [{ text: "" }],
-              },
-              { at: [...path, 1] }
-            );
-          }
-          if (!extraChild) {
-            SlateTransforms.insertNodes(
-              editor,
-              {
-                ref,
-                type: EXTRA,
-                children: [{ text: "" }],
-              },
-              { at: [...path, 2] }
-            );
-          }
-          return; // 修复后返回，避免重复处理
+            // 如果段落节点没有子节点，添加一个空的文本节点
+            const titleChild = node.children.find(child => child.type === TITLE)
+            const descChild = node.children.find(child => child.type === DESC)
+            const extraChild = node.children.find(child => child.type === EXTRA)
+            if (!titleChild) {
+                SlateTransforms.insertNodes(editor, {
+                    ref,
+                    type: TITLE,
+                    children: [{ text: "" }]
+                    ,
+                }, { at: [...path, 0] });
+            }
+            if (!descChild) {
+                SlateTransforms.insertNodes(editor, {
+                    ref,
+                    type: DESC,
+                    children: [{ text: "" }]
+                }, { at: [...path, 1] });
+            }
+            if (!extraChild) {
+                SlateTransforms.insertNodes(editor, {
+                    ref,
+                    type: EXTRA,
+                    children: [{ text: "" }]
+                }, { at: [...path, 2] });
+            }
+            return; // 修复后返回，避免重复处理
         }
         // 执行默认行为
         return normalizeNode([node, path])

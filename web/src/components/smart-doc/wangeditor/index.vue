@@ -37,6 +37,7 @@ import store from "@/store";
 const STORE_CURRENT_USER = "account/user";
 import _ from "lodash";
 import bus from "@/utils/bus";
+import { text } from "dom7";
 // Boot.registerModule(docxPlugin)
 
 export default {
@@ -108,7 +109,7 @@ export default {
     return {
       queuedData: [],
       tocData: [],
-      mode: "simple",
+      mode: "default",
       rawValue: [],
       editor: {},
       showOutLiner: true,
@@ -142,6 +143,15 @@ export default {
               "viewImageLink",
             ],
           },
+          // {
+          //   key: "group-image", // 必填，要以 group 开头
+          //   title: "AI", // 必填
+          //   // iconSvg: '<svg></svg>',
+          //   menuKeys: [
+          //     "aiTranslate",
+          //     "aiProofread",
+          //   ],
+          // },
           // {
           //     key: 'group-video',
           //     title: '视频',
@@ -242,6 +252,10 @@ export default {
           },
         },
         hoverbarKeys: {
+          text: {
+            // menuKeys: ["aiTranslate", "aiProofread", "bold", "underline", "italic"], // “加粗”、“下划线”、“斜体”、“删除线”菜单
+            menuKeys: ["aiTranslate", "bold", "underline", "italic"],
+          },
           attachment: {
             menuKeys: ["downloadAttachment"], // “下载附件”菜单
           },
