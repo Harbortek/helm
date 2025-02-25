@@ -17,6 +17,7 @@
 package com.harbortek.helm.system.service.impl;
 
 import com.harbortek.helm.common.config.MinIOConfig;
+import com.harbortek.helm.common.exception.ServiceException;
 import com.harbortek.helm.system.service.FileService;
 import io.minio.*;
 import lombok.extern.slf4j.Slf4j;
@@ -76,36 +77,23 @@ public class MinIOFileServiceImpl implements FileService {
 			minioClient.putObject(objectArgs);
 			inputStream.close();
 
-			fileUrl = "/"+ minIOConfig.getBucketName()+objectName;
+			fileUrl = objectName;
+			log.debug("上传文件成功，文件路径：{}",fileUrl);
 		}catch (Exception e){
 			log.error(e.getMessage(), e);
+			throw new ServiceException("文件上传失败");
 		}
 		return fileUrl;
 	}
 
 	@Override
 	public InputStream download(String filePath) throws Exception {
-		String innerPath = filePath;
-		if (filePath.startsWith(minIOConfig.getBaseUrl())){
-			innerPath = StringUtils.removeStart(filePath,StringUtils.removeEnd(minIOConfig.getBaseUrl(),"/"));
-		}
-		if (innerPath.startsWith("/")) {
-			innerPath = StringUtils.removeStart(innerPath,"/");
-		}
-
-		if (innerPath.startsWith(minIOConfig.getBucketName())){
-			innerPath = StringUtils.removeStart(innerPath,minIOConfig.getBucketName());
-		}
-		if (!innerPath.startsWith("/")) {
-			innerPath = "/"+innerPath;
-		}
-
 		try {
 			return minioClient.getObject(
-					GetObjectArgs.builder().bucket(minIOConfig.getBucketName()).object(innerPath).build());
+					GetObjectArgs.builder().bucket(minIOConfig.getBucketName()).object(filePath).build());
 		}catch (Throwable t){
 			log.error(t.getMessage());
+			throw new ServiceException("文件下载失败");
 		}
-		return new NullInputStream();
 	}
 }

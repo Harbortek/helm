@@ -25,9 +25,9 @@ import com.harbortek.helm.system.service.UserService;
 import com.harbortek.helm.system.vo.OrgVo;
 import com.harbortek.helm.system.vo.RoleVo;
 import com.harbortek.helm.system.vo.UserVo;
+import com.harbortek.helm.util.DateUtils;
 import com.harbortek.helm.util.MD5Utils;
 import com.harbortek.helm.util.MenuTreeUtil;
-import com.harbortek.helm.util.PathUtil;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -156,7 +156,7 @@ public class UserApi {
 	public ResponseEntity<String> updateAvatar(@RequestParam Long id, @RequestParam("file") MultipartFile file)
 			throws Exception {
 		UserVo oldUser = userService.findOneUser(id);
-		String fileUrl = fileService.upload(file, PathUtil.defaultStorePath());
+		String fileUrl = fileService.upload(file, DateUtils.getCurrDate());
 		oldUser.setIcon(fileUrl);
 		userService.updateUser(oldUser);
 		return ResponseEntity.ok(fileUrl);
