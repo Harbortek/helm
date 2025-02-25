@@ -2,6 +2,7 @@ import { h } from 'snabbdom'
 import { DomEditor, SlateTransforms } from '@wangeditor/editor';
 import TrackerItemFieldsShow from "@/components/tool/TrackerItemFieldsShow.vue";
 import Vue from 'vue';
+import { size } from 'lodash';
 
 function getPageSettingsByTrackerId(page, trackerId) {
     for (let i = 0; i < page.pageSettingTrackers.length; i++) {
@@ -105,7 +106,8 @@ function renderTrackerItemTitle(
         [
             h('span', {
                 style: {
-                    color: 'blue',
+                    color: '#338fe5',
+                    'font-weight': 'bold',
                     'margin-right': '5px'
                 },
                 attrs: {

@@ -2,7 +2,7 @@
  * @description editor 插件，重写 editor API
  */
 
-import { IDomEditor, DomEditor, SlatePoint,SlateElement,SlateTransforms } from "@wangeditor/editor";
+import { IDomEditor, DomEditor, SlateEditor, SlateTransforms,SlatePoint } from '@wangeditor/editor'
 const TITLE = 'title';
 /**
  * 判断该 location 有没有命中 tracker-item
@@ -10,7 +10,7 @@ const TITLE = 'title';
  * @param location location
  */
 function checkLocation(editor, location, checkType) {
-    const trackerItems = Editor.nodes(editor, {
+    const trackerItems = SlateEditor.nodes(editor, {
         at: location,
         match: n => {
             const type = DomEditor.getNodeType(n)
@@ -27,12 +27,12 @@ function checkDeleteHandlerStart(newEditor, checkType) {
     const { selection } = newEditor
     if (selection == null) return false
 
-    const [cellNodeEntry] = Editor.nodes(newEditor, {
+    const [cellNodeEntry] = SlateEditor.nodes(newEditor, {
         match: n => DomEditor.checkNodeType(n, checkType),
     })
     if (cellNodeEntry) {
         const [, cellPath] = cellNodeEntry
-        const start = DomEditor.start(newEditor, cellPath);
+        const start = SlateEditor.start(newEditor, cellPath)
 
         if (SlatePoint.equals(selection.anchor, start)) {
             return true // 阻止删除 cell
@@ -45,12 +45,12 @@ function checkDeleteHandlerEnd(newEditor, checkType) {
     const { selection } = newEditor
     if (selection == null) return false
 
-    const [cellNodeEntry] = Editor.nodes(newEditor, {
+    const [cellNodeEntry] = SlateEditor.nodes(newEditor, {
         match: n => DomEditor.checkNodeType(n, checkType),
     })
     if (cellNodeEntry) {
         const [, cellPath] = cellNodeEntry
-        const end = DomEditor.end(newEditor, cellPath);
+        const end = SlateEditor.end(newEditor, cellPath)
 
         if (SlatePoint.equals(selection.anchor, end)) {
             return true // 阻止删除 cell
@@ -63,7 +63,7 @@ function withTitle(editor) {
     const { deleteBackward, deleteForward, insertBreak, normalizeNode, insertData, insertNode, isVoid } = editor
     const newEditor = editor
     newEditor.insertBreak = () => {
-        const [match] = Editor.nodes(newEditor, {
+        const [match] = SlateEditor.nodes(newEditor, {
             match: n => {
                 const type = DomEditor.getNodeType(n)
                 return type == TITLE // 匹配 node.type 是 title 的 node
@@ -117,10 +117,10 @@ function withTitle(editor) {
         if (res) return
         if (selection) {
             //1. 防止从 TITLE 前面的 p 删除时，删除最后一个 desc
-            const after = Editor.after(newEditor, selection) // 前一个 location
+            const after = SlateEditor.after(newEditor, selection) // 前一个 location
             if (after) {
                 const isTitleOnAfterLocation = checkLocation(newEditor, after, TITLE) // before 是否是 table
-                const isTitleOnCurSelection = checkLocation(newEditor, selection, TITLE) // 当前是否是 tracker-itemp
+                const isTitleOnCurSelection = checkLocation(newEditor, selection, TITLE) // 当前是否是 tracker-item
                 if (isTitleOnAfterLocation && !isTitleOnCurSelection) {
 
                     return // 如果当前不是 table ，前面是 table ，则不执行删除。否则会删除 table 最后一个 cell

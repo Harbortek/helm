@@ -90,7 +90,10 @@ public class OperationProcessor {
         operatorExecutorService.submit(() -> {
             while (true)
                 try {
-                    operator.tryToSave();
+                    if (operator != null) {
+
+                        operator.tryToSave();
+                    }
                     Thread.sleep(8 * 1000);
                 } catch (Exception e) {
                     log.severe(e.getMessage());

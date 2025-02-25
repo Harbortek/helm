@@ -2,6 +2,7 @@
  * @description editor 插件，重写 editor API
  */
 
+import { IDomEditor, DomEditor } from '@wangeditor/editor'
 import Cookies from 'js-cookie';
 import AutoCompleteAI from './AutoCompleteAI';
 function withAi(editor) {

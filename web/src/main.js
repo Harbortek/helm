@@ -20,7 +20,9 @@ import "normalize.css/normalize.css";
 
 
 import { Boot } from "@wangeditor/editor";
-import { trackerItemModule, titleModule, slashCommandModule, attachmentModule,aiModule,mentionModule, umlModule, formulaModule } from '@/components/smart-doc/wangeditor/plugins/index.js'
+import { trackerItemModule, titleModule, slashCommandModule, attachmentModule,aiModule,mentionModule, umlModule, formulaModule
+  ,aiTranslateModule
+ } from '@/components/smart-doc/wangeditor/plugins/index.js'
 
 // import docxPlugin from 'wangeditor-plugin-docx'
 Boot.registerModule(trackerItemModule)
@@ -28,6 +30,7 @@ Boot.registerModule(titleModule)
 Boot.registerModule(slashCommandModule)
 Boot.registerModule(attachmentModule)
 Boot.registerModule(aiModule)
+Boot.registerModule(aiTranslateModule)
 // Boot.registerModule(mentionModule)
 // Boot.registerModule(umlModule)
 // Boot.registerModule(formulaModule)

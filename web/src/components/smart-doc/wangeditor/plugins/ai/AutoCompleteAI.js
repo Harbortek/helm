@@ -125,7 +125,6 @@ class AutoCompleteAI {
                 signal: controller.signal,
                 onMessage: (data) => {
                     let lastResponse;
-                    console.log(JSON.parse(data))
                     if (JSON.parse(data).created === "0") {
                         text = text.trim();
                         return resolve();

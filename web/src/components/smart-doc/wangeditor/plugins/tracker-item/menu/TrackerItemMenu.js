@@ -2,8 +2,7 @@
  * @description insert code-block menu
  */
 
-import { Editor, Element, Transforms, Node, Range } from 'slate'
-import { IButtonMenu, IDomEditor, DomEditor, t } from '@wangeditor/editor'
+import { IButtonMenu, IDomEditor, DomEditor, t , SlateEditor,SlateElement,SlateTransforms,SlateNode} from '@wangeditor/editor'
 import { TrackerItemElement } from '../custom-types'
 
 class CodeBlockMenu {
@@ -63,28 +62,28 @@ class CodeBlockMenu {
         const elem = this.getSelectTrackerItemElem(editor)
         if (elem == null) return
 
-        const str = Node.string(elem)
+        const str = SlateNode.string(elem)
 
-        Transforms.removeNodes(editor, { mode: 'highest' })
+        SlateTransforms.removeNodes(editor, { mode: 'highest' })
 
         const pList = str.split('\n').map(s => {
             return { type: 'paragraph', children: [{ text: s }] }
         })
-        Transforms.insertNodes(editor, pList, { mode: 'highest' })
+        SlateTransforms.insertNodes(editor, pList, { mode: 'highest' })
     }
 
     changeToCodeBlock(editor, language) {
         const strArr = []
-        const nodeEntries = Editor.nodes(editor, {
+        const nodeEntries = SlateEditor.nodes(editor, {
             match: n => editor.children.includes(n),
             universal: true,
         })
         for (let nodeEntry of nodeEntries) {
             const [n] = nodeEntry
-            if (n) strArr.push(Node.string(n))
+            if (n) strArr.push(SlateNode.string(n))
         }
 
-        Transforms.removeNodes(editor, { mode: 'highest' })
+        SlateTransforms.removeNodes(editor, { mode: 'highest' })
 
         const newPreNode = {
             type: 'pre',
@@ -98,7 +97,7 @@ class CodeBlockMenu {
                 },
             ],
         }
-        Transforms.insertNodes(editor, newPreNode, { mode: 'highest' })
+        SlateTransforms.insertNodes(editor, newPreNode, { mode: 'highest' })
     }
 }
 
