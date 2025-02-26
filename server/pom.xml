@@ -30,7 +30,7 @@
         <core.version>3.2.1</core.version>
         <docx4j-JAXB-ReferenceImpl.version>11.4.9</docx4j-JAXB-ReferenceImpl.version>
         <dom4j.version>1.6.1</dom4j.version>
-        <druid-spring-boot-starter.version>1.2.20</druid-spring-boot-starter.version>
+        <druid-spring-boot-starter.version>1.2.21</druid-spring-boot-starter.version>
         <graalvm.version>22.1.0.1</graalvm.version>
         <guava.version>32.0.1-android</guava.version>
         <h2.version>2.3.232</h2.version>
