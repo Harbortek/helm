@@ -1,10 +1,13 @@
-<h1 style="text-align: center;">![logo](./docs/images/helm.png)<span style="margin-left:10px;">HELM</span></h1> 
+<p align="center">
+    <img width="200" src="https://github.com/Harbortek/helm/blob/feature/%2313-%E4%BF%AE%E6%94%B9README%E5%92%8CLICENSE/docs/images/helm.png?raw=true">
+</p>
 
-
-<h1 align="center">AI 驱动的一站式研发管理平台</h1>
-<br />
+<h1 align="center">
+  <a href="#" target="_blank">HELM</a>
+</h1>
 
 <div align="center">
+AI 驱动的一站式研发管理平台<
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 [![Latest Release](https://img.shields.io/github/v/release/Harbortek/helm)](https://github.com/Harbortek/helm/releases)
 [![Documentation](https://img.shields.io/badge/docs-website-green.svg)](./docs/Index.md)
