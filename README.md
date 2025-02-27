@@ -20,7 +20,7 @@ AI-Powered All-in-One R&D Management Platform
 
 </div>
 
-[English](README.md) | [Chinese](README_CN.md)
+[English](README.md) | [Chinese](README.CN.md)
 
 
 ## Features
