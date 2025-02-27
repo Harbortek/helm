@@ -32,6 +32,11 @@
       :pageSettingTrackers="page.pageSettingTrackers"></SmartDocSettingsDialog>
     <create-tracker-item-dialog :is-show-dialog="isShowCreateTrackerItemDialog" :projectId="projectId"
       :tracker="showCreateTrackerItem" @ok="onTrackerItemSaved" @cancel="isShowCreateTrackerItemDialog = false" />
+
+    <import-word-dialog :is-show-dialog="showImportWordDialog" :projectId="projectId" :page-id="pageId" @cancel="showImportWordDialog=false" @ok="onImportWordOK"/>
+    <import-reqIF-dialog :is-show-dialog="showImportReqIFDialog" :projectId="projectId" :page-id="pageId" @cancel="showImportReqIFDialog=false"/>
+    <export-reqIF-dialog :is-show-dialog="showExportReqIFDialog" :projectId="projectId" :page-id="pageId" @cancel="showExportReqIFDialog=false"/>
+
   </div>
 </template>
 
@@ -43,7 +48,6 @@ import CommentBar from "./CommentBar.vue";
 import PropertyView from "./PropertyView.vue";
 import SmartDocSettingsDialog from "./Settings.vue";
 import TrackerItemSelectModal from "@/components/dialog/TrackerItemSelectModal";
-import { debounce, deepEqual } from "@/utils/util";
 import MxGraphEditor from "@/components/mxgraph";
 import UserSelectModal from "@/components/dialog/UserSelectModal";
 import RemoteApi from "./RemoteApi";
