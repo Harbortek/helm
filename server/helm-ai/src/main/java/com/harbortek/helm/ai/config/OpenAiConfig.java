@@ -16,12 +16,14 @@
 
 package com.harbortek.helm.ai.config;
 
+import com.harbortek.helm.common.exception.ServiceException;
 import com.theokanning.openai.client.OpenAiApi;
 import com.theokanning.openai.service.OpenAiService;
 import lombok.Data;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,7 +46,12 @@ public class OpenAiConfig {
 
     @Bean
     public OpenAiService getOpenAiService() {
-        OpenAiService openAiService = new OpenAiService(apiKey, Duration.ofSeconds(timeout), baseUrl);
+        OpenAiService openAiService = null;
+        try {
+            openAiService = new OpenAiService(apiKey, Duration.ofSeconds(timeout), baseUrl);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 //        OkHttpClient client = new OkHttpClient.Builder()
 //                //连接池
 //                .connectionPool(new ConnectionPool(Runtime.getRuntime().availableProcessors() * 2, 30, TimeUnit.SECONDS))
