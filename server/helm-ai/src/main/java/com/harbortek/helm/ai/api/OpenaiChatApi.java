@@ -44,7 +44,7 @@ import java.util.UUID;
 @RequestMapping("/ai/openai/v1")
 @Log
 public class OpenaiChatApi {
-    @Autowired
+    @Autowired(required = false)
     private OpenAiService openAiService;
 
     @PostMapping(path = "/chat/completions", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
