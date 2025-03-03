@@ -1,4 +1,4 @@
-import { request, METHOD } from "@/utils/request";
+import { request,download, METHOD } from "@/utils/request";
 import Cookies from "js-cookie";
 
 export function uploadFile(file, fileType) {
@@ -17,18 +17,21 @@ export function uploadFile(file, fileType) {
 }
 
 export function downloadFile(file) {
-  // const accessToken = localStorage.get(ACCESS_TOKEN)
-  const accessToken = Cookies.get("Authorization");
   const name = file.name;
   const url = file.url;
-  const downloadUrl =
-    process.env.VUE_APP_API_BASE_URL +
-    `/download?access_token=${accessToken}&name=${name}&url=${url}`;
-  var iframe = document.createElement("iframe");
-  iframe.style.display = "none";
-  iframe.src = downloadUrl;
-  iframe.onload = function () {
-    document.body.removeChild(iframe);
-  };
-  document.body.appendChild(iframe);
+  download('/download', { name: name,url:url }, name);
+
+  // const accessToken = Cookies.get("Authorization");
+  // const name = file.name;
+  // const url = file.url;
+  // const downloadUrl =
+  //   process.env.VUE_APP_API_BASE_URL +
+  //   `/download?access_token=${accessToken}&name=${name}&url=${url}`;
+  // var iframe = document.createElement("iframe");
+  // iframe.style.display = "none";
+  // iframe.src = downloadUrl;
+  // iframe.onload = function () {
+  //   document.body.removeChild(iframe);
+  // };
+  // document.body.appendChild(iframe);
 }

@@ -1,5 +1,7 @@
 import axios from "axios";
 import Cookie from "js-cookie";
+import loadingService from "./loading.js";
+import { saveAs } from "file-saver";
 
 // 跨域认证信息 header 名
 const xsrfHeaderName = "Authorization";
@@ -80,9 +82,7 @@ function getMainDomain(domain) {
 function setAuthorization(auth, authType = AUTH_TYPE.BEARER) {
   switch (authType) {
     case AUTH_TYPE.BEARER:
-      console.log("setAuthorization", auth);
       const domain = getMainDomain(window.location.hostname);
-      console.log("域名:", domain);
       Cookie.set(xsrfHeaderName, auth.token, {
         expires: auth.expireAt,
         path: "/",
@@ -196,6 +196,74 @@ function parseUrlParams(url) {
   return params;
 }
 
+
+function tansParams(params) {
+  let result = "";
+  for (const propName of Object.keys(params)) {
+    const value = params[propName];
+    var part = encodeURIComponent(propName) + "=";
+    if (value !== null && value !== "" && typeof value !== "undefined") {
+      if (typeof value === "object") {
+        for (const key of Object.keys(value)) {
+          if (
+            value[key] !== null &&
+            value[key] !== "" &&
+            typeof value[key] !== "undefined"
+          ) {
+            let params = propName + "[" + key + "]";
+            var subPart = encodeURIComponent(params) + "=";
+            result += subPart + encodeURIComponent(value[key]) + "&";
+          }
+        }
+      } else {
+        result += part + encodeURIComponent(value) + "&";
+      }
+    }
+  }
+  return result;
+}
+
+// 验证是否为blob格式
+function blobValidate(data) {
+  return data.type !== "application/json";
+}
+
+// 通用下载方法
+function download(url, params, filename, config) {
+  loadingService.show();
+  return axios
+    .post(url, params, {
+      transformRequest: [
+        (params) => {
+          return tansParams(params);
+        },
+      ],
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      responseType: "blob",
+      timeout: 1000 * 60 * 10,
+      ...config,
+    })
+    .then(async (data) => {
+      const isBlob = blobValidate(data);
+      if (isBlob) {
+        const blob = new Blob([data]);
+        saveAs(blob, filename);
+      } else {
+        const resText = await data.text();
+        const rspObj = JSON.parse(resText);
+        const errMsg =
+          errorCode[rspObj.code] || rspObj.msg || errorCode["default"];
+        Message.error(errMsg);
+      }
+      loadingService.hide();
+    })
+    .catch((r) => {
+      console.error(r);
+      Message.error("下载文件出现错误，请联系管理员！");
+      loadingService.hide();
+    });
+}
+
 export {
   METHOD,
   AUTH_TYPE,
@@ -205,4 +273,5 @@ export {
   checkAuthorization,
   loadInterceptors,
   parseUrlParams,
+  download,
 };
