@@ -124,7 +124,6 @@ export default {
                 return f.inputType === 'INTEGER' || f.inputType === 'TEXT' || f.inputType === 'STATUS'
                     || f.inputType === 'DATE' || f.inputType === 'USER' || f.inputType === 'OPTIONS'
             })
-            console.log("fields",fields)
             fields = fields.filter(f => {
                 return f.systemProperty !== 'name' && f.systemProperty !== 'createBy' 
                     && f.systemProperty !== 'createDate' && f.systemProperty !== 'lastModifiedBy' && f.systemProperty !== 'lastModifiedDate' 
@@ -173,13 +172,11 @@ export default {
             }
         },
         onOKAddKeyFields(){
-            console.log("oooonk",this.formData.keyfield)
             if(this.formData.keyfield){
                 let field = this.findFields(this.formData.keyfield)
                 if (field) {
                     this.keyFields.push(field)
                     let layout = this.findLayout()
-                    console.log("ooook",layout)
                     layout.keyFields=Object.assign([],this.keyFields);
                     updateTrackerLayout(this.tracker.id,layout).then(resp => {
                         this.$message.success("操作成功")   

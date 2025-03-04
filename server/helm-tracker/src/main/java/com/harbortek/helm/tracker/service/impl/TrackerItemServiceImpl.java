@@ -1217,7 +1217,7 @@ public class TrackerItemServiceImpl implements TrackerItemService {
         logs.sort(new Comparator<TrackerLogVo>() {
             @Override
             public int compare(TrackerLogVo o1, TrackerLogVo o2) {
-                return CompareUtil.compare(o1.getCreateDate(), o2.getCreateDate());
+                return CompareUtil.compare(o2.getCreateDate(), o1.getCreateDate());
             }
         });
 

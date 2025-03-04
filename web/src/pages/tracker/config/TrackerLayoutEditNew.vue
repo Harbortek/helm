@@ -225,7 +225,7 @@ export default {
                 projectId: this.projectId,
                 trackerId: this.tracker.id,
                 name: '这是一条示例数据',
-                description: '描述',
+                description: '',
                 values: {},
                 owner: this.user,
                 priority: '3',

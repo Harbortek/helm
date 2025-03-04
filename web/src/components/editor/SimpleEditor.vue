@@ -1,10 +1,9 @@
 <template>
-  <div class="simple-editor" @mousedown="handleMousedown">
+  <div class="simple-editor" @mousedown="handleMousedown" :style="{'margin-top':showToolbar?'42px':''}">
     <Toolbar
       ref="toolbarRef"
       v-show="showToolbar"
       class="wang-editor-toolbar"
-      style="border-bottom: 1px solid #ccc"
       :editor="editor"
       :defaultConfig="toolbarConfig"
       :mode="mode"
@@ -85,10 +84,10 @@ export default {
       editor: null,
       html: "<p>hello</p>",
       toolbarConfig: {
-        insertKeys: {
-          index: 0,
-          // keys: ["insertUML", "uploadAttachment", "insertFormula"], // show menu in toolbar
-        },
+        // insertKeys: {
+        //   index: 0,
+        //   // keys: ["insertUML", "uploadAttachment", "insertFormula"], // show menu in toolbar
+        // },
         toolbarKeys: [
           // 'headerSelect',
           "bold",
@@ -304,16 +303,16 @@ export default {
     border: 1px solid #ccc;
     /deep/ .w-e-text-container {
       // min-height: 120px;
+      min-height: 50px;
     }
   }
 
   .wang-editor-toolbar {
-    border: 1px solid #ccc;
+    // border: 1px solid #ccc;
     position: absolute;
     top: -42px;
     // opacity: 0.8;
+    z-index: 1;
   }
-
-  
 }
 </style>

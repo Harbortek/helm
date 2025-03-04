@@ -150,7 +150,7 @@ export default {
                 findTestResultsByTrackerItemId(this.itemId).then(res => {
                     this.testResult = res
                     res.forEach(result => {
-                        result.testRun.items.forEach(item => {
+                        result.testRun.items?.forEach(item => {
                             if (item.itemId == result.testCase.id) {
                                 this.$set(result.testCase, 'resultId', item.resultId)
                             }

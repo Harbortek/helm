@@ -270,7 +270,6 @@ export default {
             this.reload()
         }).finally(() => {
             this.initData('NEW');
-            console.log("select", this.sections)
         })
     },
     methods: {
@@ -280,7 +279,6 @@ export default {
         handleSearch(val) {
             findTrackerItems(this.projectId, this.trackerId, null, {}, val, {}, []).then(resp => {
                 this.itemData = [];
-                console.log("items", resp)
                 resp.content.forEach(res => {
                     this.itemData.push({ value: res.id, label: res.name })
                 })
@@ -291,7 +289,6 @@ export default {
         handleChange(val) {
             findTrackerItems(this.projectId, this.trackerId, null, {}, val, {}, []).then(resp => {
                 this.itemData = [];
-                console.log("items", resp)
                 resp.content.forEach(res => {
                     this.itemData.push({ value: res.id, label: res.name })
                 })
@@ -300,7 +297,6 @@ export default {
             })
         },
         onChangeRadio(e) {
-            console.log("e", e.target.value)
             if (e.target.value == '1') {//与详情表单保持一致
                 this.selectTab = ''
                 this.isCustomConfig = false;
@@ -340,7 +336,6 @@ export default {
             return false;
         },
         onOKAddFields() {
-            console.log("oooonk", this.formData.field)
             if (this.formData.field) {
                 let field = this.findFields(this.formData.field)
                 if (field) {
@@ -351,7 +346,6 @@ export default {
             }
         },
         onOKAddSections() {
-            console.log("oooonk", this.formData.sections)
             if (this.formData.sections) {
                 this.sections = []
                 for (let item of this.formData.sections) {
@@ -366,7 +360,6 @@ export default {
             }
         },
         onClickDeleteFields(row) {
-            console.log("onClickDeleteFields", row)
             for (let i in this.customerFields) {
                 if (this.customerFields[i].id == row.id) {
                     this.$delete(this.customerFields, i);
@@ -375,7 +368,6 @@ export default {
             }
         },
         onClickDeleteSections(row) {
-            console.log("onClickDeleteSections", row)
             for (let i in this.sections) {
                 if (this.sections[i].value == row.value) {
                     this.$delete(this.sections, i);
