@@ -58,7 +58,7 @@
                             <vxe-table border height="300" :data="tableData" :column-config="{ resizable: true }"
                                 :header-cell-style="tableHeaderStyle" :cell-style="tableItemStyle">
                                 <vxe-column v-for="config in tableColumn" :key="config.key" :type="config.type"
-                                    :field="config.field" :title="config.title" :fixed="config.fixed"
+                                    :field="config.field" :title="config.title" 
                                     :min-width="config.minWidth" :filters="config.filters" show-header-overflow
                                     show-overflow show-footer-overflow>
                                     <template #header="{ column }">
