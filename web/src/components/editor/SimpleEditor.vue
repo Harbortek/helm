@@ -302,8 +302,7 @@ export default {
   &:has(.actived) {
     border: 1px solid #ccc;
     /deep/ .w-e-text-container {
-      // min-height: 120px;
-      min-height: 50px;
+      min-height: 120px;
     }
   }
 

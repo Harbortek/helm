@@ -50,9 +50,7 @@ import com.harbortek.helm.tracker.vo.link.TrackerLinkVo;
 import com.harbortek.helm.tracker.vo.log.*;
 import com.harbortek.helm.tracker.vo.plan.SprintVo;
 import com.harbortek.helm.tracker.vo.tracker.TrackerVo;
-import com.harbortek.helm.tracker.vo.tracker.fields.IntegerField;
-import com.harbortek.helm.tracker.vo.tracker.fields.TestStepField;
-import com.harbortek.helm.tracker.vo.tracker.fields.TrackerField;
+import com.harbortek.helm.tracker.vo.tracker.fields.*;
 import com.harbortek.helm.tracker.vo.tracker.permissions.FieldPermission;
 import com.harbortek.helm.tracker.vo.tracker.stateTransition.TrackerStateTransition;
 import com.harbortek.helm.tracker.vo.tracker.stateTransition.TrackerStateTransitionAction;
@@ -83,6 +81,7 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service("trackerItemService")
@@ -1516,16 +1515,37 @@ public class TrackerItemServiceImpl implements TrackerItemService {
             }
 
             //改变工作项属性值
-            Object oldValue = item.getCustomerFieldValue(trackerField);
+            AtomicReference<Object> oldValue = new AtomicReference<>(item.getCustomerFieldValue(trackerField));
             item.setCustomerFieldValue(trackerField, newValue);
             trackerItemDao.updateCustomField(item);
             if(!item.getRelatedWikis().isEmpty()){
                 docDao.incVersion(item.getRelatedWikis());
             }
+            //获取oldValue
+            AtomicReference<Object> newValueRef = new AtomicReference<>(newValue);
+            Long enumId = null;
+            if (trackerField instanceof OptionsField) {
+                enumId = ((OptionsField) trackerField).getEnumId();
+            } else if (trackerField instanceof MultiOptionsField) {
+                enumId = ((MultiOptionsField) trackerField).getEnumId();
+            }
+            if (ObjectUtils.isValid(enumId)) {
+                List<EnumItemVo> enumVos = enumService.findEnumItems(enumId, item.getProjectId());
+                if(ObjectUtils.isNotEmpty(oldValue.get())){
+                    enumVos.stream().filter(e -> e.getId().toString().equals(oldValue.get().toString())).findFirst().ifPresent(oldEnum -> {
+                        oldValue.set(oldEnum.getName());
+                    });
+                }
+                if(ObjectUtils.isNotEmpty(newValueRef.get())){
+                    enumVos.stream().filter(e->e.getId().toString().equals(newValueRef.get().toString())).findFirst().ifPresent(newEnum -> {
+                        newValueRef.set(newEnum.getName());
+                    });
+                }
+            }
 
             //记录日志
             changeLogDao.createChangeLog(itemId, ChangeLogMessages.TRACKER_ITEM_FIELD_CHANGE, "编辑了工作项属性",
-                    trackerField, oldValue, newValue);
+                    trackerField, oldValue.get(), newValueRef.get());
 
             //发送通知
             trackerNotificationService.sendCustomerNotification(trackerField, tracker, item, SecurityUtils.getCurrentUser());

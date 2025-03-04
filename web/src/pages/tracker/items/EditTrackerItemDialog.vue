@@ -111,8 +111,6 @@
                                                         :wrapperCol="{ span: isTable(f) ? 20 : 16 }">
                                                         <TrackerItemFieldsShow :fields="f" :trackerItem="formData" :projectId="projectId" :trackerId="tracker.id"
                                                             :readOnly="false" @change="loadData()" />
-                                                            <!-- <ItemCustomFieldsShow :fields="f" v-model="formData.values[f.id]" :projectId="projectId" :trackerId="tracker.id"
-                                                                :readOnly="false" @change="onChangeCustomerField"></ItemCustomFieldsShow> -->
                                                     </a-form-model-item>
                                                 </a-col>
                                             </a-row>
@@ -237,7 +235,7 @@ import TrackerItemFieldsShow from '../../../components/tool/TrackerItemFieldsSho
 import { mapGetters, mapState, mapMutations } from "vuex";
 import { hasPermission } from '@/utils/permission'
 import {
-    findOneTrackerItem, changeSystemField, changeCustomerField, deleteTrackerItem
+    findOneTrackerItem, changeSystemField, deleteTrackerItem
 } from "@/services/tracker/TrackerItemService"
 import TrackerComment from './TrackerComment.vue';
 import RegisterHourDialog from './RegisterHourDialog.vue';
@@ -612,19 +610,6 @@ export default {
             }).finally(()=>{
                 this.editorInEditMode = false
                 this.loadData()
-            })
-        },
-
-
-        onChangeCustomerField(fieldId, value) {
-            // console.log("customFChange",fieldId, value,this.formData.values[fieldId])
-            changeCustomerField(this.itemId, fieldId, value).then(resp => {
-                this.loadData()
-            }).finally(() => {
-                // let field = this.customerFields.find(f => f.id === fieldId)
-                // if(field.inputType=="TEST_STEP"){
-                //     this.$emit("updateTestStep",value)
-                // }
             })
         },
         onSearchOwner() {

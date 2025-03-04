@@ -61,7 +61,7 @@
                             :style="{ color: p.name === trackerItem?.values[item.id] ? '#338fe5' : '' }"
                             v-for="p in item.items" :key="p.id">
                             <div class="option-item">
-                                <div class="option-item-content" @click="changeType(item.id, p.name)">
+                                <div class="option-item-content" @click="changeType(item.id, p.id, p.name)">
                                     <span class="option-item-text"> {{ p.name }}</span>
                                 </div>
                                 <div class="option-item-icon "><a-icon type="check"
@@ -164,11 +164,11 @@ export default ({
     },
     methods: {
         changeType(ItemId, pName) {
-            this.onChangeCustomerField(ItemId, pName);
+            this.onChangeCustomerField(ItemId, PId,pName);
             this.popoverVisible[ItemId] = false
         },
-        onChangeCustomerField(id, value) {
-            changeCustomerField(this.trackerItem.id, id, value).then(resp => {
+        onChangeCustomerField(id, valueId,value) {
+            changeCustomerField(this.trackerItem.id, id, valueId).then(resp => {
                 this.refresh()
             })
         },
