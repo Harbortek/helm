@@ -35,35 +35,35 @@ public class TargetVersionApi {
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     ResponseEntity<Collection<TargetVersionVo>> findVersions(
             @RequestParam(value = "projectId", required = false) Long projectId) {
-        Collection<TargetVersionVo> Versions = versionService.findVersions(projectId);
+        Collection<TargetVersionVo> Versions = versionService.findTargetVersions(projectId);
         return ResponseEntity.ok(Versions);
     }
 
     @Parameter(name="查询一个版本")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     ResponseEntity<TargetVersionVo> findOneVersion(@PathVariable Long id) {
-        TargetVersionVo Version = versionService.findOneVersion(id);
+        TargetVersionVo Version = versionService.findOneTargetVersion(id);
         return ResponseEntity.ok(Version);
     }
 
     @Parameter(name="创建一个版本")
     @RequestMapping(value = "", method = RequestMethod.POST)
     ResponseEntity<TargetVersionVo> createVersion(@RequestBody TargetVersionVo VersionVo) {
-        TargetVersionVo result = versionService.createVersion(VersionVo);
+        TargetVersionVo result = versionService.createTargetVersion(VersionVo);
         return ResponseEntity.ok(result);
     }
 
     @Parameter(name="更新一个版本")
     @RequestMapping(value = "", method = RequestMethod.PUT)
     ResponseEntity<TargetVersionVo> updateVersion(@RequestBody TargetVersionVo VersionVo) {
-        TargetVersionVo result = versionService.updateVersion(VersionVo);
+        TargetVersionVo result = versionService.updateTargetVersion(VersionVo);
         return ResponseEntity.ok(result);
     }
 
     @Parameter(name="删除一个版本")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     ResponseEntity<Void> deleteVersion(@PathVariable Long id) {
-        versionService.deleteVersion(id);
+        versionService.deleteTargetVersion(id);
         return ResponseEntity.ok().build();
     }
 }

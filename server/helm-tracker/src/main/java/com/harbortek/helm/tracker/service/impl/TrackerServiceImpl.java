@@ -217,6 +217,11 @@ public class TrackerServiceImpl implements TrackerService {
     }
 
     @Cacheable(value = CacheConstants.OBJECT_CACHE_NAME, key = "'objects_TrackerVo_'+#trackerId")
+    public TrackerVo findTrackerFromCache(Long trackerId) {
+        return findOneTracker(trackerId);
+    }
+
+
     public TrackerVo findOneTracker(Long trackerId) {
         TrackerVo trackerVo = InternalTrackers.getTrackerVo(trackerId);
         if (trackerVo != null) {
@@ -560,7 +565,7 @@ public class TrackerServiceImpl implements TrackerService {
     @Override
     public TrackerVo findOneTrackerByName(Long projectId, String trackerName) {
         TrackerEntity trackerEntity = trackerDao.findOneTrackerByName(projectId,trackerName);
-        return DataUtils.toVo(trackerEntity, TrackerVo.class);
+        return findOneTracker(trackerEntity.getId());
     }
 
     /******  工作项步骤 ******/

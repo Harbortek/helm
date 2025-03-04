@@ -35,31 +35,31 @@ public class TargetVersionServiceImpl implements TargetVersionService {
     TargetVersionDao versionDao;
 
     @Override
-    public Collection<TargetVersionVo> findVersions(Long projectId) {
+    public Collection<TargetVersionVo> findTargetVersions(Long projectId) {
         return DataUtils.toVo(versionDao.findAll(projectId), TargetVersionVo.class);
     }
 
     @Override
-    public TargetVersionVo findOneVersion(Long id) {
+    public TargetVersionVo findOneTargetVersion(Long id) {
         return DataUtils.toVo(versionDao.findById(id, TargetVersionEntity.class), TargetVersionVo.class);
     }
 
     @Override
-    public TargetVersionVo createVersion(TargetVersionVo versionVo) {
+    public TargetVersionVo createTargetVersion(TargetVersionVo versionVo) {
         TargetVersionEntity entity = DataUtils.toEntity(versionVo, TargetVersionEntity.class);
         entity = versionDao.createVersion(entity);
         return DataUtils.toVo(entity, TargetVersionVo.class);
     }
 
     @Override
-    public TargetVersionVo updateVersion(TargetVersionVo versionVo) {
+    public TargetVersionVo updateTargetVersion(TargetVersionVo versionVo) {
         TargetVersionEntity entity = DataUtils.toEntity(versionVo, TargetVersionEntity.class);
         entity = versionDao.updateVersion(entity);
         return DataUtils.toVo(entity, TargetVersionVo.class);
     }
 
     @Override
-    public void deleteVersion(Long id) {
+    public void deleteTargetVersion(Long id) {
         versionDao.deleteVersion(id);
     }
 }

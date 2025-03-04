@@ -21,13 +21,13 @@ import com.harbortek.helm.tracker.vo.plan.TargetVersionVo;
 import java.util.Collection;
 
 public interface TargetVersionService {
-    Collection<TargetVersionVo> findVersions(Long projectId);
+    Collection<TargetVersionVo> findTargetVersions(Long projectId);
 
-    TargetVersionVo findOneVersion(Long id);
+    TargetVersionVo findOneTargetVersion(Long id);
 
-    TargetVersionVo createVersion(TargetVersionVo versionVo);
+    TargetVersionVo createTargetVersion(TargetVersionVo versionVo);
 
-    TargetVersionVo updateVersion(TargetVersionVo versionVo);
+    TargetVersionVo updateTargetVersion(TargetVersionVo versionVo);
 
-    void deleteVersion(Long id);
+    void deleteTargetVersion(Long id);
 }

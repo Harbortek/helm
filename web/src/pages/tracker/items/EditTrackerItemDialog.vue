@@ -486,6 +486,7 @@ export default {
         prepareFormData() {
             console.log("values", this.trackerItem.values)
             this.formData = {
+                id: this.trackerItem.id,
                 projectId: this.projectId,
                 trackerId: this.trackerItem.trackerId,
                 sprintId: this.trackerItem.sprint?.id,

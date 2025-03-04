@@ -34,6 +34,8 @@ import com.harbortek.helm.tracker.vo.smartpage.DatasetVo;
 import com.harbortek.helm.tracker.vo.smartpage.PageDefinitionVo;
 import com.harbortek.helm.tracker.vo.smartpage.filter.DataFilter;
 import com.harbortek.helm.tracker.vo.tracker.TrackerVo;
+import com.harbortek.helm.tracker.vo.tracker.fields.MultiOptionsField;
+import com.harbortek.helm.tracker.vo.tracker.fields.OptionsField;
 import com.harbortek.helm.tracker.vo.tracker.fields.TrackerField;
 import com.harbortek.helm.util.*;
 import lombok.extern.slf4j.Slf4j;
@@ -91,11 +93,11 @@ public class DatasetServiceImpl implements DatasetService {
             String sql = dataset.getSql();
             sql = translateVirtualTables(sql);
             rowSet = sqlDao.plainSelect(sql, null, null, filterFields, 1,
-                                        100);
+                    100);
             rowSetToDataset(rowSet, dataset);
         } else {
             rowSet = h2SqlDao.plainSelect(h2SqlDao.getSelectSQL(dataset), parameters, null, filterFields, 1,
-                                          100);
+                    100);
             rowSetToDataset(rowSet, dataset);
         }
         return dataset;
@@ -108,20 +110,20 @@ public class DatasetServiceImpl implements DatasetService {
         if ("SQL".equals(dataset.getType())) {
             String sql = dataset.getSql();
             sql = translateVirtualTables(sql);
-            return sqlDao.plainSelect(sql, parameters, fields, filterFields,  page, pageSize);
+            return sqlDao.plainSelect(sql, parameters, fields, filterFields, page, pageSize);
 
         } else if ("JavaScript".equals(dataset.getType())) {
             Object result = ExpressionUtils.execute(dataset.getSql());
             if (result instanceof JSONArray data) {
                 h2SqlDao.prepareData(dataset, data);
                 return h2SqlDao.plainSelect(h2SqlDao.getSelectSQL(dataset), parameters, fields, filterFields, page,
-                                            pageSize);
+                        pageSize);
             }
         } else if ("JSON".equals(dataset.getType())) {
             JSONArray data = JsonUtils.parseArray(dataset.getSql());
             h2SqlDao.prepareData(dataset, data);
             return h2SqlDao.plainSelect(h2SqlDao.getSelectSQL(dataset), parameters, fields, filterFields, page,
-                                        pageSize);
+                    pageSize);
         }
         return null;
     }
@@ -159,13 +161,13 @@ public class DatasetServiceImpl implements DatasetService {
             if (result instanceof JSONArray data) {
                 h2SqlDao.prepareData(dataset, data);
                 return h2SqlDao.groupBy(h2SqlDao.getSelectSQL(dataset), queryParameters, groupByFields, valueFields,
-                                        filterFields);
+                        filterFields);
             }
         } else if ("JSON".equals(dataset.getType())) {
             JSONArray data = JsonUtils.parseArray(dataset.getSql());
             h2SqlDao.prepareData(dataset, data);
             return h2SqlDao.groupBy(h2SqlDao.getSelectSQL(dataset), queryParameters, groupByFields, valueFields,
-                                    filterFields);
+                    filterFields);
         }
         return null;
     }
@@ -205,13 +207,13 @@ public class DatasetServiceImpl implements DatasetService {
 
     @Override
     public List<String> findEnumValues(Long pageId, Long datasetId, String field) {
-        DatasetVo dataset =  findById(pageId,datasetId);
+        DatasetVo dataset = findById(pageId, datasetId);
         if ("SQL".equals(dataset.getType())) {
             String sql = dataset.getSql();
             sql = translateVirtualTables(sql);
-            SqlRowSet rowSet = sqlDao.selectDistinct(sql,field);
+            SqlRowSet rowSet = sqlDao.selectDistinct(sql, field);
             List<String> result = new ArrayList<>();
-            while (rowSet.next()){
+            while (rowSet.next()) {
                 result.add(rowSet.getString(field));
             }
             return result;
@@ -228,7 +230,9 @@ public class DatasetServiceImpl implements DatasetService {
 
         List<DatasetField> originFields = dataset.getFields();
         Map<String, DatasetField> fieldMap = new HashMap<>();
-        originFields.forEach(f -> {fieldMap.put(f.getName(), f);});
+        originFields.forEach(f -> {
+            fieldMap.put(f.getName(), f);
+        });
 
         List<DatasetField> fieldList = new ArrayList<>();
         for (int i = 0; i < columnCount; i++) {
@@ -522,8 +526,8 @@ public class DatasetServiceImpl implements DatasetService {
             if (trackerNames.length > 1) {
                 String names = Arrays.stream(trackerNames).map(SQLUtils::wrapString).collect(Collectors.joining(","));
                 sb.append(" AND  items.tracker_id in (select id from trackers tracker where tracker.deleted = 0 and " +
-                                  "tracker.name in " +
-                                  "(").append(names).append("))");
+                        "tracker.name in " +
+                        "(").append(names).append("))");
             }
         } else {
             String select = """
@@ -583,11 +587,35 @@ public class DatasetServiceImpl implements DatasetService {
             List<TrackerField> trackerFields = tracker.getTrackerFields();
             for (TrackerField trackerField : trackerFields) {
                 if (!trackerField.isSystem()) {
-                    if (!Objects.equals(trackerField.getInputType(), FieldTypes.TABLE) &&
+                    if (Objects.equals(trackerField.getInputType(), FieldTypes.SINGLE_OPTIONS) || Objects.equals(trackerField.getInputType(), FieldTypes.MULTI_OPTIONS)) {
+                        sb.append(",\n");
+                        List<OptionsField.OptionItem> optionItems = new ArrayList<>();
+                        if (trackerField instanceof OptionsField) {
+                            optionItems = ((OptionsField) trackerField).getItems();
+                        } else {
+                            optionItems = ((MultiOptionsField) trackerField).getItems();
+                        }
+                        JSONArray jsonArray = new JSONArray();
+                        for (OptionsField.OptionItem item : optionItems) {
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.set("id", item.getId());
+                            jsonObject.set("name", item.getName());
+                            jsonArray.add(jsonObject);
+                        }
+
+                        String jsonString = jsonArray.toStringPretty();
+                        String innerTable = "f" + trackerField.getId();
+
+                        sb.append("(select ").append(innerTable).append(".name from  json_table('").append(jsonString)
+                                .append("','$[*]' COLUMNS (id bigint path '$.id', name varchar(200) path '$.name')) ")
+                                .append(" as ").append(innerTable).append(" where ")
+                                .append(innerTable).append(".id").append("=").append("json_extract(items.values,'$.\"").append(trackerField.getId()).append("\"')) ")
+                                .append(" as '").append(trackerField.getName()).append("' ");
+                    } else if (!Objects.equals(trackerField.getInputType(), FieldTypes.TABLE) &&
                             !Objects.equals(trackerField.getInputType(), FieldTypes.TEST_STEP)) {
                         sb.append(",\n");
                         sb.append("json_extract(items.values,'$.\"").append(trackerField.getId()).append("\"') as '")
-                          .append(trackerField.getName()).append("'");
+                                .append(trackerField.getName()).append("'");
                     }
                 }
             }

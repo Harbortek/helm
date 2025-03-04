@@ -47,18 +47,4 @@ public class MultiOptionsField extends TrackerField{
 	Map<String, Collection<OptionsField.OptionItem>> allowedValues;
 	Map<String, OptionsField.OptionItem> defaultValues;
 
-	@Data
-	@AllArgsConstructor
-	@SuperBuilder
-	@NoArgsConstructor
-	public static class OptionItem {
-		Long id;
-		String name;
-		String description;
-		String color = "#000000";;
-
-		String backgroundColor = "#FFFFFF";
-		String meaning;
-	}
-
 }

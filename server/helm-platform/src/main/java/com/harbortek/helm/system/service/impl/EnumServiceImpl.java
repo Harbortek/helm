@@ -191,6 +191,8 @@ public class EnumServiceImpl implements EnumService {
 	}
 	private ScriptEngine createScriptEngine() {
 
+		System.setProperty("polyglot.engine.WarnInterpreterOnly", "false");
+
 		ScriptEngineManager engineManager = new ScriptEngineManager();
 		ScriptEngine jsEngine = engineManager.getEngineByName("graal.js");
 
@@ -203,7 +205,7 @@ public class EnumServiceImpl implements EnumService {
 		bindings.put("polyglot.js.allowHostClassLoading", true);
 		bindings.put("polyglot.js.allowAllAccess", true);
 		bindings.put("polyglot.js.ecmascript-version", "2022");
-		bindings.put("polyglot.engine.WarnInterpreterOnly",false);
+		bindings.put("engine.WarnInterpreterOnly",false);
 		return jsEngine;
 	}
 

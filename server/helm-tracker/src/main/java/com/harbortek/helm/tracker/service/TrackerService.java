@@ -41,8 +41,9 @@ public interface TrackerService {
 
 	void deleteTracker(TrackerVo tracker);
 
-
 	TrackerVo findOneTracker(Long id);
+
+	TrackerVo findTrackerFromCache(Long trackerId);
 
 	List<TrackerVo> findByProject(Long projectId);
 
