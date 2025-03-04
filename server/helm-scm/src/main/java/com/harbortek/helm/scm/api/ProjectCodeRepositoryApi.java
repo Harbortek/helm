@@ -18,9 +18,8 @@ package com.harbortek.helm.scm.api;
 
 import com.harbortek.helm.scm.service.CodeRepositoryService;
 import com.harbortek.helm.scm.vo.*;
-import eu.medsea.mimeutil.MimeType;
-import eu.medsea.mimeutil.detector.ExtensionMimeDetector;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -30,10 +29,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.net.URLEncoder;
-import java.util.Collection;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -89,22 +89,14 @@ public class ProjectCodeRepositoryApi {
     }
 
     @Parameter(name="下载代码仓文件内容")
-    @RequestMapping(value = "/fileDownload", method = RequestMethod.GET)
-    ResponseEntity downloadFile(HttpServletResponse response, @PathVariable Long projectId, @RequestParam String path,
+    @RequestMapping(value = "/fileDownload", method = RequestMethod.POST)
+    ResponseEntity<Void> downloadFile(HttpServletResponse response, @PathVariable Long projectId,
+                                   @RequestParam String path,
                                 @RequestParam String branchName) {
 
         try {
-            Collection<MimeType> mimetypes = new ExtensionMimeDetector().getMimeTypesFileName(path);
-            if (!mimetypes.isEmpty()) {
-                eu.medsea.mimeutil.MimeType mimeType = mimetypes.iterator().next();
-                response.setHeader(HttpHeaders.CONTENT_TYPE, mimeType.getMediaType() + "/" + mimeType.getSubType());
-            }
-
-            String contentDisposition;
-            String fileName = FilenameUtils.getName(path);
-            contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''"
-                    + URLEncoder.encode(fileName);
-            response.setHeader("Content-disposition", contentDisposition);
+            String mimeType = Files.probeContentType(Paths.get(path));
+            response.setHeader(HttpHeaders.CONTENT_TYPE,mimeType);
 
             InputStream inputStream = repositoryService.executeDownloadFile(projectId, path, branchName);
             IOUtils.copy(inputStream, response.getOutputStream());

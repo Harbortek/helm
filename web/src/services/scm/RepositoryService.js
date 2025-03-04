@@ -1,4 +1,4 @@
-import { request, METHOD } from "@/utils/request";
+import { request,download, METHOD } from "@/utils/request";
 import Cookies from "js-cookie";
 export function createRopsitory(repo) {
   return request({
@@ -132,16 +132,23 @@ export function findLastCommit(projectId, path, branchName) {
 }
 
 export function fileDownload(projectId, path, branchName) {
+  let url = `/scm/code/${projectId}/fileDownload`;
+  const normalizedPath = path.replace(/\\/g, "/");
+  // Get the last part after the last slash
+  const filename = normalizedPath.substring(
+    normalizedPath.lastIndexOf("/") + 1
+  );
+  download(url, { path: path, branchName: branchName }, filename);
   // const accessToken = localStorage.get(ACCESS_TOKEN)
-  const accessToken = Cookies.get("Authorization");
-  const downloadUrl =
-    process.env.VUE_APP_API_BASE_URL +
-    `/scm/code/${projectId}/fileDownload?access_token=${accessToken}&path=${path}&branchName=${branchName}`;
-  var iframe = document.createElement("iframe");
-  iframe.style.display = "none";
-  iframe.src = downloadUrl;
-  iframe.onload = function () {
-    document.body.removeChild(iframe);
-  };
-  document.body.appendChild(iframe);
+  // const accessToken = Cookies.get("Authorization");
+  // const downloadUrl =
+  //   process.env.VUE_APP_API_BASE_URL +
+  //   `/scm/code/${projectId}/fileDownload?access_token=${accessToken}&path=${path}&branchName=${branchName}`;
+  // var iframe = document.createElement("iframe");
+  // iframe.style.display = "none";
+  // iframe.src = downloadUrl;
+  // iframe.onload = function () {
+  //   document.body.removeChild(iframe);
+  // };
+  // document.body.appendChild(iframe);
 }

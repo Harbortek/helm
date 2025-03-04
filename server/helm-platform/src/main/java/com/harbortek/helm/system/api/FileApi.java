@@ -40,13 +40,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 @Controller
 @Slf4j
 public class FileApi {
-    static Logger logger = LoggerFactory.getLogger(FileApi.class);
-
     @Autowired
     FileService fileService;
 
@@ -110,47 +111,38 @@ public class FileApi {
     ResponseEntity<Void> downloadFile(HttpServletResponse response,
                                       @RequestParam("path") String path) {
         try {
-            Collection<eu.medsea.mimeutil.MimeType> mimetypes = new ExtensionMimeDetector().getMimeTypesFileName(path);
-            if (!mimetypes.isEmpty()) {
-                eu.medsea.mimeutil.MimeType mimeType = mimetypes.iterator().next();
-                response.setHeader(HttpHeaders.CONTENT_TYPE, mimeType.getMediaType() + "/" + mimeType.getSubType());
-            }
+            String mimeType = Files.probeContentType(Paths.get(path));
+            response.setHeader(HttpHeaders.CONTENT_TYPE, mimeType);
 
             String contentDisposition;
             String fileName = FilenameUtils.getName(path);
-            contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''"
-                    + URLEncoder.encode(fileName);
+            contentDisposition = "attachment; filename=\"" + URLEncoder.encode(fileName, StandardCharsets.UTF_8) + "\"";
             response.setHeader("Content-disposition", contentDisposition);
 
             InputStream inputStream = fileService.download(path);
             IOUtils.copy(inputStream, response.getOutputStream());
         } catch (Throwable ex) {
-            logger.error("error", ex);
+            log.error("error", ex);
         }
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
     @Parameter(name = "获取文件")
-    @RequestMapping(value = "/download", method = RequestMethod.GET)
+    @RequestMapping(value = "/download", method = RequestMethod.POST)
     ResponseEntity<Void> downloadFileWithName(HttpServletResponse response, @RequestParam("name") String name,
                                         @RequestParam("url") String url) {
         try {
-            Collection<eu.medsea.mimeutil.MimeType> mimetypes = new ExtensionMimeDetector().getMimeTypesFileName(url);
-            if (!mimetypes.isEmpty()) {
-                eu.medsea.mimeutil.MimeType mimeType = mimetypes.iterator().next();
-                response.setHeader(HttpHeaders.CONTENT_TYPE, mimeType.getMediaType() + "/" + mimeType.getSubType());
-            }
+            String mimeType = Files.probeContentType(Paths.get(url));
+            response.setHeader(HttpHeaders.CONTENT_TYPE, mimeType);
 
             String contentDisposition;
-            String fileName = name;
-            contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''"
-                    + URLEncoder.encode(fileName);
+            contentDisposition = "attachment; filename=\"" + URLEncoder.encode(name,StandardCharsets.UTF_8) + "\"";
             response.setHeader("Content-disposition", contentDisposition);
 
             InputStream inputStream = fileService.download(url);
             IOUtils.copy(inputStream, response.getOutputStream());
         } catch (Throwable ex) {
-            logger.error("error", ex);
+            log.error("error", ex);
         }
         return new ResponseEntity<Void>(HttpStatus.OK);
     }

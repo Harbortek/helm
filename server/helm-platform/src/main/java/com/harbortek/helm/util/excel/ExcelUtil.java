@@ -18,6 +18,8 @@ package com.harbortek.helm.util.excel;
 
 import com.harbortek.helm.util.DateUtils;
 import eu.bitwalker.useragentutils.UserAgent;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ComparatorUtils;
@@ -30,14 +32,13 @@ import org.apache.poi.ss.util.CellReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -183,6 +184,11 @@ public class ExcelUtil {
             workbook.write(out);
         } catch (IOException e) {
             LG.error(e.toString(), e);
+        }finally {
+            try {
+                workbook.close();
+            } catch (IOException ignored) {
+            }
         }
     }
 
@@ -208,14 +214,19 @@ public class ExcelUtil {
             }
             //自动列宽
             if (datalist.length > 0) {
-                int colcount = datalist[0].length;
-                for (int i = 0; i < colcount; i++) {
+                int colCount = datalist[0].length;
+                for (int i = 0; i < colCount; i++) {
                     sheet.autoSizeColumn(i);
                 }
             }
             workbook.write(out);
         } catch (IOException e) {
             LG.error(e.toString(), e);
+        }finally {
+            try {
+                out.close();
+            }catch (Exception ignored){
+            }
         }
     }
 
@@ -802,10 +813,10 @@ public class ExcelUtil {
         UserAgent userAgent = UserAgent.parseUserAgentString(request.getHeader("UserEntity-Agent"));
         response.setHeader("Pragma", "public");
         response.setHeader("Cache-Control", "max-age=30");
-        response.setContentType("application/vnd.ms-excel;charset=utf-8");
+        response.setContentType("application/vnd.ms-excel");
 
         String contentDisposition;
-            contentDisposition = "attachment; filename=\"" + fileName+ DateUtils.curDateStr()+".xls" + "\"; filename*=UTF-8''" + URLEncoder.encode(fileName+DateUtils.curDateStr()+".xls");
+            contentDisposition = "attachment; filename=\"" + URLEncoder.encode(fileName+ DateUtils.curDateStr()+".xls", StandardCharsets.UTF_8)+"\"";
         response.setHeader("Content-disposition", contentDisposition );
     }
 }

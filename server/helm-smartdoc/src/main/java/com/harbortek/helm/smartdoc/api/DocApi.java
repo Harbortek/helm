@@ -229,13 +229,12 @@ public class DocApi {
     }
 
     @Parameter(name = "DOC 导出 WORD")
-    @RequestMapping(value = "/doc2word", method = RequestMethod.GET)
-    ResponseEntity exportDoc2Word(@RequestParam Long pageId, HttpServletResponse response) throws Exception {
+    @RequestMapping(value = "/doc2word", method = RequestMethod.POST)
+    ResponseEntity<Void> exportDoc2Word(@RequestParam Long pageId, HttpServletResponse response) throws Exception {
         DocVo docVo = docService.findDocByPageId(pageId);
 
         String fileName = docVo.getName() + ".docx";
-        String contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''"
-                + URLEncoder.encode(fileName);
+        String contentDisposition = "attachment; filename=\"" + URLEncoder.encode(fileName,StandardCharsets.UTF_8)+"\"";
 
         response.setHeader("Content-disposition", contentDisposition);
         response.setHeader(HttpHeaders.CONTENT_TYPE,

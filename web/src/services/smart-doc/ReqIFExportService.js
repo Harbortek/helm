@@ -1,4 +1,4 @@
-import { request, METHOD } from "@/utils/request";
+import { request,download, METHOD } from "@/utils/request";
 
 export function findReqIFFiles(pageId, filePath) {
   return request({
@@ -53,15 +53,6 @@ export function deleteReqIFExportTemplate(id) {
   });
 }
 export function exportReqIF(pageId) {
-  const downloadUrl =
-    process.env.VUE_APP_API_BASE_URL +
-    `/smart-doc/${pageId}/export/reqIf/job/export`;
-  var iframe = document.createElement("iframe");
-  iframe.style.display = "none";
-  iframe.src = downloadUrl;
-  iframe.target = "_blank";
-  iframe.onload = function () {
-    document.body.removeChild(iframe);
-  };
-  document.body.appendChild(iframe);
+  let url = `/smart-doc/${pageId}/export/reqIf/job/export`;
+  download(url, {});
 }

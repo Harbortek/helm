@@ -1,4 +1,4 @@
-import { request, METHOD } from "@/utils/request";
+import { request,download,   METHOD } from "@/utils/request";
 import Cookies from "js-cookie";
 export function buildGantt(projectId) {
   return request({
@@ -149,15 +149,8 @@ export function importMPP(projectId, file) {
 }
 
 export function exportPlans(projectId) {
-  const accessToken = Cookies.get("Authorization");
-  const url =
-    process.env.VUE_APP_API_BASE_URL +
-    `/tracker/plan/export?projectId=${projectId}&access_token=${accessToken}`;
-  var iframe = document.createElement("iframe");
-  iframe.style.display = "none";
-  iframe.src = url;
-  iframe.onload = function () {
-    document.body.removeChild(iframe);
-  };
-  document.body.appendChild(iframe);
+
+  let url =`/tracker/plan/export`;
+
+  download(url, {projectId:projectId});
 }
