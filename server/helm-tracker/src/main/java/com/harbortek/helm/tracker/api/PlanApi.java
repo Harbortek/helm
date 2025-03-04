@@ -29,6 +29,7 @@ import com.harbortek.helm.tracker.vo.plan.SprintVo;
 import com.harbortek.helm.util.SecurityUtils;
 import com.harbortek.helm.util.excel.ExcelUtil;
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +39,14 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/tracker/plan")
+@Slf4j
 public class PlanApi {
     @Autowired
     PlanService planService;
@@ -130,7 +133,7 @@ public class PlanApi {
     }
 
     @Parameter(name="导出计划列表")
-    @RequestMapping(value = "/export", method = RequestMethod.GET)
+    @RequestMapping(value = "/export", method = RequestMethod.POST)
     ResponseEntity<Void> exportPlans(HttpServletRequest request,
                                      HttpServletResponse response,
                                      @RequestParam(value = "projectId", required = false) Long projectId) {
@@ -181,8 +184,8 @@ public class PlanApi {
         try {
             ExcelUtil.processResponseHeader(request, response, "项目计划");
             ExcelUtil.exportExcel(headers, data, response.getOutputStream());
-
         } catch (Exception e) {
+            log.error("导出项目计划失败", e);
         }
         return ResponseEntity.ok().build();
     }

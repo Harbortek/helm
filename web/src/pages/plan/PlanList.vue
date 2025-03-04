@@ -833,9 +833,6 @@ export default {
                 })
             }
         },
-        onImport() {
-
-        },
         onExport() {
             exportPlans(this.projectId)
         },

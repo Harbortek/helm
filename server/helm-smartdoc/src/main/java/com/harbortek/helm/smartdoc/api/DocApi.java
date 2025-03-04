@@ -234,8 +234,7 @@ public class DocApi {
         DocVo docVo = docService.findDocByPageId(pageId);
 
         String fileName = docVo.getName() + ".docx";
-        String contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''"
-                + URLEncoder.encode(fileName,StandardCharsets.UTF_8);
+        String contentDisposition = "attachment; filename=\"" + URLEncoder.encode(fileName,StandardCharsets.UTF_8)+"\"";
 
         response.setHeader("Content-disposition", contentDisposition);
         response.setHeader(HttpHeaders.CONTENT_TYPE,

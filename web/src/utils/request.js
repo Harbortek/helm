@@ -2,6 +2,7 @@ import axios from "axios";
 import Cookie from "js-cookie";
 import loadingService from "./loading.js";
 import { saveAs } from "file-saver";
+import { message } from "ant-design-vue";
 
 // 跨域认证信息 header 名
 const xsrfHeaderName = "Authorization";
@@ -238,28 +239,32 @@ function download(url, params, filename, config) {
           return tansParams(params);
         },
       ],
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      transformResponse: [
+        (data,headers) => {
+          const contentDisposition = headers['content-disposition'];
+          if (contentDisposition) {
+            const filename = contentDisposition.split('filename=')[1].replace(/['"]/g, '');
+            data.filename = decodeURIComponent(filename);
+          }
+          return data;
+        },
+      ],
+      headers: { "Content-Type": "application/x-www-form-urlencoded",Accept:"*/*" },
       responseType: "blob",
-      timeout: 1000 * 60 * 10,
+      timeout: 1000 * 60 * 10,      
       ...config,
     })
-    .then(async (data) => {
-      const isBlob = blobValidate(data);
+    .then(async (resp) => {
+      const isBlob = blobValidate(resp.data);
       if (isBlob) {
-        const blob = new Blob([data]);
-        saveAs(blob, filename);
-      } else {
-        const resText = await data.text();
-        const rspObj = JSON.parse(resText);
-        const errMsg =
-          errorCode[rspObj.code] || rspObj.msg || errorCode["default"];
-        Message.error(errMsg);
-      }
+        const blob = new Blob([resp.data]);
+        saveAs(blob, filename || resp.data.filename);
+      } 
       loadingService.hide();
     })
     .catch((r) => {
       console.error(r);
-      Message.error("下载文件出现错误，请联系管理员！");
+      message.error("下载文件出现错误，请联系管理员！");
       loadingService.hide();
     });
 }

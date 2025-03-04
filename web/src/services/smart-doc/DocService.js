@@ -23,16 +23,6 @@ export function findOneProjectPage4Block(projectId, pageId) {
 }
 export function exportDoc2Word(projectId, pageId) {
   let url = `/smart-doc/${projectId}/${pageId}/doc/doc2word`;
-  let filename = `${pageId}.docx`;
-  download(url, { pageId: pageId }, filename);
-
-  // const downloadUrl = process.env.VUE_APP_API_BASE_URL + `/smart-doc/${projectId}/${pageId}/doc/doc2word?pageId=${pageId}`;
-  // var iframe = document.createElement("iframe");
-  // iframe.style.display = "none";
-  // iframe.src = downloadUrl;
-  // iframe.target="_blank";
-  // iframe.onload = function () {
-  //   document.body.removeChild(iframe);
-  // };
-  // document.body.appendChild(iframe);
+  download(url, { pageId: pageId });
 }
+ 

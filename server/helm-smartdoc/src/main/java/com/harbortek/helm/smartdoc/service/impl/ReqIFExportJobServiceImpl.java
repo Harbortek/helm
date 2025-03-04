@@ -53,6 +53,7 @@ import org.springframework.stereotype.Service;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -188,8 +189,7 @@ public class ReqIFExportJobServiceImpl implements ReqIFExportJobService {
             }else{
                 fileName = FilenameUtils.getBaseName(job.getReqIFFileName()) + ".reqifz";
             }
-            String contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''"
-                    + URLEncoder.encode(fileName);
+            String contentDisposition = "attachment; filename=\"" + URLEncoder.encode(fileName, StandardCharsets.UTF_8) + "\"";
 
             response.setHeader("Content-disposition", contentDisposition);
             response.setHeader(HttpHeaders.CONTENT_TYPE,

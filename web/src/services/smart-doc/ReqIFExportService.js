@@ -54,17 +54,5 @@ export function deleteReqIFExportTemplate(id) {
 }
 export function exportReqIF(pageId) {
   let url = `/smart-doc/${pageId}/export/reqIf/job/export`;
-  let filename = `${pageId}.zip`;
-  download(url, {}, filename);
-  // const downloadUrl =
-  //   process.env.VUE_APP_API_BASE_URL +
-  //   `/smart-doc/${pageId}/export/reqIf/job/export`;
-  // var iframe = document.createElement("iframe");
-  // iframe.style.display = "none";
-  // iframe.src = downloadUrl;
-  // iframe.target = "_blank";
-  // iframe.onload = function () {
-  //   document.body.removeChild(iframe);
-  // };
-  // document.body.appendChild(iframe);
+  download(url, {});
 }

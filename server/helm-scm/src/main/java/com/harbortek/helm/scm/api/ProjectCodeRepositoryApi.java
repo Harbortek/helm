@@ -89,7 +89,7 @@ public class ProjectCodeRepositoryApi {
     }
 
     @Parameter(name="下载代码仓文件内容")
-    @RequestMapping(value = "/fileDownload", method = RequestMethod.GET)
+    @RequestMapping(value = "/fileDownload", method = RequestMethod.POST)
     ResponseEntity<Void> downloadFile(HttpServletResponse response, @PathVariable Long projectId,
                                    @RequestParam String path,
                                 @RequestParam String branchName) {
@@ -97,12 +97,6 @@ public class ProjectCodeRepositoryApi {
         try {
             String mimeType = Files.probeContentType(Paths.get(path));
             response.setHeader(HttpHeaders.CONTENT_TYPE,mimeType);
-
-            String contentDisposition;
-            String fileName = FilenameUtils.getName(path);
-            contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''"
-                    + URLEncoder.encode(fileName, StandardCharsets.UTF_8);
-            response.setHeader("Content-disposition", contentDisposition);
 
             InputStream inputStream = repositoryService.executeDownloadFile(projectId, path, branchName);
             IOUtils.copy(inputStream, response.getOutputStream());
