@@ -29,13 +29,12 @@ FROM node:18.20.2-buster-slim AS frontend-builder
 COPY ./web /app/web
 
 WORKDIR /app/web
-RUN sed -i "s/vue-cli-service build --mode production/export NODE_OPTIONS=--openssl-legacy-provider \&\& vue-cli-service build --mode development/" ./package.json \
-	&& sed -i "s/replacer\": \"1.5.2\"/replacer\": \"1.3.18\"/" ./package.json \
+RUN sed -i "s/vue-cli-service build --mode development/export NODE_OPTIONS=--openssl-legacy-provider \&\& vue-cli-service build --mode development/" ./package.json \
 	&& npm config set -g registry https://registry.npmmirror.com
 
 RUN npm install
 
-RUN npm run build
+RUN npm run build:dev
 
 #第三阶段
 FROM mysql:8.0-debian
