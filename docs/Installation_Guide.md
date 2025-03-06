@@ -17,20 +17,20 @@
 1. 创建用户
 
    ``` shell
-   sudo useradd -m username
+   sudo useradd -m helm
    ```
 
 2. 设置用户密码
 
    ``` shell
-   sudo passwd username
+   sudo passwd helm
    ```
 
 3. 将用户加入wheel组
 
    ``` shell
-   sudo usermod -aG wheel username
-   su username
+   sudo usermod -aG wheel helm
+   su helm
    ```
 
 ##### 2.2、安装 JDK 17
@@ -40,12 +40,6 @@
    ``` shell
    sudo mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
    sudo curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
-   ```
-
-2. 安装wget
-
-   ``` shell
-   sudo yum install -y wget which
    ```
 
 3. 下载 JDK17 RPM 安装包
@@ -113,7 +107,44 @@
    exit;
    ```
 
-##### 2.4、安装配置 Maven
+##### 2.4、安装 Nginx
+
+1. 下载Nginx
+
+   ``` shell
+   sudo wget http://nginx.org/packages/centos/7/x86_64/RPMS/nginx-1.20.2-1.el7.ngx.x86_64.rpm
+   ```
+
+2. 安装
+
+   ``` shell
+   sudo yum -y install  ./nginx-1.20.2-1.el7.ngx.x86_64.rpm
+   ```
+
+3. 启动并验证
+
+   ``` shell
+   nginx
+   nginx -t
+   ```
+
+##### 2.5、安装git
+
+1. 安装git
+
+   ``` shell
+   yum install -y git
+   ```
+
+2. 验证
+
+   ``` shell
+   git --version
+   ```
+
+### 3、源码配置
+
+##### 3.1、配置 Maven
 
 1. 下载 Maven
 
@@ -132,13 +163,31 @@
    source ~/.bashrc
    ```
 
-3. 验证
+3. 修改maven配置源 /opt/apache-maven-3.9.6/conf/settings.xml
+
+   ``` shell
+   <settings xmlns='http://maven.apache.org/SETTINGS/1.0.0'
+                   xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+                   xsi:schemaLocation='http://maven.apache.org/SETTINGS/1.0.0
+                                       https://maven.apache.org/xsd/settings-1.0.0.xsd'>
+       <mirrors>
+           <mirror>
+               <id>alimaven</id>
+               <mirrorOf>central</mirrorOf>
+               <name>aliyun maven</name>
+               <url>https://maven.aliyun.com/repository/public/</url>
+           </mirror>
+       </mirrors>
+   </settings>
+   ```
+
+4. 验证
 
    ``` shell
    mvn -v
    ```
 
-##### 2.5、安装配置 Nodejs
+##### 3.2、配置 Nodejs
 
 1. 下载 Nodejs
 
@@ -163,44 +212,7 @@
    node --version
    ```
 
-##### 2.6、安装 Nginx
-
-1. 下载Nginx
-
-   ``` shell
-   sudo wget http://nginx.org/packages/centos/7/x86_64/RPMS/nginx-1.20.2-1.el7.ngx.x86_64.rpm
-   ```
-
-2. 安装
-
-   ``` shell
-   sudo yum -y install  ./nginx-1.20.2-1.el7.ngx.x86_64.rpm
-   ```
-
-3. 启动并验证
-
-   ``` shell
-   nginx
-   nginx -t
-   ```
-
-##### 2.7、安装git
-
-1. 安装git
-
-   ``` shell
-   yum install -y git
-   ```
-
-2. 验证
-
-   ``` shell
-   git --version
-   ```
-
-### 3、项目运行
-
-##### 3.1、源码准备
+##### 3.3、源码准备
 
 1. 下载源码到本地
 
@@ -210,8 +222,10 @@
    cd ./helm
    ```
 
+### 4、项目运行
 
-##### 3.2、后端运行
+
+##### 4.1、后端运行
 
 1.  在`./server/helm-assembly/src/main/conf/application.properties` 确认mysql配置：
 
@@ -223,24 +237,6 @@
        password: helm 
    ```
 
-2.  修改maven配置源 /opt/apache-maven-3.9.6/conf/settings.xml
-
-    ``` shell
-    <settings xmlns='http://maven.apache.org/SETTINGS/1.0.0'
-                    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-                    xsi:schemaLocation='http://maven.apache.org/SETTINGS/1.0.0
-                                        https://maven.apache.org/xsd/settings-1.0.0.xsd'>
-        <mirrors>
-            <mirror>
-                <id>alimaven</id>
-                <mirrorOf>central</mirrorOf>
-                <name>aliyun maven</name>
-                <url>https://maven.aliyun.com/repository/public/</url>
-            </mirror>
-        </mirrors>
-    </settings>
-    ```
-
 3.  执行Maven打包后端项目:
 
    ``` shell
@@ -251,13 +247,15 @@
 4.  启动项目
 
    ``` shell
-   ./helm-assembly/target/helm-0.1.0-SNAPSHOT/helm/bin/start-server.sh
+   mkdir /opt/app
+   cp -r ./helm-assembly/target/helm-0.1.0-SNAPSHOT/helm /opt/app/helm
+   /opt/app/helm/bin/start-server.sh
    ```
 
-- 后端服务默认运行在 http://localhost:8080
-- 启动日志在./helm-assembly/src/main/logs/
+- 后端服务默认运行在 http://本机IP:8080
+- 日志位于/opt/app/helm/logs/helm.log
 
-##### 3.3、前端运行
+##### 4.2、前端运行
 
 1. 安装项目依赖：
 
@@ -305,10 +303,10 @@
    nginx -s reload
    ```
 
-##### 3.4、项目使用
+##### 4.3、项目使用
 
 ``` shell
-`http://localhost` 
+http://本机IP
 ```
 
 - 系统默认账号密码: admin / admin
