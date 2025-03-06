@@ -112,8 +112,8 @@
                                                         <!-- {{void(perm=!hasTrackerItemCustomFieldPerm(f.id,customerFieldsPerm)||!hasItemEditPerm) }} -->
                                                         <a-form-model-item :label="f.name" :prop="f.name"
                                                             :required="f.required">
-                                                            <ItemCustomFieldsShow :fields="f" v-model="formData.values[f.id]" :projectId="projectId" :trackerId="tracker.id"
-                                                                :readOnly="!hasItemEditPerm" @change="onChangeCustomerField"></ItemCustomFieldsShow>
+                                                            <TrackerItemFieldsShow :fields="f" :trackerItem="formData" :projectId="projectId" :trackerId="tracker.id"
+                                                            :readOnly="!hasItemEditPerm" @change="loadData()" />
                                                         </a-form-model-item>
                                                     </a-col>
                                                 </a-row>
@@ -503,6 +503,7 @@ export default {
         },
         prepareFormData() {
             this.formData = {
+                id: this.trackerItem.id,
                 projectId: this.projectId,
                 trackerId: this.trackerItem.trackerId,
                 sprintId: this.trackerItem.sprint?.id,

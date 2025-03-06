@@ -27,7 +27,7 @@
         <sprint-select v-else-if="fields.system&&fields.systemProperty=='sprintId'"
             v-model="newValue" :projectId="projectId" :disabled="readOnly" :placeholder="readOnly?'':fields.name"
                 @change="(v,e)=>onChangeCustomerField(fields.id,v)"/>
-        <a-select v-else-if="fields.inputType == 'OPTIONS'&&fields.system" allowClear
+        <a-select v-else-if="fields.inputType == 'OPTIONS'" allowClear
             :placeholder="readOnly?'':fields.name"  :disabled="readOnly"
             v-model="newValue">
             <a-select-option
@@ -35,19 +35,11 @@
                 :value="item.id" v-for="item in fields.items"
                 :key="item.id">{{item.name}}</a-select-option>
         </a-select>
-        <a-select v-else-if="fields.inputType == 'OPTIONS'" allowClear
-              :placeholder="readOnly?'':fields.name"  :disabled="readOnly"
-            v-model="newValue">
-            <a-select-option
-                @click="onChangeCustomerField(fields.id, item.name)"
-                :value="item.name" v-for="item in fields.items"
-                :key="item.id">{{item.name}}</a-select-option>
-        </a-select>
         <a-select v-else-if="fields.inputType == 'MULTI_OPTIONS'"
             :mode="'multiple'" :disabled="readOnly"
             @change="e => onChangeCustomerField(fields.id, e)"
             :placeholder="readOnly?'':fields.name" v-model="newValue">
-            <a-select-option :value="item.name" v-for="item in fields.items"
+            <a-select-option :value="item.id" v-for="item in fields.items"
                 :key="item.id">{{ item.name }}</a-select-option>
         </a-select>
         <a-select v-else-if="fields.inputType == 'BOOL'"

@@ -34,7 +34,7 @@
                             <!-- <a-input v-model="formData.itemNo"
                                 style="width:10%;border:none;font-size:18px;color: rgba(0, 0, 0, 0.85);"
                                 @blur="changeItemNo" @pressEnter="changeItemNo" /> -->
-                            <a-input v-if="formData?.name" style="width:90%;border:none;font-size:18px;color: rgba(0, 0, 0, 0.85);"
+                            <a-input v-if="formData" style="width:90%;min-height:30px;border:none;font-size:18px;color: rgba(0, 0, 0, 0.85);"
                                 v-model="formData.name" @blur="changeTitle" @pressEnter="changeTitle" />
                         </div>
                         <div style="margin-left:20px;"
@@ -64,61 +64,37 @@
                 <a-layout-content class="ui-task-detail__main">
                     <div class="ui-task-detail__tabs">
                         <a-tabs v-model="currentTab" @change="onChangeTabs" default-active-key="DETAIL">
-                            <!-- <a-tab-pane v-for="item in sections" :key="item.value" :tab="item.name"></a-tab-pane> -->
-                            <template v-for="item in sections">
-                                <a-tab-pane v-if="item == 'DETAIL'" :key="item" tab="详情"></a-tab-pane>
-                                <!-- <a-tab-pane v-else-if="item == 'WORK_ITEMS'" :key="item" tab="子工作项">
-                                </a-tab-pane> -->
-                                <a-tab-pane v-else-if="item == 'CYCLE_PROGRESS'" :key="item" tab="周期与进度">
-                                </a-tab-pane>
-                                <a-tab-pane v-else-if="item == 'WORK_HOURS'" :key="item" tab="工时">
-                                </a-tab-pane>
-                                <a-tab-pane v-else-if="item == 'TEST_CASES'" :key="item" tab="测试情况">
-                                </a-tab-pane>
-                                <a-tab-pane v-else-if="item == 'RELATED_ITEMS'" :key="item" tab="关联工作项">
-                                </a-tab-pane>
-                                <a-tab-pane v-else-if="item == 'RELATED_CODE'" :key="item" tab="代码关联">
-                                </a-tab-pane>
-                                <a-tab-pane v-else-if="item == 'RELATED_WIKI'" :key="item" tab="关联Wiki文档">
-                                </a-tab-pane>
-                                <a-tab-pane v-else-if="item == 'ATTACHMENTS'" :key="item" tab="文件">
-                                </a-tab-pane>
-                                <a-tab-pane v-else-if="item == 'HYPERLINKS'" :key="item" tab="链接">
-                                </a-tab-pane>
-                                <a-tab-pane v-else-if="item == 'RELATED_TESTS'" :key="item" tab="关联测试结果">
-                                </a-tab-pane>
-                                <!-- <a-tab-pane v-else :key="item" :tab="item">
-                                </a-tab-pane> -->
-                            </template>
+                            <a-tab-pane v-for="item in sections" :key="item" :tab="getTabPaneTabs(item)"></a-tab-pane>
                         </a-tabs>
                         <div class="" style="flex: 1 1 0%; min-height: 0px;">
                             <div style="height: 100%; overflow: hidden auto;">
                                 <div class="task-detail-module task-desc" v-show="currentTab === 'DETAIL'">
-                                    <div class="task-detail-module-title">
-                                        <div class="task-detail-module-title-text">描述</div>
-                                    </div>
-                                    <div class="task-desc-content">
-                                        <div
-                                            style="position: absolute; width: 0px; height: 0px; visibility: hidden; display: none;">
+                                    <div class="task-detail-module task-desc">
+                                        <div class="task-detail-module-title">
+                                            <div class="task-detail-module-title-text">描述</div>
                                         </div>
-                                        <div class="richtext-input ">
-                                            <div class="richtext-input-viewer-wrapper">
-                                                <div class="richtext-editor">
-                                                    <div class="richtext-editor-content"
-                                                        :style="{ 'border': editorInEditMode ? 'solid 1px #5caff2' : '' }">
-                                                        <simple-editor v-if="formData" ref="editor"
-                                                            v-model="formData.description"
-                                                            :showToolbar="editorInEditMode"
-                                                            @focus="editorInEditMode = true"
-                                                            @click.native.capture="editorInEditMode = true" />
+                                        <div class="task-desc-content">
+                                            <div
+                                                style="position: absolute; width: 0px; height: 0px; visibility: hidden; display: none;">
+                                            </div>
+                                            <div class="richtext-input ">
+                                                <div class="richtext-input-viewer-wrapper">
+                                                    <div class="richtext-editor" style="margin-top:5px">
+                                                        <div class="richtext-editor-content" :style="{ 'border': editorInEditMode ? 'solid 1px #5caff2' : '','margin-bottom':'15px'}">
+                                                            <simple-editor v-if="formData" ref="editor"
+                                                                v-model="formData.description"
+                                                                :showToolbar="editorInEditMode"
+                                                                @focus="editorInEditMode = true"
+                                                                @click.native.capture="editorInEditMode = true" />
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="task-desc-btns" v-show="editorInEditMode">
-                                            <div class="task-desc-btns-right">
-                                                <a-button @click="cancelDescription">取消</a-button>
-                                                <a-button type="primary" @click="changeDescription">保存</a-button>
+                                            <div class="task-desc-btns" v-show="editorInEditMode">
+                                                <div class="task-desc-btns-right">
+                                                    <a-button @click="cancelDescription">取消</a-button>
+                                                    <a-button type="primary" @click="changeDescription">保存</a-button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -135,8 +111,6 @@
                                                         :wrapperCol="{ span: isTable(f) ? 20 : 16 }">
                                                         <TrackerItemFieldsShow :fields="f" :trackerItem="formData" :projectId="projectId" :trackerId="tracker.id"
                                                             :readOnly="false" @change="loadData()" />
-                                                            <!-- <ItemCustomFieldsShow :fields="f" v-model="formData.values[f.id]" :projectId="projectId" :trackerId="tracker.id"
-                                                                :readOnly="false" @change="onChangeCustomerField"></ItemCustomFieldsShow> -->
                                                     </a-form-model-item>
                                                 </a-col>
                                             </a-row>
@@ -261,7 +235,7 @@ import TrackerItemFieldsShow from '../../../components/tool/TrackerItemFieldsSho
 import { mapGetters, mapState, mapMutations } from "vuex";
 import { hasPermission } from '@/utils/permission'
 import {
-    findOneTrackerItem, changeSystemField, changeCustomerField, deleteTrackerItem
+    findOneTrackerItem, changeSystemField, deleteTrackerItem
 } from "@/services/tracker/TrackerItemService"
 import TrackerComment from './TrackerComment.vue';
 import RegisterHourDialog from './RegisterHourDialog.vue';
@@ -483,6 +457,31 @@ export default {
             return this.tracker?.trackerFields?.find(f=>
                 f.system&&f.systemProperty===systemProperty);
         },
+        getTabPaneTabs(item){
+            if(item==="DETAIL"){
+                return "详情"
+            }else if(item==="CYCLE_PROGRESS"){
+                return "周期与进度"
+            }else if(item=="WORK_HOURS"){
+                return "工时"
+            }else if(item==="TEST_CASES"){
+                return "测试情况"
+            }else if(item==="RELATED_ITEMS"){
+                return "关联工作项"
+            }else if(item==="RELATED_CODE"){
+                return "代码关联"
+            }else if(item==="RELATED_WIKI"){
+                return "关联Wiki文档"
+            }else if(item==="ATTACHMENTS"){
+                return "文件"
+            }else if(item==="HYPERLINKS"){
+                return "链接"
+            }else if(item==="RELATED_TESTS"){
+                return "关联测试结果"
+            }else{
+                return item;
+            }
+        },
         prepareFormData() {
             console.log("values", this.trackerItem.values)
             this.formData = {
@@ -491,7 +490,7 @@ export default {
                 trackerId: this.trackerItem.trackerId,
                 sprintId: this.trackerItem.sprint?.id,
                 itemNo: this.trackerItem.itemNo,
-                name: this.trackerItem?.name,
+                name: this.trackerItem?.name||'',
                 description: this.trackerItem.description,
                 values: this.trackerItem.values,
                 owner: this.trackerItem.owner,
@@ -578,11 +577,14 @@ export default {
         },
         changeTitle(e) {
             if (e.target.value != this.trackerItem?.name) {
-                changeSystemField(this.itemId, 'name', e.target.value).then(resp => {
-                
-                }).finally(()=>{
-                    this.loadData()
-                })
+                if(e.target.value===''||e.target.value===null){
+                    VXETable.modal.message({ content: '标题不能为空', status: 'error' })
+                    this.formData.name= this.trackerItem?.name
+                }else{
+                    changeSystemField(this.itemId, 'name', e.target.value).then(resp => {
+                        this.loadData()
+                    })
+                }
             }
         },
         changeItemNo(e) {
@@ -595,6 +597,7 @@ export default {
             }
         },
         cancelDescription() {
+            console.log("cancelDescription",this.editorInEditMode)
             this.editorInEditMode = false
             this.$nextTick(() => {
                 this.$refs.editor.blur()
@@ -607,19 +610,6 @@ export default {
             }).finally(()=>{
                 this.editorInEditMode = false
                 this.loadData()
-            })
-        },
-
-
-        onChangeCustomerField(fieldId, value) {
-            // console.log("customFChange",fieldId, value,this.formData.values[fieldId])
-            changeCustomerField(this.itemId, fieldId, value).then(resp => {
-                this.loadData()
-            }).finally(() => {
-                // let field = this.customerFields.find(f => f.id === fieldId)
-                // if(field.inputType=="TEST_STEP"){
-                //     this.$emit("updateTestStep",value)
-                // }
             })
         },
         onSearchOwner() {

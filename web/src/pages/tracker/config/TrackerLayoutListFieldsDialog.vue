@@ -181,7 +181,6 @@ export default {
     computed: {
         addListFields(){
             let fields = this.tracker.trackerFields || []
-            console.log("this.aa",this.tracker.trackerFields)
             fields = fields.filter(f => {
                 return f.inputType === 'INTEGER' || f.inputType === 'TEXT' || f.inputType === 'STATUS'
                     || f.inputType === 'DATE' || f.inputType === 'USER' || f.inputType === 'OPTIONS'
@@ -234,7 +233,6 @@ export default {
             }
         },
         onOKAddListFields(){
-            console.log("oooonk",this.formData.keyfield)
             if(this.formData.keyfield){
                 let field = this.findFields(this.formData.keyfield)
                 if (field) {

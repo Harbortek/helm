@@ -5,8 +5,8 @@
             <tracker-item-user-select v-if="item.inputType == 'USER'" @refresh="refresh" :projectId="projectId" :field="item"
                 :trackerItem="trackerItem" :disabled=trackerItem?.notPagePerm></tracker-item-user-select>
 
-            <a-popover v-model="popoverVisible[item.id]" v-else-if="item.systemProperty == 'status'"  trigger="click" placement="bottomLeft" 
-            :style="{pointerEvents: !trackerItem?.notPagePerm?'':'none'}"
+            <a-popover v-model="popoverVisible[item.id]" v-else-if="item.systemProperty == 'status'"  trigger="click"
+                placement="bottomLeft"  :style="{pointerEvents: !trackerItem?.notPagePerm?'':'none'}"
              overlayClassName="tracker-select-dropdown">
                 <template slot="content">
                     <tracker-item-status-popover :disabled="true" :projectId="projectId" :trackerItem="trackerItem"
@@ -27,7 +27,7 @@
              placement="bottomLeft" :style="{pointerEvents: !trackerItem?.notPagePerm?'':'none'}"
             overlayClassName="tracker-select-dropdown">
                 <template slot="content">
-                    <div @click.stop>
+                    <div @click.stop v-if="trackerItem?.values">
                         <div class="tracker-select-option"
                             :style="{ color: p.id === trackerItem?.priority?.id ? '#338fe5' : '' }" v-for="p in priorities"
                             :key="p.id">
@@ -61,7 +61,7 @@
                             :style="{ color: p.name === trackerItem?.values[item.id] ? '#338fe5' : '' }"
                             v-for="p in item.items" :key="p.id">
                             <div class="option-item">
-                                <div class="option-item-content" @click="changeType(item.id, p.name)">
+                                <div class="option-item-content" @click="changeType(item.id, p.id, p.name)">
                                     <span class="option-item-text"> {{ p.name }}</span>
                                 </div>
                                 <div class="option-item-icon "><a-icon type="check"
@@ -71,8 +71,7 @@
                         </div>
                     </div>
                 </template>
-                <quick-picker :title="trackerItem?.values[item.id] || '未设置'" :sub-title="item.name">
-                    <template slot="icon">
+                <quick-picker v-if="trackerItem?.values" :title="trackerItem?.values[item.id] || '未设置'" :sub-title="item.name">                    <template slot="icon">
                         <a-avatar :style="{ color: '#606060', backgroundColor: '#e8e8e8' }">
                             <a-icon type="book" />
                         </a-avatar>
@@ -165,11 +164,11 @@ export default ({
     },
     methods: {
         changeType(ItemId, pName) {
-            this.onChangeCustomerField(ItemId, pName);
+            this.onChangeCustomerField(ItemId, PId,pName);
             this.popoverVisible[ItemId] = false
         },
-        onChangeCustomerField(id, value) {
-            changeCustomerField(this.trackerItem.id, id, value).then(resp => {
+        onChangeCustomerField(id, valueId,value) {
+            changeCustomerField(this.trackerItem.id, id, valueId).then(resp => {
                 this.refresh()
             })
         },

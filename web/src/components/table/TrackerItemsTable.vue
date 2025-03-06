@@ -642,7 +642,7 @@ export default {
         getItemList() {
             var itemList = [];
             if (this.items) {
-                itemList = Object.assign([], this.items)//this.items.filter(v => { return v.tracker })//(new RegExp(this.keyword)).test(v.name)&&
+                itemList = cloneDeep(this.items)
             }
             if (this.displayStyle == 'HIDE_SUB' && this.trackerId) {
                 itemList = itemList.filter(item => item.tracker?.id == this.trackerId)
@@ -879,10 +879,15 @@ export default {
             })
         },
         onBlurEdit(row, systemProperty, value) {
-            if (value && value != this.focusValue) {
-                changeSystemField(row.id, systemProperty, value).then(resp => {
-                    VXETable.modal.message({ content: '更新成功', status: 'success' })
-                })
+            if (value != this.focusValue) {
+                if(systemProperty=='name'&&(value===''||value===null)){
+                    VXETable.modal.message({ content: '标题不能为空', status: 'error' })
+                    row.name=this.items.find(v=>v.id==row.id)?.name
+                }else{
+                    changeSystemField(row.id, systemProperty, value).then(resp => {
+                        VXETable.modal.message({ content: '更新成功', status: 'success' })
+                    })
+                }
             }
             this.focusValue = ''
         },
@@ -1073,7 +1078,6 @@ export default {
                 this.trackerItem.registeredWorkingHours = parseInt(workHours.actualHour)
             }
             this.trackerItem.remainingWorkingHours = workHours.remainHour
-            console.log("123",this.trackerItem)
             createWorkHours(this.trackerItem.id, workHours).then(resp => {
                 VXETable.modal.message({ content: '登记工时添加成功', status: 'success' })
             })
@@ -1434,7 +1438,6 @@ export default {
             this.isShowCreateTrackerItemDialog = false
         },
         onEditTrackerItemCancel: function () {
-            console.log("onEditTrackerItemCancel,2323423")
             this.$emit("refreshSprint")
             this.isInitLoad = true;
             if(this.layout == 'table'){

@@ -1,5 +1,5 @@
 <template>
-    <a-card class="main-card" :bodyStyle="{ padding: 0, width: '55vw' }">
+    <a-card class="main-card" :bodyStyle="{ padding: 0, width: '55vw',height: 'calc(100% - 60px)' }">
         <span slot="extra" href="#"><a-icon type="close" /></span>
         <template slot="title">
             <div class="ui-task-detail-header__topbar ui-task-detail-header__topbar--without-bottom">
@@ -18,7 +18,7 @@
                 </div>
             </div>
         </template>
-        <div style="position:relative;margin: 0 10px;">
+        <div style="position:relative;margin: 0 10px;height: 100%;">
             <span style="inset: 0px;position: absolute;z-index: 20;"></span>
             <a-layout class="ui-task-detail">
                 <a-layout-header class="ui-task-detail__header" theme="light">
@@ -83,7 +83,7 @@
                                             <span v-if="isCustomConfig" @click="onClickSelectSpan('field')"
                                                 :class="{ 'clickable-zoom': true, actived: selectTab == 'field' }"
                                                 style="inset:0;position: absolute;z-index: 210;"></span>
-                                            <div class="task-detail-module task-desc">
+                                            <div class="">
                                                 <div class="task-detail-module-title">
                                                     <div class="task-detail-module-title-text">自定义属性</div>
                                                 </div>
@@ -106,7 +106,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="task-detail-module task-desc">
+                                        <div class="">
                                             <div class="task-detail-module-title">
                                                 <div class="task-detail-module-title-text">基础属性</div>
                                             </div>
@@ -251,7 +251,7 @@ export default {
                 name: '',
                 projectId: '',
                 trackerId: '',
-                values: {},
+                values: null,
                 owner: { id: '' },
                 priority: '',
                 relatedWorkItems: [],
@@ -323,7 +323,7 @@ export default {
                 projectId: this.projectId,
                 trackerId: this.tracker.id,
                 name: '这是一条示例数据',
-                description: '描述',
+                // description: '',
                 values: {},
                 owner: this.user,
                 priority: '3',

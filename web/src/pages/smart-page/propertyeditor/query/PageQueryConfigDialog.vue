@@ -326,7 +326,7 @@
                                             &&selectItem.searchConfig.datePickerConfig.rangeType!=='QUICK'" :conditions="selectItem.searchConfig.datePickerConfig.defaultConfig.defaultValue" 
                                             :options="dateOptions" :label="'时间类型'" :dateMode="selectItem.searchConfig.datePickerConfig.dateFormat"></single-date-filter>
                                     <div v-else-if="selectItem.searchConfig.datePickerConfig.rangeType=='QUICK'&&selectItem.searchConfig.datePickerConfig.enableDefault">
-                                        <a-select v-model="selectItem.searchConfig.datePickerConfig.defaultConfig.defaultValue" placeholder="请选择" size="small" style="width: 180px;margin-left: 110px;">
+                                        <a-select v-model="selectItem.searchConfig.datePickerConfig.defaultConfig.defaultValue" placeholder="请选择" size="small" style="width: 180px;margin-left: 110px;font-size: 12px;">
                                             <a-select-option v-for="quick in getQuickTextOptions" :key="quick.value" :value="quick.value">{{ quick.label }}</a-select-option>
                                         </a-select>
                                     </div>
@@ -805,7 +805,9 @@ export default {
                             options.push(...this.optionData(res))
                         })
                     }
-                    this.fieldOptions=options
+                    if(this.selectItem.searchConfig.dropdownConfig?.dataSource==='AUTO'){
+                        this.fieldOptions=options
+                    }
                 }
             }
         },
@@ -830,8 +832,10 @@ export default {
                 if(this.selectItem.searchConfig.dropdownConfig.searchField){
                     findEnumValues(this.pageId,this.selectItem.searchConfig.dropdownConfig?.datasetId,
                         this.selectItem.searchConfig.dropdownConfig.searchField).then(res => {
-                            this.fieldOptions=[]
-                            this.fieldOptions.push(...this.optionData(res))
+                            if(this.selectItem.searchConfig.dropdownConfig?.dataSource==='DATASET'){
+                                this.fieldOptions=[]
+                                this.fieldOptions.push(...this.optionData(res))
+                            }
                         })
                 }
             }
@@ -856,6 +860,7 @@ export default {
         //日期
         onClearQuick(){
             this.selectItem.searchConfig.datePickerConfig.quickConfig=[]
+            this.selectItem.searchConfig.datePickerConfig.defaultConfig.defaultValue=[]
         },
         dateConditionMethod(type){
             if(type=='SINGLE_DATE'){
