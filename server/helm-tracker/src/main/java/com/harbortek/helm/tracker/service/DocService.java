@@ -20,6 +20,7 @@ import com.harbortek.helm.tracker.entity.block.DocBlock;
 import com.harbortek.helm.tracker.entity.block.DocBlockLink;
 import com.harbortek.helm.tracker.entity.block.DocEntity;
 import com.harbortek.helm.tracker.entity.block.TrackerItemBlockData;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.vo.block.DocVo;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
 
@@ -30,19 +31,23 @@ public interface DocService {
 
     public DocBlock saveBlockAndTrackerItem(Long docId, DocBlock docBlock);
 
-    DocEntity saveBlocksAndTrackerItemsByPart(DocEntity doc,List<DocBlock> blocks);
-    DocEntity saveBlocksAndTrackerItems(Long projectId, Long pageId, List<DocBlock> docBlocks);
+    DocEntity saveBlocksAndTrackerItems(Long projectId, Long pageId, List<SlateNode> elements);
 
-    DocEntity saveBlocksAndTrackerItems(Long projectId, Long pageId, List<DocBlock> docBlocks, List<DocBlockLink> docBlockLinks);
+    DocEntity saveBlocksAndTrackerItems(Long projectId, Long pageId, List<SlateNode> elements, List<DocBlockLink> docBlockLinks);
 
     DocVo findDocByPageId(Long pageId);
-    List<TrackerItemVo> findTrackerItemByIds(List<Long> itemIds) ;
+
+    List<TrackerItemVo> findTrackerItemByIds(List<Long> itemIds);
+
     List<DocVo> findDocByIds(List<Long> pageIds);
-     TrackerItemBlockData.InnerTrackerItemVo fillTrackerItemVo(TrackerItemVo trackerItemVo) ;
+
+    TrackerItemBlockData.InnerTrackerItemVo fillTrackerItemVo(TrackerItemVo trackerItemVo);
+
     void createDoc(DocVo doc);
+
     DocEntity findOneDoc(Long docId);
 
-    public DocEntity saveDoc(DocEntity docEntity) ;
+    public DocEntity saveDoc(DocEntity docEntity);
 
-    void saveBlockAndTrackerItemV2(Long projectId,DocEntity doc, List<DocBlock> toAdd, List<DocBlock> toUpdate, List<DocBlock> toDelete);
+//    void saveBlockAndTrackerItemV2(Long projectId, DocEntity doc, List<DocBlock> toAdd, List<DocBlock> toUpdate, List<DocBlock> toDelete);
 }

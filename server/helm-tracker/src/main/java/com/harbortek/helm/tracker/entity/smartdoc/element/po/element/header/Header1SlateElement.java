@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.header;
+package com.harbortek.helm.tracker.entity.smartdoc.element.po.element.header;
 
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -29,7 +29,7 @@ public class Header1SlateElement<SlateText> extends HeaderSlateElement {
     @Override
     public String toHtml() {
         return StrUtil.format("""
-                <h1>%s</h1>
+                <h1>{}</h1>
                 """, getChildrenHtml());
     }
 }

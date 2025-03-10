@@ -16,41 +16,41 @@
 
 package com.harbortek.helm.tracker.entity.smartdoc.element.po.style;
 
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateDescendant;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.ColorText;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
+import lombok.Builder;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+@Builder
 @Data
-public class ColorSlateStyle extends SlateStyle {
+public class ColorStyle extends SlateStyle {
 
-    private String textAlign;
+    private String color;
+    private String bgColor;
 
-    public String styleToHtml(SlateDescendant textNode, String html) {
-        if (textNode instanceof ColorText) {
-            ColorText colorText = (ColorText) textNode;
-            if (StringUtils.isEmpty(colorText.getColor())
-                    && StringUtils.isEmpty(colorText.getBgColor())) {
-                return html;
-            }
-
-            // 解析 HTML
-            Document doc = Jsoup.parse("<span>" + html + "</span>");
-            Element elem = doc.body().child(0); // html 是一个单一的元素
-
-            // 设置 text-indent 样式
-            if (StringUtils.isNotEmpty(colorText.getColor())) {
-                elem.attr("style", "color: " + colorText.getColor());
-            }
-            if (StringUtils.isNotEmpty(colorText.getBgColor())) {
-                elem.attr("style", "background-color: " + colorText.getBgColor());
-            }
-            // 返回修改后的 HTML
-            return elem.outerHtml();
+    public String styleToHtml(SlateNode textNode, String html) {
+        if (!(textNode instanceof SlateText)) return html;
+        if (StringUtils.isEmpty(color)
+                && StringUtils.isEmpty(bgColor)) {
+            return html;
         }
-        return html;
+
+        // 解析 HTML
+        Document doc = Jsoup.parse("<span>" + html + "</span>");
+        Element elem = doc.body().child(0); // html 是一个单一的元素
+
+        // 设置 text-indent 样式
+        if (StringUtils.isNotEmpty(color)) {
+            elem.attr("style", "color: " + color);
+        }
+        if (StringUtils.isNotEmpty(bgColor)) {
+            elem.attr("style", "background-color: " + bgColor);
+        }
+        // 返回修改后的 HTML
+        return elem.outerHtml();
     }
 }

@@ -9,12 +9,12 @@
           @IMPORT_WORD="onImportWord" @IMPORT_REQIF="onImportReqIF" @EXPORT_REQIF="onExportReqIF"></menu-bar>
 
         <h-doc ref="docRef" class="editor-holder" :loading="docLoading" :init-value="doc" :isReadonly="readOnlyMode"
-          :holder="holder" @change="onChange" @tracker-item-focus="onBlockFocused" :extConfig="extConfig">
-          <template slot="property">
+          :holder="holder" @change="onChange" @tracker-item-focus="onBlockFocused" :extConfig="extConfig" :auto-save="this.displayMode != 'preview'">
+          <template slot="property" v-if="this.displayMode != 'preview'">
             <h-icon type="document" style="cursor: pointer" @click="() => {
-              this.propertyCollapsed = !this.propertyCollapsed;
-            }
-              " title="属性面板"></h-icon>
+      this.propertyCollapsed = !this.propertyCollapsed;
+    }
+      " title="属性面板"></h-icon>
           </template>
         </h-doc>
         <CommentBar :page-id="pageId" class="editor-comment-bar" v-if="displayMode != 'preview'"></CommentBar>
@@ -33,9 +33,12 @@
     <create-tracker-item-dialog :is-show-dialog="isShowCreateTrackerItemDialog" :projectId="projectId"
       :tracker="showCreateTrackerItem" @ok="onTrackerItemSaved" @cancel="isShowCreateTrackerItemDialog = false" />
 
-    <import-word-dialog :is-show-dialog="showImportWordDialog" :projectId="projectId" :page-id="pageId" @cancel="showImportWordDialog=false" @ok="onImportWordOK"/>
-    <import-reqIF-dialog :is-show-dialog="showImportReqIFDialog" :projectId="projectId" :page-id="pageId" @cancel="showImportReqIFDialog=false"/>
-    <export-reqIF-dialog :is-show-dialog="showExportReqIFDialog" :projectId="projectId" :page-id="pageId" @cancel="showExportReqIFDialog=false"/>
+    <import-word-dialog :is-show-dialog="showImportWordDialog" :projectId="projectId" :page-id="pageId"
+      @cancel="showImportWordDialog = false" @ok="onImportWordOK" />
+    <import-reqIF-dialog :is-show-dialog="showImportReqIFDialog" :projectId="projectId" :page-id="pageId"
+      @cancel="showImportReqIFDialog = false" />
+    <export-reqIF-dialog :is-show-dialog="showExportReqIFDialog" :projectId="projectId" :page-id="pageId"
+      @cancel="showExportReqIFDialog = false" />
 
   </div>
 </template>
@@ -143,6 +146,7 @@ export default {
     previewDoc: {
       handler: function (value) {
         if (value) {
+          
           this.readOnlyMode = false;
           this.initEditorJS();
         }
@@ -275,14 +279,7 @@ export default {
     initEditorJSBlocks() {
       if (this.displayMode == "preview") {
         const blocks = this.previewDoc?.blocks || [];
-
-        const trackerItems = [];
-        blocks.forEach((block) => {
-          if (block.data.type == 'trackerItem') {
-            trackerItems.push(block.data.trackerItem);
-          }
-        });
-        trackerItemApi.set(this.doc.id, trackerItems);
+        this.propertyCollapsed = true;
         const newDoc = {
           id: this.previewDoc?.id || nanoid(),
           blocks,
@@ -290,6 +287,7 @@ export default {
           elements: this.previewDoc.elements || [],
           lastModifiedDate: this.previewDoc.lastModifiedDate
         }
+        console.log(newDoc);
         return Promise.resolve(newDoc);
       } else {
         return findByPageId(this.projectId, this.pageId).then((doc) => {

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.tracker.entity.smartdoc.element.po.elements;
+package com.harbortek.helm.tracker.entity.smartdoc.element.po.element;
 
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
@@ -33,7 +32,7 @@ public class TodoSlateElement<SlateText> extends SlateElement {
     @Override
     public String toHtml() {
         return StrUtil.format("""
-                <div data-w-e-type="todo"><input type="checkbox" disabled %s>%s</div>
+                <div data-w-e-type="todo"><input type="checkbox" disabled {}>{}</div>
                 """, checked, getChildrenHtml());
     }
 }

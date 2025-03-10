@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.tracker.entity.smartdoc.element.po;
+package com.harbortek.helm.tracker.entity.smartdoc.element.po.element;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.style.SlateStyle;
 
+import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +54,9 @@ public abstract class SlateElement<T extends SlateNode> extends SlateNode {
     public void setStyles(List<SlateStyle> styles) {
         this.styles = styles;
     }
+
+    @JsonIgnore
+    private String childrenHtml;
 
     public String getChildrenHtml() {
         StringBuilder sb = new StringBuilder();

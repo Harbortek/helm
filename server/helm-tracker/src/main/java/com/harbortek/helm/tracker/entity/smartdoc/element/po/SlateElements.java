@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.tracker.entity.smartdoc.element.po.elements;
-
-import jakarta.validation.constraints.NotEmpty;
+package com.harbortek.helm.tracker.entity.smartdoc.element.po;
 
 public class SlateElements {
     public static final String TRACKER_ITEM = "tracker-item";

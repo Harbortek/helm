@@ -19,6 +19,8 @@ package com.harbortek.helm.smartdoc.service;
 import com.harbortek.helm.smartdoc.importer.word.analysis.WordDocumentProperties;
 import com.harbortek.helm.smartdoc.vo.WordImportJobVo;
 
+import java.io.IOException;
+
 public interface WordImportJobService {
 
     /**
@@ -27,7 +29,7 @@ public interface WordImportJobService {
      * @param job Word 导入作业值对象
      * @return Word 文档属性
      */
-    WordDocumentProperties analysis(WordImportJobVo job);
+    WordDocumentProperties analysis(WordImportJobVo job) throws IOException;
 
     /**
      * 查找已存在的作业。
@@ -36,7 +38,7 @@ public interface WordImportJobService {
      * @param pageId 页面的 ID
      * @return 已存在的 Word 导入作业值对象
      */
-    WordImportJobVo findExistedJob(Long projectId, Long pageId);
+    WordImportJobVo findExistedJob(Long projectId, Long pageId) throws IOException;
 
     /**
      * 创建新的作业。
@@ -52,14 +54,14 @@ public interface WordImportJobService {
      * @param job Word 导入作业值对象
      * @return 更新的 Word 导入作业值对象
      */
-    WordImportJobVo updateJob(WordImportJobVo job);
+    WordImportJobVo updateJob(WordImportJobVo job) throws IOException;
 
     /**
      * 完成作业。
      *
      * @param job Word 导入作业值对象
      */
-    void completeJob(WordImportJobVo job);
+    void completeJob(WordImportJobVo job) throws IOException;
 
     /**
      * 删除作业。
@@ -74,5 +76,5 @@ public interface WordImportJobService {
      * @param id 作业的 ID
      * @return 撤回的 Word 导入作业值对象
      */
-    WordImportJobVo withdrawJob(Long id);
+    WordImportJobVo withdrawJob(Long id) throws IOException;
 }

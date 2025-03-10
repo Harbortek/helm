@@ -23,15 +23,13 @@ import com.harbortek.helm.smartdoc.exporter.word.Block2Docx;
 import com.harbortek.helm.smartdoc.vo.PageSettingTrackerVo;
 import com.harbortek.helm.smartdoc.vo.ProjectPage4BlockVo;
 import com.harbortek.helm.tracker.entity.block.DocBlock;
-import com.harbortek.helm.tracker.entity.block.DocEntity;
 import com.harbortek.helm.tracker.entity.block.TrackerItemBlockData;
-import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.BlockParser;
+import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.Block2Node;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateText;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.paragraph.ParagraphSlateElement;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.title.TitleSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph.ParagraphSlateElement;
 import com.harbortek.helm.tracker.entity.project.PageSettingTracker;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.trackerItem.TrackerItemSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
 import com.harbortek.helm.tracker.service.*;
 import com.harbortek.helm.tracker.vo.ProjectVo;
 import com.harbortek.helm.tracker.vo.block.DocVo;
@@ -39,7 +37,6 @@ import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
 import com.harbortek.helm.tracker.vo.pages.ProjectPageVo;
 import com.harbortek.helm.tracker.vo.tracker.TrackerVo;
 import com.harbortek.helm.util.BeanCopyUtils;
-import com.harbortek.helm.util.JsonUtils;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -53,10 +50,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +79,7 @@ public class DocApi {
         if (docVo.getElements() == null || docVo.getElements().isEmpty()) {
             docVo.setElements(new ArrayList<SlateNode>());
             for (DocBlock docBlock : docVo.getBlocks()) {
-                docVo.getElements().add(BlockParser.parse(docBlock));
+                docVo.getElements().add(Block2Node.parse(docBlock));
             }
         }
         if (!docVo.getElements().isEmpty()) {
@@ -100,39 +94,42 @@ public class DocApi {
             for (SlateNode slateNode : list) {
                 TrackerItemSlateElement<?> trackerItemSlateElement = (TrackerItemSlateElement<?>) slateNode;
                 TrackerItemVo item = trackerItemMap.get(trackerItemSlateElement.getRef());
-                for (Object child : trackerItemSlateElement.getChildren()) {
-                    if (child instanceof TrackerItemSlateElement.TrackerItemTitleSlateElement) {
-                        TrackerItemSlateElement.TrackerItemTitleSlateElement title = ((TrackerItemSlateElement.TrackerItemTitleSlateElement) child);
-                        List<SlateText> titleChildren = new ArrayList<>();
-                        titleChildren.add(new SlateText(item.getName()));
-                        title.setChildren(titleChildren);
-                    }
-                    if (child instanceof TrackerItemSlateElement.TrackerItemDescriptionSlateElement) {
-                        TrackerItemSlateElement.TrackerItemDescriptionSlateElement desc = ((TrackerItemSlateElement.TrackerItemDescriptionSlateElement) child);
-                        List<SlateNode> descChildren = new ArrayList<>();
-                        try {
-                            List<SlateNode> descSlateNodeChildren = SlateParser.parse(new JSONArray(item.getDescription()));
-                            if (!descSlateNodeChildren.isEmpty()) {
-                                for (SlateNode slateNodeChild : descSlateNodeChildren) {
-                                    if (slateNodeChild instanceof SlateText) {
-                                        //paragraph 包裹
-                                        slateNodeChild = new ParagraphSlateElement<>();
-                                        ((ParagraphSlateElement<?>) slateNodeChild).getChildren().add(slateNodeChild);
-                                    }
-                                }
-                            } else {
-                                ParagraphSlateElement pe = new ParagraphSlateElement<>();
-                                pe.getChildren().add(new SlateText());
-                                descSlateNodeChildren.add(pe);
-                            }
+                if (item != null) {
 
-                            descChildren.addAll(descSlateNodeChildren);
-                        } catch (Exception e) {
+                    for (Object child : trackerItemSlateElement.getChildren()) {
+                        if (child instanceof TrackerItemSlateElement.TrackerItemTitleSlateElement) {
+                            TrackerItemSlateElement.TrackerItemTitleSlateElement title = ((TrackerItemSlateElement.TrackerItemTitleSlateElement) child);
+                            List<SlateText> titleChildren = new ArrayList<>();
+                            titleChildren.add(new SlateText(item.getName()));
+                            title.setChildren(titleChildren);
                         }
-                        desc.setChildren(descChildren);
+                        if (child instanceof TrackerItemSlateElement.TrackerItemDescriptionSlateElement) {
+                            TrackerItemSlateElement.TrackerItemDescriptionSlateElement desc = ((TrackerItemSlateElement.TrackerItemDescriptionSlateElement) child);
+                            List<SlateNode> descChildren = new ArrayList<>();
+                            try {
+                                List<SlateNode> descSlateNodeChildren = SlateParser.parseArray(new JSONArray(item.getDescription()));
+                                if (!descSlateNodeChildren.isEmpty()) {
+                                    for (SlateNode slateNodeChild : descSlateNodeChildren) {
+                                        if (slateNodeChild instanceof SlateText) {
+                                            //paragraph 包裹
+                                            slateNodeChild = new ParagraphSlateElement<>();
+                                            ((ParagraphSlateElement<?>) slateNodeChild).getChildren().add(slateNodeChild);
+                                        }
+                                    }
+                                } else {
+                                    ParagraphSlateElement pe = new ParagraphSlateElement<>();
+                                    pe.getChildren().add(new SlateText());
+                                    descSlateNodeChildren.add(pe);
+                                }
+
+                                descChildren.addAll(descSlateNodeChildren);
+                            } catch (Exception e) {
+                            }
+                            desc.setChildren(descChildren);
+                        }
                     }
+                    trackerItemSlateElement.setTrackerItem(item);
                 }
-                trackerItemSlateElement.setTrackerItem(item);
             }
         }
         //默认添加一个
@@ -206,27 +203,27 @@ public class DocApi {
     }
 
 
-    @Parameter(name = "保存Blocks")
-    @RequestMapping(value = "", method = RequestMethod.POST)
-    ResponseEntity<DocEntity> save(@PathVariable Long projectId, @PathVariable Long pageId, @RequestBody String newBlocks) {
-        try {
-            newBlocks = URLDecoder.decode(newBlocks, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException e) {
-            throw new ServiceException("格式错误！");
-        }
-        //1. 解析block，并保存为bean
-        List<DocBlock> docBlocks = this.parseBlocks(newBlocks);
-        //2. 遍历bclok bean，批量更新工作项（保存新的，更新已存在的）
-        //2.1 比较是否更改
-        // to-do
-        //2.2 保存变动
-        DocEntity entity = docService.saveBlocksAndTrackerItems(projectId, pageId, docBlocks, null);
-        //3.比较需要删除的工作项
-        //to-do
-        //4.返回更新后的blocks
-        return ResponseEntity.ok(entity);
-
-    }
+//    @Parameter(name = "保存Blocks")
+//    @RequestMapping(value = "", method = RequestMethod.POST)
+//    ResponseEntity<DocEntity> save(@PathVariable Long projectId, @PathVariable Long pageId, @RequestBody String newBlocks) {
+//        try {
+//            newBlocks = URLDecoder.decode(newBlocks, StandardCharsets.UTF_8.toString());
+//        } catch (UnsupportedEncodingException e) {
+//            throw new ServiceException("格式错误！");
+//        }
+//        //1. 解析block，并保存为bean
+//        List<DocBlock> docBlocks = this.parseBlocks(newBlocks);
+//        //2. 遍历bclok bean，批量更新工作项（保存新的，更新已存在的）
+//        //2.1 比较是否更改
+//        // to-do
+//        //2.2 保存变动
+//        DocEntity entity = docService.saveBlocksAndTrackerItems(projectId, pageId, docBlocks, null);
+//        //3.比较需要删除的工作项
+//        //to-do
+//        //4.返回更新后的blocks
+//        return ResponseEntity.ok(entity);
+//
+//    }
 
     @Parameter(name = "DOC 导出 WORD")
     @RequestMapping(value = "/doc2word", method = RequestMethod.POST)

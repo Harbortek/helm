@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.tracker.entity.smartdoc.element.po.elements;
+package com.harbortek.helm.tracker.entity.smartdoc.element.po.element;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import lombok.Data;
 

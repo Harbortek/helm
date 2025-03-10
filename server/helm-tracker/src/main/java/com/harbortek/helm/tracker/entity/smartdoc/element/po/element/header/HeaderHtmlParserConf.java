@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.header;
+package com.harbortek.helm.tracker.entity.smartdoc.element.po.element.header;
 
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.html2po.ParseElemHtmlConf;
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.html2po.ParseElemHtmlFn;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElement;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.paragraph.ParagraphSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph.ParagraphSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
 import org.jsoup.nodes.Element;
 

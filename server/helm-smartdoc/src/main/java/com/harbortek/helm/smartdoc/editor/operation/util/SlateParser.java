@@ -17,27 +17,23 @@
 package com.harbortek.helm.smartdoc.editor.operation.util;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateText;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.*;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.header.*;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.paragraph.ParagraphSlateElement;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.table.TableSlateElement;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.title.TitleSlateElement;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.trackerItem.TrackerItemSlateElement;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.texts.EmptySlateText;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.texts.FontSizeAndFamilySlateText;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.texts.PureSlateText;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.texts.color.ColorSlateText;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.texts.style.StyleSlateText;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.*;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.header.*;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph.ParagraphSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.table.TableSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.title.TitleSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.style.*;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
 import com.harbortek.helm.util.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.dataflow.qual.Pure;
-import org.docx4j.org.apache.xpath.operations.Bool;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,38 +42,28 @@ import java.util.List;
 public class SlateParser {
     private static final ObjectMapper objectMapper = JsonUtils.getObjectMapper();
 
-    public static List<SlateNode> parse(String jsonString) throws IOException {
-        return objectMapper.readValue(jsonString,
-                objectMapper.getTypeFactory().constructCollectionType(List.class, SlateNode.class));
+    public static List<SlateNode> parseArray(String jsonString) throws IOException {
+        JSONArray jsonArray = new JSONArray(jsonString);
+        return parseArray(jsonArray);
     }
 
-    public static SlateNode parseOne(String jsonString) throws IOException {
-        return objectMapper.readValue(jsonString, SlateNode.class);
-    }
-
-    public static List<SlateNode> parse(JSONArray jsonArray) throws IOException {
+    public static List<SlateNode> parseArray(JSONArray jsonArray) throws IOException {
         List<SlateNode> slateNodes = new ArrayList<>();
         for (Object item : jsonArray) {
             JSONObject obj = (JSONObject) item;
-
-            JSONArray children = obj.getJSONArray("children");
-            List<SlateNode> parseedChildren = null;
-            if (children != null) {
-                parseedChildren = parse(children);
-                obj.set("children", null);
-            }
-            SlateNode node = parseOne(obj);
-            if (parseedChildren != null) {
-                ((SlateElement) node).setChildren(parseedChildren);
-            }
-
-            slateNodes.add(node);
+            SlateNode child = parseOne(obj);
+            slateNodes.add(child);
         }
         return slateNodes;
     }
 
+    public static SlateNode parseOne(String jsonString) throws IOException {
+        return parseOne(new JSONObject(jsonString));
+    }
+
     public static SlateNode parseOne(JSONObject obj) throws IOException {
         String type = obj.getStr("type");
+        List<SlateStyle> styles = parseStyles(obj);
         SlateNode node = null;
         if (SlateElements.ATTACHMENT.equals(type)) {
             node = new AttachmentSlateElement();
@@ -105,12 +91,6 @@ public class SlateParser {
             node = new Header5SlateElement<>();
         } else if (SlateElements.IMAGE.equals(type)) {
             node = new ImageSlateElement<>();
-        } else if (SlateElements.INDENT.equals(type)) {
-            node = new IndentSlateElement<>();
-        } else if (SlateElements.JUSTIFY.equals(type)) {
-            node = new JustifySlateElement<>();
-        } else if (SlateElements.LINE_HEIGHT.equals(type)) {
-            node = new LineHeightSlateElement<>();
         } else if (SlateElements.PARAGRAPH.equals(type)) {
             node = new ParagraphSlateElement<>();
         } else if (SlateElements.PRE.equals(type)) {
@@ -130,26 +110,82 @@ public class SlateParser {
         } else if (SlateElements.LINK.equals(type)) {
             node = new LinkSlateElement();
         } else {
-            String color = obj.getStr("color");
-            String fontSize = obj.getStr("fontSize");
-            String fontFamily = obj.getStr("fontFamily");
-            Object bold = obj.get("bold");
-            String text = obj.getStr("text");
-            if (text == null) {
-                node = new PureSlateText();
-            } else if ("".equals(text)) {
-                node = new EmptySlateText();
-            } else if (StringUtils.isNotEmpty(color)) {
-                node = new ColorSlateText();
-            } else if (StringUtils.isNotEmpty(fontSize) || StringUtils.isNotEmpty(fontFamily)) {
-                node = new FontSizeAndFamilySlateText();
-            } else if (bold != null) {
-                node = new StyleSlateText();
-            } else {
-                node = new SlateText();
+            node = new SlateText();
+        }
+        BeanUtil.fillBeanWithMap(obj, node, CopyOptions.create().ignoreError().setIgnoreProperties(
+                "styles"
+        ));
+        node.setStyles(styles);
+        String children = obj.getStr("children");
+        if (node instanceof SlateElement<?>) {
+            if (StringUtils.isNotEmpty(children)) {
+                List<SlateNode> parseedChildren = parseArray(children);
+                ((SlateElement) node).setChildren(parseedChildren);
             }
         }
-        BeanUtil.fillBeanWithMap(obj, node, true);
         return node;
+    }
+
+    private static List<SlateStyle> parseStyles(JSONObject item) throws IOException {
+
+        String textAlign = item.getStr("textAlign");
+
+        List<SlateStyle> styles = new ArrayList<>();
+        //justify包装
+        if (StringUtils.isNotEmpty(textAlign)) {
+            JustifyStyle justifyStyle = JustifyStyle.builder().textAlign(textAlign).build();
+            styles.add(justifyStyle);
+        }
+        //indent包装
+        String indent = item.getStr("indent");
+        if (StringUtils.isNotEmpty(indent)) {
+            IndentStyle indentStyle = IndentStyle.builder().indent(indent).build();
+            styles.add(indentStyle);
+        }
+        //lineHeight包装
+        String lineHeight = item.getStr("lineHeight");
+        if (StringUtils.isNotEmpty(lineHeight)) {
+            LineHeightStyle lineHeightElement = LineHeightStyle.builder().lineHeight(lineHeight).build();
+            styles.add(lineHeightElement);
+        }
+        //color包装
+        String color = item.getStr("color");
+        String bgColor = item.getStr("bgColor");
+        if (StringUtils.isNotEmpty(color) || StringUtils.isNotEmpty(bgColor)) {
+            ColorStyle colorStyle = ColorStyle.builder().color(color).bgColor(bgColor).build();
+            styles.add(colorStyle);
+        }
+        //style包装
+        Boolean bold = item.getBool("bold");
+        Boolean code = item.getBool("code");
+        Boolean italic = item.getBool("italic");
+        Boolean through = item.getBool("through");
+        Boolean underline = item.getBool("underline");
+        Boolean sup = item.getBool("sup");
+        Boolean sub = item.getBool("sub");
+        if (Boolean.TRUE.equals(bold) || Boolean.TRUE.equals(code) ||
+                Boolean.TRUE.equals(italic) || Boolean.TRUE.equals(through)
+                || Boolean.TRUE.equals(underline) || Boolean.TRUE.equals(sup) ||
+                Boolean.TRUE.equals(sub)) {
+            StyleedStyle styleedStyle = StyleedStyle.builder()
+                    .bold(bold)
+                    .code(code)
+                    .italic(italic)
+                    .through(through)
+                    .underline(underline)
+                    .sup(sup)
+                    .sub(sub).build();
+            styles.add(styleedStyle);
+        }
+        //fontSizeAndFamily包装
+        String fontSize = item.getStr("fontSize");
+        String fontFamily = item.getStr("fontFamily");
+        if (StringUtils.isNotEmpty(fontSize) || StringUtils.isNotEmpty(fontFamily)) {
+            FontSizeAndFamilyStyle fontSizeAndFamilyStyle = FontSizeAndFamilyStyle.builder()
+                    .fontSize(fontSize)
+                    .fontFamily(fontFamily).build();
+            styles.add(fontSizeAndFamilyStyle);
+        }
+        return styles;
     }
 }

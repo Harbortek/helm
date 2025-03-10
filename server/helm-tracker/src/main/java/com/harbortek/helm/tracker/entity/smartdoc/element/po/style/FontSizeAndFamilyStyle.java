@@ -17,55 +17,53 @@
 package com.harbortek.helm.tracker.entity.smartdoc.element.po.style;
 
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.PoUtils;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateDescendant;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.StyledText;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 @Data
 @Builder
-public class StyleedStyle extends SlateStyle {
+public class FontSizeAndFamilyStyle extends SlateStyle {
 
-    private Boolean bold;
-    private Boolean code;
-    private Boolean italic;
-    private Boolean underline;
-    private Boolean through;
-    private Boolean sub;
-    private Boolean sup;
+    private String fontSize;
+    private String fontFamily;
 
-    public String styleToHtml(SlateDescendant node, String html) {
-        if (!(node instanceof StyledText)) {
+    public String styleToHtml(SlateNode node, String html) {
+
+        if (!(node instanceof SlateText)) {
             return html;
         }
-        StyledText textNode = (StyledText) node;
+        if (StringUtils.isEmpty(fontSize) && StringUtils.isEmpty(fontFamily)) {
+            return html;
+        }
+        Element elem = null;
         if (PoUtils.isPlainText(html)) {
-            return genStyledHtml(textNode, html);
+            html = "<span>" + html + "</span>";
+            Document doc = Jsoup.parse(html);
+            elem = doc.body().child(0);
+        } else {
+            Document doc = Jsoup.parse(html);
+            elem = doc.body().child(0); // html 是一个单一的元素
+            String tagName = elem.tagName();
+            if (!"span".equals(tagName)) {
+                html = "<span>" + html + "</span>";
+                doc = Jsoup.parse(html);
+                elem = doc.body().child(0);
+            }
+            if (StringUtils.isNotEmpty(fontFamily)) {
+                elem.attr("style", "font-family:" + fontFamily);
+            }
+            if (StringUtils.isNotEmpty(fontSize)) {
+                elem.attr("style", "font-size:" + fontSize);
+            }
+            return elem.outerHtml();
         }
-        // 解析 HTML
-        Document doc = Jsoup.parse(html);
-        Element elem = doc.body().child(0); // html 是一个单一的元素
-        String tagName = elem.tagName();
-        if ("br".equals(tagName)) {
-            return genStyledHtml(textNode, "<br>");
-        }
-        String nhtml = genStyledHtml(textNode, elem.html());
-        elem.html(nhtml);
-        return elem.outerHtml();
+        return html;
     }
 
-    private String genStyledHtml(StyledText textNode, String html) {
-        String styledHtml = html;
-        if (textNode.getBold()) styledHtml = "<strong>" + styledHtml + "</strong>";
-        if (textNode.getCode()) styledHtml = "<code>" + styledHtml + "</code>";
-        if (textNode.getItalic()) styledHtml = "<em>" + styledHtml + "</em>";
-        if (textNode.getUnderline()) styledHtml = "<u>" + styledHtml + "</u>";
-        if (textNode.getThrough()) styledHtml = "<s>" + styledHtml + "</s>";
-        if (textNode.getSub()) styledHtml = "<sub>" + styledHtml + "</sub>";
-        if (textNode.getSup()) styledHtml = "<sup>" + styledHtml + "</sup>";
-        return styledHtml;
-    }
 }

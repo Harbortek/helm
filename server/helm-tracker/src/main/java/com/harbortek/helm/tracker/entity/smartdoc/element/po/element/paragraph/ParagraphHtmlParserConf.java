@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.paragraph;
+package com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph;
 
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.html2po.ParseElemHtmlConf;
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.html2po.ParseElemHtmlFn;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
 import org.jsoup.nodes.Element;
 
@@ -47,7 +47,6 @@ public class ParagraphHtmlParserConf extends ParseElemHtmlConf {
 
             // 无 children ，则用纯文本
             if (children.size() == 0) {
-                children = new ArrayList<>();
                 children.add(new SlateText(elem.text()));
             }
             ParagraphSlateElement paragraphSlateElement = new ParagraphSlateElement<>();

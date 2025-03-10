@@ -17,10 +17,10 @@
 package com.harbortek.helm.tracker.entity.smartdoc.element.parser.html2po;
 
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.Helper;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateDescendant;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElement;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateText;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.paragraph.ParagraphSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph.ParagraphSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
@@ -40,10 +40,10 @@ public class ParseCommonElemHtml {
      * @param str      text to insert
      * @return whether the insertion was successful
      */
-    private static boolean tryInsertTextToChildrenLastItem(List<SlateDescendant> children, String str) {
+    private static boolean tryInsertTextToChildrenLastItem(List<SlateNode> children, String str) {
         int len = children.size();
         if (len > 0) {
-            SlateDescendant lastItem = children.get(len - 1);
+            SlateNode lastItem = children.get(len - 1);
             if (lastItem instanceof SlateText) {
                 SlateText textNode = (SlateText) lastItem;
                 if (ParserRegister.isSingleText(textNode)) {
@@ -59,10 +59,10 @@ public class ParseCommonElemHtml {
      * Generate slate node children.
      *
      * @param elem   DOM element
-     * @return list of SlateDescendant
+     * @return list of SlateNode
      */
-    public static List<SlateDescendant> genChildren(Node elem) {
-        List<SlateDescendant> children = new ArrayList<>();
+    public static List<SlateNode> genChildren(Node elem) {
+        List<SlateNode> children = new ArrayList<>();
 
         // Check if void node
         if (elem.hasAttr("data-w-e-is-void")) {
@@ -88,7 +88,7 @@ public class ParseCommonElemHtml {
                     continue;
                 }
 
-                SlateDescendant parsedRes = HtmlParser.parseElemHtml((Element) child);
+                SlateNode parsedRes = HtmlParser.parseElemHtml((Element) child);
                 children.add(parsedRes);
             } else if (child instanceof TextNode) {
                 String text = ((TextNode) child).text();
@@ -115,7 +115,7 @@ public class ParseCommonElemHtml {
      * @param children children
      * @return Element
      */
-    private static SlateElement defaultParser(Element elem, List<SlateDescendant> children) {
+    private static SlateElement defaultParser(Element elem, List<SlateNode> children) {
         SlateText text = new SlateText(elem.text().replaceAll("\\s+", " "));
         ParagraphSlateElement<SlateText> paragraph = new ParagraphSlateElement<SlateText>();
         List<SlateText> childrenText = new ArrayList<>();
@@ -138,7 +138,7 @@ public class ParseCommonElemHtml {
         }
         return new ParseElemHtmlFn() {
             @Override
-            public SlateElement apply(Element elem, List<SlateDescendant> children) {
+            public SlateElement apply(Element elem, List<SlateNode> children) {
                 return defaultParser(elem, children);
             }
         };
@@ -151,7 +151,7 @@ public class ParseCommonElemHtml {
      * @return list of Element
      */
     public static SlateElement parseCommonElemHtml(Element elem) {
-        List<SlateDescendant> children = ParseCommonElemHtml.genChildren(elem);
+        List<SlateNode> children = ParseCommonElemHtml.genChildren(elem);
         ParseElemHtmlFn parser = getParser(elem);
         SlateElement element = parser.apply(elem, children);
 

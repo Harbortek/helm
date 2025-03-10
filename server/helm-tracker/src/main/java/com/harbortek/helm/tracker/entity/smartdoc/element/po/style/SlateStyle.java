@@ -1,9 +1,9 @@
-package com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.style;
+package com.harbortek.helm.tracker.entity.smartdoc.element.po.style;
 
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateDescendant;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 
 public abstract class SlateStyle {
 
 
-    public abstract String styleToHtml(SlateDescendant node, String html);
+    public abstract String styleToHtml(SlateNode node, String html);
 }

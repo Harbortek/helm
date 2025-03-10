@@ -14,33 +14,27 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.text;
+package com.harbortek.helm.tracker.entity.smartdoc.element.po.text;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.SlateElements;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.style.SlateStyle;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @JsonTypeName(SlateElements.TEXT)
-public class SlateText implements SlateNode, SlateDescendant {
+public class SlateText extends SlateNode {
     private String type = SlateElements.TEXT;
     private String text = "";
-
-    private String fontSize;
-    private String fontFamily;
-    private Boolean bold = false;
-    private Boolean code = false;
-    private Boolean italic = false;
-    private Boolean through = false;
-    private Boolean underline = false;
-    private Boolean sup = false;
-    private Boolean sub = false;
-    private String color;
-    private String bgColor;
 
     public SlateText(String text) {
         this.text = text;
@@ -49,8 +43,17 @@ public class SlateText implements SlateNode, SlateDescendant {
     public SlateText() {
     }
 
+    protected List<SlateStyle> styles = new ArrayList<>();
+
+    public List<SlateStyle> getStyles() {
+        return styles;
+    }
+
+    public void setStyles(List<SlateStyle> styles) {
+        this.styles = styles;
+    }
     @Override
-    public void toHtml() {
+    public String toHtml() {
         return this.text;
     }
 }

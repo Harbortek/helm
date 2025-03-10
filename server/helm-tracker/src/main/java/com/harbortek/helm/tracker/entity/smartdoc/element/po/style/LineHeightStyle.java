@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.style;
+package com.harbortek.helm.tracker.entity.smartdoc.element.po.style;
 
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateDescendant;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.text.SlateText;
-import jakarta.validation.constraints.NotEmpty;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
+import lombok.Builder;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -26,14 +26,16 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 @Data
+@Builder
 public class LineHeightStyle extends SlateStyle {
+    private String lineHeight;
 
     @Override
-    public String styleToHtml(SlateDescendant node, String html) {
-        if (node instanceof SlateText) {
+    public String styleToHtml(SlateNode node, String html) {
+        if (!(node instanceof SlateElement<?>)) {
             return html;
         }
-        if (StringUtils.isEmpty(textAlign)) {
+        if (StringUtils.isEmpty(lineHeight)) {
             return html;
         }
 
@@ -42,7 +44,7 @@ public class LineHeightStyle extends SlateStyle {
         Element elem = doc.body().child(0); // html 是一个单一的元素
 
         // 设置 text-indent 样式
-        elem.attr("style", "text-align: " + textAlign);
+        elem.attr("style", "line-height: " + lineHeight);
 
         // 返回修改后的 HTML
         return elem.outerHtml();

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.title;
+package com.harbortek.helm.tracker.entity.smartdoc.element.po.element.title;
 
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import lombok.Data;
 
@@ -30,7 +30,7 @@ public class TitleSlateElement<SlateText> extends SlateElement {
     @Override
     public String toHtml() {
         return StrUtil.format("""
-                `<p data-w-e-type="title">%s</p>`
+                <p data-w-e-type="title">{}</p>
                 """, getChildrenHtml());
     }
 }

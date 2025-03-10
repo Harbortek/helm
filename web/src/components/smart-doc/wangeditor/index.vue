@@ -53,6 +53,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    autoSave: {
+      type: Boolean,
+      default: false,
+    },
     loading: false,
     holder: {
       type: String,
@@ -399,6 +403,9 @@ export default {
       this.editor = editor;
     },
     onChange(data) {
+      if (!this.autoSave) {
+        return;
+      }
       this.$emit("change", data);
       this.queuedData.push(...data);
 

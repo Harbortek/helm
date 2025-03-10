@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.tracker.entity.smartdoc.element.po.elements;
+package com.harbortek.helm.tracker.entity.smartdoc.element.po.element;
 
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import lombok.Data;
 
@@ -34,7 +33,7 @@ public class AttachmentSlateElement<SlateText> extends SlateElement {
     @Override
     public String toHtml() {
         return StrUtil.format(
-                "<a data-w-e-type='attachment' data-w-e-is-void data-w-e-is-inline href='%s' download='%s'>%s</a>"
+                "<a data-w-e-type='attachment' data-w-e-is-void data-w-e-is-inline href='{}' download='{}'>{}</a>"
                 , link, fileName, fileName);
     }
 }

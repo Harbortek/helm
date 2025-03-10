@@ -21,6 +21,7 @@ import com.harbortek.helm.common.vo.IdNameReference;
 import com.harbortek.helm.smartdoc.constants.ConditionMatchTypes;
 import com.harbortek.helm.smartdoc.constants.ConditionsMatchScopes;
 import com.harbortek.helm.smartdoc.dao.WordImportJobDao;
+import com.harbortek.helm.smartdoc.editor.operation.util.SlateParser;
 import com.harbortek.helm.smartdoc.entity.WordImportJobEntity;
 import com.harbortek.helm.smartdoc.importer.word.analysis.WordDocumentProperties;
 import com.harbortek.helm.smartdoc.importer.word.conditions.ConditionsRegistry;
@@ -29,13 +30,15 @@ import com.harbortek.helm.smartdoc.importer.word.extractors.ExtractorRegistry;
 import com.harbortek.helm.smartdoc.importer.word.extractors.IValueExtractor;
 import com.harbortek.helm.smartdoc.importer.word.rules.*;
 import com.harbortek.helm.smartdoc.service.WordImportJobService;
-import com.harbortek.helm.smartdoc.utils.DocUtils;
 import com.harbortek.helm.smartdoc.utils.WordUtils;
 import com.harbortek.helm.smartdoc.vo.WordImportJobVo;
 import com.harbortek.helm.system.service.EnumService;
 import com.harbortek.helm.system.service.FileService;
 import com.harbortek.helm.tracker.constants.BlockTypes;
 import com.harbortek.helm.tracker.entity.block.*;
+import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.Block2Node;
+import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.Node2Block;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.service.*;
 import com.harbortek.helm.tracker.vo.ProjectVo;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
@@ -57,6 +60,7 @@ import org.springframework.stereotype.Service;
 import org.zwobble.mammoth.DocumentConverter;
 import org.zwobble.mammoth.Result;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
@@ -86,8 +90,12 @@ public class WordImportJobServiceImpl implements WordImportJobService {
     TrackerItemService trackerItemService;
 
     @Override
-    public WordDocumentProperties analysis(WordImportJobVo job) {
-        List<DocBlock> blocks = DocUtils.parseBlocks(job.getBlocksJSON());
+    public WordDocumentProperties analysis(WordImportJobVo job) throws IOException {
+
+        List<DocBlock> blocks =
+                SlateParser.parseArray(
+                        job.getBlocksJSON()
+                ).stream().map(node -> Node2Block.parse(node)).toList();
         WordDocumentProperties documentProperties = new WordDocumentProperties();
         WordUtils wordUtils = new WordUtils();
         WordDocumentProperties.Heading lastHeading = null;
@@ -96,7 +104,7 @@ public class WordImportJobServiceImpl implements WordImportJobService {
                 HeaderBlockData data = (HeaderBlockData) block.getData();
                 WordDocumentProperties.Heading heading = new WordDocumentProperties.Heading();
                 heading.setId(block.getId());
-                heading.setName(block.getData().getText());
+                heading.setName(Jsoup.parse(block.getData().getText()).text());
                 heading.setStyle("heading" + data.getLevel());
                 String titleLevel = String.valueOf(data.getLevel());
                 if (job.isAutoNumber()) {
@@ -132,7 +140,7 @@ public class WordImportJobServiceImpl implements WordImportJobService {
     }
 
     @Override
-    public WordImportJobVo findExistedJob(Long projectId, Long pageId) {
+    public WordImportJobVo findExistedJob(Long projectId, Long pageId) throws IOException {
         List<WordImportJobEntity> jobs = wordImportJobDao.findJobs(projectId, pageId);
         if (jobs.isEmpty()) {
             return null;
@@ -158,17 +166,17 @@ public class WordImportJobServiceImpl implements WordImportJobService {
             Document document = Jsoup.parse(result.getValue());
             WordUtils wordUtils = new WordUtils();
 
-            //自动添加标题
+            // 自动添加标题
             TitleBlockData titleBlockData = new TitleBlockData();
             ProjectPageVo pageVo = projectPageService.findOneProjectPage(job.getPageId());
             titleBlockData.setText(pageVo.getName());
             DocBlock titleBlock = new DocBlock(IDUtils.getShortId(), BlockTypes.TITLE, titleBlockData);
             blocks.add(titleBlock);
 
-            //遍历HTML
+            // 遍历HTML
             for (Element element : document.body().children()) {
-                //自动转换章节
-                if (element.is("h1,h2,h3,h4,h5,h6")) {
+                // 自动转换章节
+                if (element.is("h1,h2,h3,h4,h5")) {
                     HeaderBlockData data = new HeaderBlockData();
                     data.setText(element.text());
                     data.setLevel(Long.parseLong(element.tagName().replace("h", "")));
@@ -185,8 +193,15 @@ public class WordImportJobServiceImpl implements WordImportJobService {
             }
 
             WordImportJobEntity jobEntity = DataUtils.toEntity(job, WordImportJobEntity.class);
-            jobEntity.setBlocksJSON(JsonUtils.toJSONString(blocks));
             jobEntity.setId(IDUtils.getId());
+
+            List<SlateNode> elements = new ArrayList<>();
+            for (DocBlock block : blocks) {
+                SlateNode node = Block2Node.parse(block);
+                elements.add(node);
+            }
+            jobEntity.setBlocksJSON(JsonUtils.toJSONString(elements));
+
             wordImportJobDao.createJob(jobEntity);
 
             job = DataUtils.toVo(jobEntity, WordImportJobVo.class);
@@ -200,13 +215,14 @@ public class WordImportJobServiceImpl implements WordImportJobService {
     }
 
     @Override
-    public WordImportJobVo updateJob(WordImportJobVo job) {
+    public WordImportJobVo updateJob(WordImportJobVo job) throws IOException {
         Long projectId = job.getProjectId();
         ProjectVo project = projectService.findOneProject(projectId);
+        List<SlateNode> elements = SlateParser.parseArray(job.getBlocksJSON());
 
         List<DocBlock> newBlocks = new ArrayList<>();
-        //遍历HTML
-        List<DocBlock> blocks = DocUtils.parseBlocks(job.getBlocksJSON());
+        // 遍历HTML
+        List<DocBlock> blocks = elements.stream().map(ele -> Node2Block.parse(ele)).toList();
         ListIterator<DocBlock> iterator = blocks.listIterator();
         Stack<DocBlock> headings = new Stack<>();
         Long blockLevel = 0L;
@@ -215,7 +231,7 @@ public class WordImportJobServiceImpl implements WordImportJobService {
             if (BlockTypes.PARAGRAPH.equals(block.getType())) {
                 ExtractionRule rule = getMatchRule(block, headings, job);
                 if (rule != null) {
-                    //工作项开始
+                    // 工作项开始
                     List<DocBlock> segments = new ArrayList<>();
                     segments.add(block);
                     while (iterator.hasNext()) {
@@ -227,7 +243,7 @@ public class WordImportJobServiceImpl implements WordImportJobService {
                             segments.add(ele);
                         }
                     }
-                    //将本章节的内容进行处理
+                    // 将本章节的内容进行处理
                     if (!segments.isEmpty()) {
                         newBlocks.addAll(processSegments(rule, segments, job, project));
                     }
@@ -260,7 +276,8 @@ public class WordImportJobServiceImpl implements WordImportJobService {
             }
         }
 
-        job.setBlocksJSON(JsonUtils.toJSONString(newBlocks));
+        job.setBlocksJSON(JsonUtils.toJSONString(
+                newBlocks.stream().map(block -> Block2Node.parse(block)).toList()));
         WordImportJobEntity jobEntity = DataUtils.toEntity(job, WordImportJobEntity.class);
         wordImportJobDao.updateJob(jobEntity);
 
@@ -279,10 +296,10 @@ public class WordImportJobServiceImpl implements WordImportJobService {
     }
 
     @Override
-    public void completeJob(WordImportJobVo job) {
+    public void completeJob(WordImportJobVo job) throws IOException {
         Long projectId = job.getProjectId();
         Long pageId = job.getPageId();
-        List<DocBlock> blocks = DocUtils.parseBlocks(job.getBlocksJSON());
+        List<SlateNode> blocks = SlateParser.parseArray(job.getBlocksJSON());
 
         docService.saveBlocksAndTrackerItems(projectId, pageId, blocks);
 
@@ -295,7 +312,7 @@ public class WordImportJobServiceImpl implements WordImportJobService {
     }
 
     @Override
-    public WordImportJobVo withdrawJob(Long id) {
+    public WordImportJobVo withdrawJob(Long id) throws IOException {
         WordImportJobVo job = null;
         wordImportJobDao.withdraw(id);
 
@@ -308,7 +325,6 @@ public class WordImportJobServiceImpl implements WordImportJobService {
     private boolean isToc(Element element) {
         return element.outerHtml().startsWith("<p><a href=\"#_Toc");
     }
-
 
     private List<DocBlock> processSegments(ExtractionRule rule, List<DocBlock> segments,
                                            WordImportJobVo job, ProjectVo project) {
@@ -330,13 +346,13 @@ public class WordImportJobServiceImpl implements WordImportJobService {
 
     private DocBlock buildTrackBlock(ParagraphExtractionRule rule, ProjectVo project, List<DocBlock> paragraphs) {
         TrackerItemVo trackerItem = createWorkItem(WordUtils.blockElements(paragraphs), rule,
-                                                   project);
+                project);
         TrackerItemBlockData itemBlockData = new TrackerItemBlockData();
         itemBlockData.setTrackerItem(docService.fillTrackerItemVo(trackerItem));
         itemBlockData.setName(trackerItem.getName());
         itemBlockData.setText(trackerItem.getDescription());
         return new DocBlock(IDUtils.getShortId(), String.valueOf(trackerItem.getTracker().getId()),
-                            itemBlockData);
+                itemBlockData);
     }
 
     private List<DocBlock> processTables(TableExtractionRule rule, List<DocBlock> segments,
@@ -350,16 +366,16 @@ public class WordImportJobServiceImpl implements WordImportJobService {
         while (iterator.hasNext()) {
             DocBlock block = iterator.next();
             if (block.getType().equals(BlockTypes.HEADING)) {
-                //不做处理
+                // 不做处理
                 newBlocks.add(block);
             } else if (block.getType().equals(BlockTypes.PARAGRAPH)) {
                 String html = WordUtils.html(WordUtils.blockElements(block));
                 if (!html.contains("<table")) {
-                    //判断是否是工作项的开始
+                    // 判断是否是工作项的开始
                     if (!workItemStart && conditionsMatch(rule.getConditions(),
-                                                          rule.getConditionsMatchType(),
-                                                          WordUtils.blockElements(block))) {
-                        //工作项开始段落
+                            rule.getConditionsMatchType(),
+                            WordUtils.blockElements(block))) {
+                        // 工作项开始段落
                         workItemStart = true;
                         paragraphs.clear();
                         paragraphs.add(block);
@@ -367,7 +383,7 @@ public class WordImportJobServiceImpl implements WordImportJobService {
                         paragraphs.add(block);
                     }
                 } else {
-                    //是表格，开始转换
+                    // 是表格，开始转换
                     Document htmlDocument = Jsoup.parse(html);
                     Elements tables = htmlDocument.select("table");
                     for (Element table : tables) {
@@ -382,12 +398,12 @@ public class WordImportJobServiceImpl implements WordImportJobService {
                             }
 
                             if (conditionsMatch(conversion.getConditions(),
-                                                conversion.getConditionsMatchType(),
-                                                paragraph)) {
-                                //满足转换条件
+                                    conversion.getConditionsMatchType(),
+                                    paragraph)) {
+                                // 满足转换条件
                                 List<Element> elements = WordUtils.blockElements(paragraphs);
-                                List<TrackerItemVo> trackerItems =
-                                        tableToTrackerItem(conversion, table, project, elements);
+                                List<TrackerItemVo> trackerItems = tableToTrackerItem(conversion, table, project,
+                                        elements);
                                 if (!trackerItems.isEmpty()) {
                                     changed = true;
                                     for (TrackerItemVo trackerItem : trackerItems) {
@@ -395,10 +411,9 @@ public class WordImportJobServiceImpl implements WordImportJobService {
                                         itemBlockData.setTrackerItem(docService.fillTrackerItemVo(trackerItem));
                                         itemBlockData.setName(trackerItem.getName());
                                         itemBlockData.setText(trackerItem.getDescription());
-                                        DocBlock itemBlock =
-                                                new DocBlock(IDUtils.getShortId(),
-                                                             String.valueOf(trackerItem.getTracker().getId()),
-                                                             itemBlockData);
+                                        DocBlock itemBlock = new DocBlock(IDUtils.getShortId(),
+                                                String.valueOf(trackerItem.getTracker().getId()),
+                                                itemBlockData);
                                         newBlocks.add(itemBlock);
                                     }
                                     break;
@@ -409,7 +424,7 @@ public class WordImportJobServiceImpl implements WordImportJobService {
                         }
                     }
 
-                    //表格同时也意味着工作项结束
+                    // 表格同时也意味着工作项结束
                     workItemStart = false;
                     paragraphs.clear();
                 }
@@ -419,9 +434,7 @@ public class WordImportJobServiceImpl implements WordImportJobService {
         return newBlocks;
     }
 
-
-    private TrackerItemVo createWorkItem(List<Element> paragraphs, ParagraphExtractionRule pRule, ProjectVo
-            project) {
+    private TrackerItemVo createWorkItem(List<Element> paragraphs, ParagraphExtractionRule pRule, ProjectVo project) {
         TrackerVo tracker = trackerService.findOneTracker(pRule.getTarget());
         TrackerItemVo trackerItem = new TrackerItemVo();
         trackerItem.setProject(new IdNameReference<>(project));
@@ -435,7 +448,7 @@ public class WordImportJobServiceImpl implements WordImportJobService {
         for (Element paragraph : paragraphs) {
             StringBuilder sb = new StringBuilder();
             if (conditionsMatch(pRule.getNextParagraph().getConditions(),
-                                pRule.getNextParagraph().getConditionsMatchType(), paragraph)) {
+                    pRule.getNextParagraph().getConditionsMatchType(), paragraph)) {
                 sb.append(WordUtils.html(paragraph)).append("\n");
             }
             if (StringUtils.isNotEmpty(sb.toString())) {
@@ -453,7 +466,7 @@ public class WordImportJobServiceImpl implements WordImportJobService {
             }
         }
 
-        //TODO 对于工作项的未导入的属性设置默认值
+        // TODO 对于工作项的未导入的属性设置默认值
         if (trackerItem.getOwner() == null) {
             trackerItem.setOwner(trackerItem.getCreateBy());
         }
@@ -461,9 +474,7 @@ public class WordImportJobServiceImpl implements WordImportJobService {
         return trackerItem;
     }
 
-
-    private void extractFiledValue(FieldExtractAction action, Element paragraph, TrackerItemVo
-            trackerItem) {
+    private void extractFiledValue(FieldExtractAction action, Element paragraph, TrackerItemVo trackerItem) {
         IValueExtractor extractor = ExtractorRegistry.getValueExtractor(action.getActionType());
         if (extractor != null) {
             Object value = extractor.extractValue(paragraph, action.getArgument());
@@ -488,7 +499,7 @@ public class WordImportJobServiceImpl implements WordImportJobService {
                 ParagraphExtractionRule pRule = (ParagraphExtractionRule) rule;
                 if ("ALL".equals(pRule.getScope()) || paragraphInScope(pRule.getSource(), parentHeadingBlocks)) {
                     if (conditionsMatch(pRule.getConditions(), pRule.getConditionsMatchType(),
-                                        WordUtils.blockElements(block))) {
+                            WordUtils.blockElements(block))) {
                         return rule;
                     }
                 }
@@ -496,7 +507,7 @@ public class WordImportJobServiceImpl implements WordImportJobService {
                 TableExtractionRule tRule = (TableExtractionRule) rule;
                 if ("ALL".equals(tRule.getScope()) || paragraphInScope(tRule.getSource(), parentHeadingBlocks)) {
                     if (conditionsMatch(tRule.getConditions(), tRule.getConditionsMatchType(),
-                                        WordUtils.blockElements(block))) {
+                            WordUtils.blockElements(block))) {
                         return rule;
                     }
                 }
@@ -527,8 +538,7 @@ public class WordImportJobServiceImpl implements WordImportJobService {
     }
 
     private boolean conditionMatch(ConditionWithArgument condition, Element paragraph) {
-        IParagraphCondition paragraphCondition =
-                ConditionsRegistry.getTextCondition(condition.getConditionId());
+        IParagraphCondition paragraphCondition = ConditionsRegistry.getTextCondition(condition.getConditionId());
         if (paragraphCondition != null) {
             return paragraphCondition.isSatisfied(paragraph, condition.getArgument());
         }
@@ -546,7 +556,6 @@ public class WordImportJobServiceImpl implements WordImportJobService {
             rows.remove(0);
         }
 
-
         for (Element row : rows) {
             TrackerVo tracker = trackerService.findOneTracker(conversion.getTarget());
             TrackerItemVo trackerItem = new TrackerItemVo();
@@ -561,11 +570,10 @@ public class WordImportJobServiceImpl implements WordImportJobService {
                 String key = header.text();
                 String field = conversion.getColumnMap().get(key);
                 if (StringUtils.isNotEmpty(field)) {
-                    Optional<TrackerField> trackerField =
-                            tracker.getTrackerFields().stream()
-                                   .filter(f -> Objects.equals(String.valueOf(f.getId()), field) ||
-                                           Objects.equals(f.getSystemProperty(), field))
-                                   .findFirst();
+                    Optional<TrackerField> trackerField = tracker.getTrackerFields().stream()
+                            .filter(f -> Objects.equals(String.valueOf(f.getId()), field) ||
+                                    Objects.equals(f.getSystemProperty(), field))
+                            .findFirst();
                     if (trackerField.isPresent()) {
                         indexMap.put(trackerField.get().getId(), i);
                     }

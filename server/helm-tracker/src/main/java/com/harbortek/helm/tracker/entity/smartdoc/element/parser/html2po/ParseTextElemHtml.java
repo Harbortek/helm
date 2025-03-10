@@ -16,8 +16,8 @@
 
 package com.harbortek.helm.tracker.entity.smartdoc.element.parser.html2po;
 
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateDescendant;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateText;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
 import org.jsoup.nodes.Element;
 
 /**
@@ -30,12 +30,12 @@ public class ParseTextElemHtml {
      * @param elem DOM element
      * @return Descendant
      */
-    public static SlateDescendant parseTextElemHtml(Element elem) {
+    public static SlateNode parseTextElemHtml(Element elem) {
         String text = elem.text().replaceAll("\\s+", " ");
         SlateText textNode = new SlateText(text);
 
         // Process style
-        SlateDescendant node = textNode;
+        SlateNode node = textNode;
         for (ParseStyleHtmlFn fn : ParserRegister.PARSE_STYLE_HTML_FN_LIST) {
             node = fn.apply(elem, node);
         }

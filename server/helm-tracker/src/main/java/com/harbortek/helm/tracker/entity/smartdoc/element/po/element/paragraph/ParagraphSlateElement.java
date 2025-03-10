@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.paragraph;
+package com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph;
 
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import lombok.Data;
@@ -35,8 +35,6 @@ public class ParagraphSlateElement<T extends SlateNode> extends SlateElement {
         if (StringUtils.isEmpty(childrenHtml)) {
             return "<p><br></p>";
         }
-        return StrUtil.format("""
-                <p>%s</p>
-                """, childrenHtml);
+        return StrUtil.format("<p>{}</p>", childrenHtml);
     }
 }

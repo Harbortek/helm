@@ -16,9 +16,9 @@
 
 package com.harbortek.helm.tracker.entity.smartdoc.element.parser.html2po;
 
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateDescendant;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import org.jsoup.nodes.Element;
 
 public interface ParseStyleHtmlFn {
-    SlateDescendant apply(Element node, SlateDescendant descendant);
+    SlateNode apply(Element node, SlateNode descendant);
 }

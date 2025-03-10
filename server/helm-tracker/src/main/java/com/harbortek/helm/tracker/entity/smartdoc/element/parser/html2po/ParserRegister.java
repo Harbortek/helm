@@ -16,7 +16,7 @@
 
 package com.harbortek.helm.tracker.entity.smartdoc.element.parser.html2po;
 
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateDescendant;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 
 import java.lang.reflect.Field;
@@ -44,7 +44,7 @@ public class ParserRegister {
     }
 
     //判断SlateText对象只有一个text属性
-    public static boolean isSingleText(SlateDescendant node) {
+    public static boolean isSingleText(SlateNode node) {
         //判断node 对象只有text 一个属性，通过反射判断
         Field[] fields = node.getClass().getFields();
         if (fields.length == 1 && fields[0].getName().equals("text")) {
@@ -62,7 +62,7 @@ public class ParserRegister {
         return false;
     }
 
-    public static boolean isInline(SlateDescendant child) {
+    public static boolean isInline(SlateNode child) {
         return true;
     }
 }

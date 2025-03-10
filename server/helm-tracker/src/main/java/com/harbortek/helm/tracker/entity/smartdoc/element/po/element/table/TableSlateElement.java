@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.table;
+package com.harbortek.helm.tracker.entity.smartdoc.element.po.element.table;
 
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import lombok.Data;
 
@@ -31,7 +31,7 @@ public class TableSlateElement<TableRowSlateElement> extends SlateElement {
     @Override
     public String toHtml() {
         return StrUtil.format("""
-                <table style="width: %s;"><tbody>%s</tbody></table>
+                <table style="width: {};"><tbody>{}</tbody></table>
                 """, width, getChildrenHtml());
     }
 
@@ -48,7 +48,7 @@ public class TableSlateElement<TableRowSlateElement> extends SlateElement {
         public String toHtml() {
             String tag = isHeader ? "th" : "td";
             return StrUtil.format("""
-                    <%s colSpan="%s" rowSpan="%s" width="%s">%s</%s>
+                    <{} colSpan="{}" rowSpan="{}" width="{}">{}</{}>
                     """, tag, colSpan, rowSpan, width, getChildrenHtml(), tag);
         }
     }
@@ -61,7 +61,7 @@ public class TableSlateElement<TableRowSlateElement> extends SlateElement {
         @Override
         public String toHtml() {
             return StrUtil.format("""
-                    <tr>%s</tr>
+                    <tr>{}</tr>
                     """, getChildrenHtml());
         }
     }

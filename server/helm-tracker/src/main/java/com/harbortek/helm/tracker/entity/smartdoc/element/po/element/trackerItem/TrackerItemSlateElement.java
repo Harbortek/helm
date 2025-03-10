@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.trackerItem;
+package com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem;
 
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
 import lombok.Data;
@@ -35,7 +35,7 @@ public class TrackerItemSlateElement<SlateText> extends SlateElement {
     @Override
     public String toHtml() {
         return StrUtil.format("""
-                    <p data-x-ref=%s>%s</p>
+                    <p data-x-ref={}>{}</p>
                     """, ref, getChildrenHtml());
     }
 
@@ -48,7 +48,7 @@ public class TrackerItemSlateElement<SlateText> extends SlateElement {
         @Override
         public String toHtml() {
             return StrUtil.format("""
-                    <p data-x-ref=%s>%s</p>
+                    <p data-x-ref={}>{}</p>
                     """, ref, getChildrenHtml());
         }
     }
@@ -62,7 +62,7 @@ public class TrackerItemSlateElement<SlateText> extends SlateElement {
         @Override
         public String toHtml() {
             return StrUtil.format("""
-                    <p data-x-ref=%s>%s</p>
+                    <p data-x-ref={}>{}</p>
                     """, ref, getChildrenHtml());
         }
     }
@@ -76,7 +76,7 @@ public class TrackerItemSlateElement<SlateText> extends SlateElement {
         @Override
         public String toHtml() {
             return StrUtil.format("""
-                    <p data-x-ref=%s>%s</p>
+                    <p data-x-ref={}>{}</p>
                     """, ref, getChildrenHtml());
         }
     }

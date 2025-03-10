@@ -16,8 +16,10 @@
 
 package com.harbortek.helm.tracker.entity.smartdoc.element.po.style;
 
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateDescendant;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
+import lombok.Builder;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -25,11 +27,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 @Data
-public class JustifySlateStyle extends SlateStyle {
+@Builder
+public class JustifyStyle extends SlateStyle {
 
     private String textAlign;
 
-    public String styleToHtml(SlateDescendant node, String html) {
+    public String styleToHtml(SlateNode node, String html) {
         if (node instanceof SlateText) {
             return html;
         }
@@ -45,5 +48,6 @@ public class JustifySlateStyle extends SlateStyle {
 
         // 返回修改后的 HTML
         return elem.outerHtml();
+
     }
 }

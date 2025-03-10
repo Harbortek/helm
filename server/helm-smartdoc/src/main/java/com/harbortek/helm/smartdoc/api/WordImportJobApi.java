@@ -28,6 +28,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.io.IOException;
+
 @Controller
 @RequestMapping("/smart-doc/{pageId}/import/word/job")
 public class WordImportJobApi {
@@ -41,7 +43,7 @@ public class WordImportJobApi {
 
     @Parameter(name="查找历史导入")
     @RequestMapping(value = "", method = RequestMethod.GET)
-    ResponseEntity<WordImportJobVo> findJob(@PathVariable Long pageId,Long projectId) {
+    ResponseEntity<WordImportJobVo> findJob(@PathVariable Long pageId,Long projectId) throws IOException {
         WordImportJobVo job=  wordImportJobService.findExistedJob(projectId,pageId);
         return ResponseEntity.ok(job);
     }
@@ -58,14 +60,14 @@ public class WordImportJobApi {
 
     @Parameter(name="执行导入规则")
     @RequestMapping(value = "", method = RequestMethod.PUT)
-    ResponseEntity<WordImportJobVo> updateJob(@PathVariable Long pageId, @RequestBody WordImportJobVo job) {
+    ResponseEntity<WordImportJobVo> updateJob(@PathVariable Long pageId, @RequestBody WordImportJobVo job) throws IOException {
         job = wordImportJobService.updateJob(job);
         return ResponseEntity.ok(job);
     }
 
     @Parameter(name="完成导入")
     @RequestMapping(value = "/complete", method = RequestMethod.POST)
-    ResponseEntity<Void> completeJob(@PathVariable Long pageId, @RequestBody WordImportJobVo job) {
+    ResponseEntity<Void> completeJob(@PathVariable Long pageId, @RequestBody WordImportJobVo job) throws IOException {
         wordImportJobService.completeJob(job);
         return ResponseEntity.ok().build();
     }
@@ -79,7 +81,7 @@ public class WordImportJobApi {
 
     @Parameter(name="返回上一次保存的数据")
     @RequestMapping(value = "/{id}/withdraw", method = RequestMethod.GET)
-    ResponseEntity<WordImportJobVo> withdrawJob(@PathVariable Long pageId,@PathVariable Long id) {
+    ResponseEntity<WordImportJobVo> withdrawJob(@PathVariable Long pageId,@PathVariable Long id) throws IOException {
         WordImportJobVo job = wordImportJobService.withdrawJob(id);
         return ResponseEntity.ok(job);
     }

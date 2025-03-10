@@ -17,23 +17,30 @@
 package com.harbortek.helm.tracker.entity.smartdoc.element.po.style;
 
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.PoUtils;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateDescendant;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.StyledText;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
+import lombok.Builder;
 import lombok.Data;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 @Data
-public class StyleedSlateStyle extends SlateStyle {
+@Builder
+public class StyleedStyle extends SlateStyle {
 
-    private String textAlign;
+    private Boolean bold;
+    private Boolean code;
+    private Boolean italic;
+    private Boolean underline;
+    private Boolean through;
+    private Boolean sub;
+    private Boolean sup;
 
-    public String styleToHtml(SlateDescendant node, String html) {
-        if (!(node instanceof StyledText)) {
+    public String styleToHtml(SlateNode textNode, String html) {
+        if (!(textNode instanceof SlateText)) {
             return html;
         }
-        StyledText textNode = (StyledText) node;
         if (PoUtils.isPlainText(html)) {
             return genStyledHtml(textNode, html);
         }
@@ -49,15 +56,15 @@ public class StyleedSlateStyle extends SlateStyle {
         return elem.outerHtml();
     }
 
-    private String genStyledHtml(StyledText textNode, String html) {
+    private String genStyledHtml(SlateNode textNode, String html) {
         String styledHtml = html;
-        if (textNode.getBold()) styledHtml = "<strong>" + styledHtml + "</strong>";
-        if (textNode.getCode()) styledHtml = "<code>" + styledHtml + "</code>";
-        if (textNode.getItalic()) styledHtml = "<em>" + styledHtml + "</em>";
-        if (textNode.getUnderline()) styledHtml = "<u>" + styledHtml + "</u>";
-        if (textNode.getThrough()) styledHtml = "<s>" + styledHtml + "</s>";
-        if (textNode.getSub()) styledHtml = "<sub>" + styledHtml + "</sub>";
-        if (textNode.getSup()) styledHtml = "<sup>" + styledHtml + "</sup>";
+        if (bold) styledHtml = "<strong>" + styledHtml + "</strong>";
+        if (code) styledHtml = "<code>" + styledHtml + "</code>";
+        if (italic) styledHtml = "<em>" + styledHtml + "</em>";
+        if (underline) styledHtml = "<u>" + styledHtml + "</u>";
+        if (through) styledHtml = "<s>" + styledHtml + "</s>";
+        if (sub) styledHtml = "<sub>" + styledHtml + "</sub>";
+        if (sup) styledHtml = "<sup>" + styledHtml + "</sup>";
         return styledHtml;
     }
 }

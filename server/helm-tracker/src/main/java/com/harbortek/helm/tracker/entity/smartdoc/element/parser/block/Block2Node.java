@@ -19,7 +19,9 @@ package com.harbortek.helm.tracker.entity.smartdoc.element.parser.block;
 import com.harbortek.helm.tracker.entity.block.*;
 
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.html2po.HtmlParser;
+import com.harbortek.helm.tracker.entity.smartdoc.element.parser.html2po.ParserRegister;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph.ParagraphHtmlParserConf;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.header.*;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph.ParagraphSlateElement;
@@ -33,18 +35,24 @@ import org.jsoup.nodes.TextNode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BlockParser {
+public class Block2Node {
+    static {
+        ParserRegister.registerParseStyleHtmlHandler(new DefaultParserStyleHtmlFn());
+        ParserRegister.registerParseElemHtmlConf(new ParagraphHtmlParserConf());
+    }
 
     public static SlateNode parse(DocBlock docBlock) {
         DocBlockData blockData = docBlock.getData();
         if (blockData instanceof TitleBlockData) {
             TitleSlateElement<SlateNode> titleSlateElement = new TitleSlateElement<>();
             List<SlateNode> children = new ArrayList<>();
+
             for (Node node : Jsoup.parse(blockData.getText()).body().childNodes()) {
                 Element element = wrapperText(node);
                 SlateNode parseElemHtml = HtmlParser.parseElemHtml(element);
                 children.add(parseElemHtml);
             }
+
             titleSlateElement.setChildren(children);
             return titleSlateElement;
         } else if (blockData instanceof ParagraphBlockData) {

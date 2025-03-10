@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.header;
+package com.harbortek.helm.tracker.entity.smartdoc.element.po.element.header;
 
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
 import lombok.Data;
 
 @Data

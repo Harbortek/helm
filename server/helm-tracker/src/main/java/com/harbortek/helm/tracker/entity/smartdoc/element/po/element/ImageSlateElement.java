@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.tracker.entity.smartdoc.element.po.elements;
+package com.harbortek.helm.tracker.entity.smartdoc.element.po.element;
 
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
@@ -51,7 +50,7 @@ public class ImageSlateElement<EmptySlateText> extends SlateElement {
     @Override
     public String toHtml() {
         return StrUtil.format("""
-                <img src="${src}" alt="${alt}" data-href="${href}" style="${styleStr}"/>
+                <img src="{}" alt="{}" data-href="{}" style="{}"/>
                 """, src, alt, href, style.toHtml());
     }
 }
