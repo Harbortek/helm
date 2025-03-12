@@ -501,6 +501,7 @@ import { findTrackerItemsByPageIdWithoutInternalTrackers } from '@/services/trac
 
 import { findProjectUsers } from "@/services/tracker/ProjectRoleMemberService";
 import { createView, findOneView, updateView } from "@/services/tracker/ViewService"
+import { findSprints } from '@/services/plan/SprintService'
 import Sortable from "sortablejs"
 import CreateTrackerItemDialog from '@/pages/tracker/items/CreateTrackerItemDialog.vue';
 import EditTrackerItemDialog from '@/pages/tracker/items/EditTrackerItemDialog.vue'
@@ -1612,6 +1613,12 @@ export default {
                 this.trackerFilter.projectId = Vue.observable([]);
                 resp.content.forEach(item => {
                     this.trackerFilter.projectId.push({ id: item.id, name: item.name })
+                });
+            })
+            findSprints(this.projectId).then(resp => {
+                this.trackerFilter.sprintId = Vue.observable([]);
+                resp.forEach(item => {
+                    this.trackerFilter.sprintId.push({ id: item.id, name: item.name })
                 });
             })
         },

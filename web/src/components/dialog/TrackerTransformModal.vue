@@ -162,7 +162,7 @@
                         </div>
                     </template>
                   </vxe-column>
-                  <vxe-column field="sprint.name" title="所属迭代" min-width="100"></vxe-column>
+                  <!-- <vxe-column field="sprint.name" title="所属迭代" min-width="100"></vxe-column> -->
                   <vxe-column field="closeDate" title="关闭时间" min-width="100"></vxe-column>
               </vxe-table>
           </template>
@@ -203,7 +203,7 @@ export default {
         // { id: '7', name: "创建者", systemProperty: "createBy", inputType: "USER" },
         { id: '25', name: "关注者", systemProperty: "watchers", inputType: "USER" },
         { id: '21', name: "关闭时间", systemProperty: "closeDate", inputType: "DATE" },
-        { id: '26', name: "所属迭代", systemProperty: "sprintId", inputType: "OPTIONS" },
+        // { id: '26', name: "所属迭代", systemProperty: "sprintId", inputType: "OPTIONS" },
       ],
       formData:{
         priority:'',

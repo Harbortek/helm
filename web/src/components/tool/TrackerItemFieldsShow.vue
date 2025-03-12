@@ -1,15 +1,15 @@
 <template>
-  <ItemCustomFieldsShow :fields="fields" v-model="value" :projectId="projectId" :trackerId="trackerItem?.tracker?.id"
-    :readOnly="readOnly" @change="onChangeSystemField"></ItemCustomFieldsShow>
+  <TrackerItemFields :fields="fields" v-model="value" :projectId="projectId" :trackerId="trackerItem?.tracker?.id"
+    :readOnly="readOnly" @change="onChangeSystemField"></TrackerItemFields>
 </template>
 
 <script>
 import _ from 'lodash'
-import ItemCustomFieldsShow from '@/components/tool/ItemCustomFieldsShow.vue';
+import TrackerItemFields from '@/components/tool/TrackerItemFields.vue';
 import { changeSystemField,changeCustomerField } from "@/services/tracker/TrackerItemService"
 export default {
   name: 'TrackerItemFieldsShow',
-  components: { ItemCustomFieldsShow },
+  components: { TrackerItemFields },
   props: {
     projectId: {
       type: String,

@@ -89,7 +89,7 @@ public class TrackerNotificationServiceImpl implements TrackerNotificationServic
     @Async
     public void sendSystemNotification(String eventType, TrackerEntity tracker, TrackerItemEntity item,
                                        UserVo currentUser) {
-        ProjectEntity project = projectDao.findOneProject(tracker.getProjectId());
+        ProjectEntity project = projectDao.findOneProject(tracker.getProjectId(),currentUser.getId());
 
         TrackerNotification notification = tracker.getTrackerNotification();
         List<SystemTrackerNotification> systemTrackerNotifications = notification.getSystemTrackerNotifications();
@@ -110,7 +110,7 @@ public class TrackerNotificationServiceImpl implements TrackerNotificationServic
     public void sendCustomerNotification(TrackerField field, TrackerEntity tracker,
                                          TrackerItemEntity item,UserVo currentUser) {
         TrackerNotification notification = tracker.getTrackerNotification();
-        ProjectEntity project = projectDao.findOneProject(tracker.getProjectId());
+        ProjectEntity project = projectDao.findOneProject(tracker.getProjectId(),currentUser.getId());
         if (notification.getUsedForAllCustomerFields()) {
             CustomerTrackerNotification ctn = notification.getDefaultNotification();
             sendNotification(NotificationEvents.CHANGE_ITEM_CUSTOMER_PROPERTY, ctn.getUseMessage(), ctn.getUseEmail(),

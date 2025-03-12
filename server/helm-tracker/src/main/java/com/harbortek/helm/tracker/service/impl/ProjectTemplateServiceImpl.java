@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.harbortek.helm.util.SecurityUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -233,7 +234,7 @@ public class ProjectTemplateServiceImpl implements ProjectTemplateService, Appli
 			throw new RuntimeException("模板保存失败");
 		}
 		ProjectTemplateVo templateVo = findDataByProjectId(template.getId());
-		ProjectEntity oneProject = projectDao.findOneProject(template.getId());
+		ProjectEntity oneProject = projectDao.findOneProject(template.getId(), SecurityUtils.getCurrentUser().getId());
 
 		templateVo.setName(template.getName());
 		templateVo.setDescription(template.getDescription());

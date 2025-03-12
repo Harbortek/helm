@@ -32,6 +32,7 @@ import com.harbortek.helm.tracker.entity.tracker.TrackerEntity;
 import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
 import com.harbortek.helm.util.JsonUtils;
 import com.harbortek.helm.util.ObjectUtils;
+import com.harbortek.helm.util.SecurityUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -63,7 +64,7 @@ public class TableTraceability implements Component {
         Long mainTrackerId = config.getMainTrackerId();
         TrackerEntity mainTracker = trackerDao.findOneTracker(mainTrackerId);
 
-        ProjectEntity project = projectDao.findOneProject(mainTracker.getProjectId());
+        ProjectEntity project = projectDao.findOneProject(mainTracker.getProjectId(), SecurityUtils.getCurrentUser().getId());
         String prefix = StringUtils.upperCase(project.getKeyName())+"-";
 
         Long linkTrackerId = config.getLinkTrackerId();

@@ -85,7 +85,7 @@ public class ProjectPermissionLoader implements PermissionLoader {
         }
 
 
-        ProjectEntity project = projectDao.findOneProject(projectId);
+        ProjectEntity project = projectDao.findOneProject(projectId,SecurityUtils.getCurrentUser().getId());
         if (project == null) {
             return Collections.emptyList();
         }

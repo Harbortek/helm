@@ -484,7 +484,7 @@ public class ProjectCreateServiceImpl implements ProjectCreateService {
     public ProjectVo copyProject(ProjectCopyVo sourceProject) {
 
         ProjectEntity targetProject= new ProjectEntity();
-        ProjectEntity oneProject = projectDao.findOneProject(sourceProject.getId());
+        ProjectEntity oneProject = projectDao.findOneProject(sourceProject.getId(),SecurityUtils.getCurrentUser().getId());
         targetProject.setOwnerId(oneProject.getOwnerId());
         targetProject.setStatusId(oneProject.getStatusId());
         targetProject.setCategoryId(oneProject.getCategoryId());

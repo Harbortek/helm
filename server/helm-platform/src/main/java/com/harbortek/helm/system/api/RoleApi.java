@@ -25,6 +25,7 @@ import com.harbortek.helm.system.service.RoleService;
 import com.harbortek.helm.system.vo.PermissionVo;
 import com.harbortek.helm.system.vo.RoleVo;
 import com.harbortek.helm.util.IDUtils;
+import com.harbortek.helm.util.ObjectUtils;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +97,7 @@ public class RoleApi {
 	}
 
 	@Parameter(name="查询角色名称是否重复")
-	@RequestMapping(value = "/exist-name/{name}", method = RequestMethod.GET)
+	@RequestMapping(value = "/exist-name", method = RequestMethod.GET)
 	public ResponseEntity<Boolean> isExistsByName(@RequestParam String name, @RequestParam(required = false) String scope,
 												  @RequestParam(required = false) Long ownerResourceId) {
 		Boolean isExists = roleService.checkExistsByName(name,scope,ownerResourceId);

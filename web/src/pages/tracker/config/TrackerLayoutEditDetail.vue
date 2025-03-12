@@ -91,13 +91,13 @@
                                                     :wrapperCol="{ span: 16 }" :model="formData">
                                                     <a-row :gutter="15">
                                                         <a-col :span="isTable(f)?24:12"
-                                                            v-for="(f, index) in customerFields" :key="f.id">
+                                                            v-for="(f) in customerFields" :key="f.id">
                                                             <a-form-item :label="f.name" :prop="f.name"
                                                                 :required="f.required"
                                                                 :labelCol="{ span: isTable(f) ? 4 : 8 }"
                                                                 :wrapperCol="{ span: isTable(f) ? 20 : 16 }">
-                                                                <ItemCustomFieldsShow :fields="f" v-model="formData.values[f.id]" :projectId="projectId" :trackerId="tracker.id"
-                                                                    :readOnly="false"></ItemCustomFieldsShow>
+                                                                <TrackerItemFields :fields="f" v-model="formData.values[f.id]" :projectId="projectId" :trackerId="tracker.id"
+                                                                    :readOnly="false"></TrackerItemFields>
                                                                     
                                                             </a-form-item>
                                                         </a-col>
@@ -141,12 +141,6 @@
                                                     <a-col :span="12">
                                                         <a-form-model-item label="更新日期">
                                                             {{ trackerItem?.lastModifiedDate }}
-                                                        </a-form-model-item>
-                                                    </a-col>
-                                                    <a-col :span="12">
-                                                        <a-form-model-item ref="sprintId" label="所属迭代" prop="sprintId">
-                                                            <sprint-select v-model="formData.sprintId"
-                                                                :projectId="projectId"></sprint-select>
                                                         </a-form-model-item>
                                                     </a-col>
                                                 </a-row>
@@ -223,7 +217,7 @@ import TrackerCycleProgress from '../items/TrackerCycleProgress.vue';
 import TrackerHyperlinks from '../items/TrackerHyperlinks.vue';
 import TrackerTestCases from '../items/TrackerTestCases.vue';
 import TrackerRelatedTest from '../items/TrackerRelatedTest.vue';
-import ItemCustomFieldsShow from '@/components/tool/ItemCustomFieldsShow.vue';
+import TrackerItemFields from '@/components/tool/TrackerItemFields.vue';
 
 export default {
     name: "TrackerLayoutEditDetailPage",
@@ -231,7 +225,7 @@ export default {
         ConfigPage, RoleMembersTable, SimpleEditor, AdminLayout, TrackerItemKeyFields,
          QuickPicker, TrackerComment, TrackerAttachment,TrackerRelatedWiki,TrackerRelatedItem,
          TrackerRelatedCode, TrackerWorkHours, TrackerCycleProgress,TrackerTestCases,
-         TrackerHyperlinks,TrackerRelatedTest,SprintSelect,ItemCustomFieldsShow
+         TrackerHyperlinks,TrackerRelatedTest,SprintSelect,TrackerItemFields
         
     },
     props: {

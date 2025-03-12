@@ -1354,8 +1354,8 @@ public class TrackerItemServiceImpl implements TrackerItemService {
             }
 
         }
-//        trackerItemDao.batchUpdateCustomField(trackerItemEntities);
-//        trackerItemDao.updateTrackerItemSprint(sprintId, newValue, trackerItemIds);
+        trackerItemDao.batchUpdateCustomField(trackerItemEntities);
+        trackerItemDao.updateTrackerItemSprint(sprintId, newValue, trackerItemIds);
 
     }
 

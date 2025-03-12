@@ -154,12 +154,6 @@
                                                         {{ trackerItem?.lastModifiedDate }}
                                                     </a-form-model-item>
                                                 </a-col>
-                                                <a-col :span="12">
-                                                    <a-form-model-item v-if="trackerItem" ref="sprintId" label="所属迭代" prop="sprintId">
-                                                        <TrackerItemFieldsShow :fields="getSystemField('sprintId')" :trackerItem="trackerItem" :projectId="projectId"
-                                                            :readOnly="false" @change="loadData()" />
-                                                    </a-form-model-item>
-                                                </a-col>
                                             </a-row>
                                         </a-form-model>
                                     </div>
@@ -230,7 +224,7 @@ import SprintSelect from '../../../components/select/SprintSelect.vue';
 import ProjectUserSelect from '../../../components/select/ProjectUserSelect.vue';
 import SimpleEditor from '../../../components/editor/SimpleEditor.vue';
 import RoleMembersTable from '../../../components/table/RoleMembersTable.vue';
-import ItemCustomFieldsShow from '../../../components/tool/ItemCustomFieldsShow.vue';
+import TrackerItemFields from '../../../components/tool/TrackerItemFields.vue';
 import TrackerItemFieldsShow from '../../../components/tool/TrackerItemFieldsShow.vue';
 import { mapGetters, mapState, mapMutations } from "vuex";
 import { hasPermission } from '@/utils/permission'
@@ -257,7 +251,7 @@ export default {
     components: {
         TrackerSelect, SprintSelect, ProjectUserSelect, RoleMembersTable, SimpleEditor, TrackerComment, TrackerAttachment,
         TrackerRelatedWiki, Graph, RegisterHourDialog, TrackerItemKeyFields, TrackerRelatedItem, TrackerWorkHours,
-        TrackerCycleProgress, TrackerRelatedCode, TrackerHyperlinks, TrackerTestCases, TrackerRelatedTest, ItemCustomFieldsShow,
+        TrackerCycleProgress, TrackerRelatedCode, TrackerHyperlinks, TrackerTestCases, TrackerRelatedTest, TrackerItemFields,
         TrackerItemFieldsShow,
     },
     data() {

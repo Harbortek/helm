@@ -1,5 +1,5 @@
 <template>
-  <a-modal :title="title" :width="480" :visible="visible" :body-style="{ paddingBottom: '80px' }" @close="handleCancel"
+  <a-modal :title="title" :width="480" :visible="visible" @cancel="handleCancel"
     centered>
     <a-spin :spinning="loading">
       <a-form :form="form" :label-col="labelCol" :wrapper-col="wrapperCol" :loading="loading">
@@ -87,6 +87,10 @@ export default {
         }
         callback();
       })
+      .catch(e=>{
+        console.log("eeaafa",e)
+        callback('未知错误');
+      })
     },
     codeValidator: function (rule, value, callback) {
       if (!!!value) {
@@ -151,6 +155,7 @@ export default {
             })
           } else {
             console.log("saveRole", values);
+            values.scope = 'SCOPE_GLOBAL'
             saveRole(values).then(function () {
               that.$message.success(that.$t('system.role.save-success'));  //保存成功!
               that.$emit('refresh');

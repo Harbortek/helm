@@ -153,12 +153,6 @@
                                                         {{ trackerItem?.lastModifiedDate }}
                                                     </a-form-model-item>
                                                 </a-col>
-                                                <a-col :span="12" :xs="24">
-                                                    <a-form-model-item ref="sprintId" label="所属迭代" prop="sprintId">
-                                                            <TrackerItemFieldsShow :fields="getSystemField('sprintId')" :trackerItem="trackerItem" :projectId="projectId"
-                                                                :readOnly="!hasItemEditPerm" @change="(e,v)=>onChangeSprintId(v)" />
-                                                    </a-form-model-item>
-                                                </a-col>
                                             </a-row>
                                         </a-form-model>
                                     </template>
@@ -248,7 +242,7 @@ import TrackerCycleProgress from '@/pages/tracker/items/TrackerCycleProgress.vue
 import TrackerHyperlinks from '@/pages/tracker/items/TrackerHyperlinks.vue';
 import TrackerTestCases from '@/pages/tracker/items/TrackerTestCases.vue';
 import TrackerRelatedTest from '@/pages/tracker/items/TrackerRelatedTest.vue';
-import ItemCustomFieldsShow from '@/components/tool/ItemCustomFieldsShow.vue';
+import TrackerItemFields from '@/components/tool/TrackerItemFields.vue';
 import TrackerItemFieldsShow from '@/components/tool/TrackerItemFieldsShow.vue';
 import { conforms } from 'lodash';
 
@@ -260,7 +254,7 @@ export default {
         TrackerSelect, SprintSelect, ProjectUserSelect, RoleMembersTable, SimpleEditor,
         TrackerComment, TrackerAttachment, Graph, RegisterHourDialog,TrackerItemKeyFields,
         TrackerRelatedWiki,TrackerRelatedCode,TrackerHyperlinks,TrackerRelatedItem,TrackerWorkHours,
-        TrackerCycleProgress,TrackerTestCases,TrackerRelatedTest,ItemCustomFieldsShow,
+        TrackerCycleProgress,TrackerTestCases,TrackerRelatedTest,TrackerItemFields,
         TrackerItemFieldsShow,
     },
     data() {
@@ -411,12 +405,6 @@ export default {
             if(this.newValue){
                 this.onChangeCustomerField(fieldId, this.newValue)
             }
-        },
-
-        onChangeSprintId(sprintId) {
-            this.loadData()
-            this.$set(this.trackerItem,"sprintId",sprintId)
-            this.changeTrackerItem();
         },
         refresh(){
             this.$emit("refresh")

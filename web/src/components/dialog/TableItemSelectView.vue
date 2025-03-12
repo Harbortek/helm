@@ -1506,6 +1506,12 @@ export default {
           this.tracker.meaning.push({ id: item.id, name: item.name })
         });
       })
+      findSprints(this.projectId).then(resp => {
+          this.tracker.sprintId = Vue.observable([]);
+          resp.forEach(item => {
+              this.tracker.sprintId.push({ id: item.id, name: item.name })
+          });
+      })
     },
     initTrackerFields() {
       this.tracker.trackerFields = systemFields?.filter(v=>v.systemProperty!='status')

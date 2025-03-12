@@ -16,11 +16,6 @@
                             <tracker-select v-model="formData.trackerId" :projectId="projectId"></tracker-select>
                         </a-form-model-item>
                     </a-col>
-                    <a-col :span="12">
-                        <a-form-model-item ref="sprintId" label="所属迭代" placeholder="工作项迭代" prop="sprintId">
-                            <sprint-select v-model="formData.sprintId" :projectId="projectId"></sprint-select>
-                        </a-form-model-item>
-                    </a-col>
                 </a-row>
 
                 <a-row :gutter="15">
@@ -30,8 +25,8 @@
                     <a-col :span="12" v-for="f in customerFields" :key="f.id">
                         <a-form-item :label="f.name" :prop="f.name" :required="f.required">
 
-                            <ItemCustomFieldsShow :fields="f" v-model="formData.values[f.id]" :projectId="projectId" 
-                                :trackerId="tracker?.id"></ItemCustomFieldsShow>
+                            <TrackerItemFields :fields="f" v-model="formData.values[f.id]" :projectId="projectId" 
+                                :trackerId="tracker?.id"></TrackerItemFields>
 
                             <!-- <a-input v-if="f.inputType == 'TEXT'" :placeholder="f.name" />
                             <a-textarea v-else-if="f.inputType == 'TEXT_AREA'" :placeholder="f.name" auto-size />
@@ -146,14 +141,14 @@ import TrackerRelatedWiki from '../items/TrackerRelatedWiki.vue';
 import TrackerHyperlinks from '../items/TrackerHyperlinks.vue';
 import TrackerAttachment from '../items/TrackerAttachment.vue';
 import TrackerTestCases from '../items/TrackerTestCases.vue';
-import ItemCustomFieldsShow from '@/components/tool/ItemCustomFieldsShow.vue';
+import TrackerItemFields from '@/components/tool/TrackerItemFields.vue';
 
 export default {
     name: "TrackerLayoutEditNew",
     components: {
         ConfigPage, ProjectSelect, TrackerSelect, ProjectUserSelect, PrioritySelect, RoleMembersTable, SimpleEditor, AdminLayout,
         TrackerLayoutKeyFieldsDialog, TrackerCycleProgress, TrackerRelatedItem, TrackerRelatedWiki, TrackerHyperlinks,
-        TrackerAttachment, TrackerTestCases, SprintSelect,ItemCustomFieldsShow
+        TrackerAttachment, TrackerTestCases, SprintSelect,TrackerItemFields
     },
     props: {
         tracker: Object,

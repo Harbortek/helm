@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.harbortek.helm.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -48,6 +47,10 @@ import com.harbortek.helm.tracker.vo.pages.ProjectPageVo;
 import com.harbortek.helm.tracker.vo.template.ProjectTemplateVo;
 import com.harbortek.helm.tracker.vo.tracker.TrackerVo;
 import com.harbortek.helm.tracker.vo.view.ObjectFilter;
+import com.harbortek.helm.util.DataUtils;
+import com.harbortek.helm.util.IDUtils;
+import com.harbortek.helm.util.ObjectUtils;
+import com.harbortek.helm.util.PermissionCacheUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -105,7 +108,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ProjectVo findOneProject(Long id) {
-        ProjectEntity projectEntity = projectDao.findOneProject(id, SecurityUtils.getCurrentUser().getId());
+        ProjectEntity projectEntity = projectDao.findOneProject(id);
         ProjectVo projectVo = null;
         if (ObjectUtils.isNotEmpty(projectEntity)) {
             projectVo = DataUtils.toVo(projectEntity, ProjectVo.class);
