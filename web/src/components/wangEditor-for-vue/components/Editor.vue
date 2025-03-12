@@ -43,10 +43,23 @@ export default Vue.extend({
       editor.setHtml(newHtml);
     },
     setContent(contentStr) {
-      const content = JSON.parse(contentStr);
+      let content = JSON.parse(contentStr);
       const editor = this.editor;
       if (editor == null) return;
       editor.clear()
+      let hasText = false;
+      for (let i = 0; i < content.length; i++) {
+        if (content[i].type === 'text') {
+          hasText = true;
+          break;
+        }
+      }
+      if (hasText) {
+        content = {
+          type: 'paragraph',
+          children: content
+        }
+      }
       SlateTransforms.insertNodes(editor, content, { at: [0] });
       editor.history.undos = [];
       editor.history.redos = [];
