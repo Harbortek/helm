@@ -462,8 +462,8 @@ public class ReqIFImportServiceImpl implements ReqIFImportJobService {
             if (user != null) {
                 trackerItem.setOwner(new IdNameReference<>(user));
             }
-        } else if (SystemFields.SPRINT.equals(fieldName)) {
-            trackerItem.setSprint(new IdNameReference<>(SprintVo.builder().id(Long.valueOf(value)).build()));
+//        } else if (SystemFields.SPRINT.equals(fieldName)) {
+//            trackerItem.setSprint(new IdNameReference<>(SprintVo.builder().id(Long.valueOf(value)).build()));
         } else if (SystemFields.CREATE_BY.equals(fieldName)) {
             UserVo user = userService.findOneUserByLoginName(value);
             if (user != null) {

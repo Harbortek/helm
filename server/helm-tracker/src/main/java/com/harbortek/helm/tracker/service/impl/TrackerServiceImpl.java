@@ -29,6 +29,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import com.harbortek.helm.tracker.dao.*;
+import com.harbortek.helm.tracker.entity.plan.SprintEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -61,14 +63,9 @@ import com.harbortek.helm.tracker.constants.SystemFields;
 import com.harbortek.helm.tracker.constants.TrackerLayoutSections;
 import com.harbortek.helm.tracker.constants.TrackerLayouts;
 import com.harbortek.helm.tracker.constants.TrackerPermissions;
-import com.harbortek.helm.tracker.dao.ProjectPageDao;
-import com.harbortek.helm.tracker.dao.TrackerDao;
-import com.harbortek.helm.tracker.dao.TrackerItemDao;
-import com.harbortek.helm.tracker.dao.ViewDao;
 import com.harbortek.helm.tracker.entity.project.ProjectPageEntity;
 import com.harbortek.helm.tracker.entity.tracker.TrackerEntity;
 import com.harbortek.helm.tracker.service.ProjectRoleMemberService;
-import com.harbortek.helm.tracker.service.SprintService;
 import com.harbortek.helm.tracker.service.TrackerService;
 import com.harbortek.helm.tracker.template.builder.EntityResolver;
 import com.harbortek.helm.tracker.template.builder.TrackerXmlReader;
@@ -124,7 +121,7 @@ public class TrackerServiceImpl implements TrackerService {
     TrackerItemDao trackerItemDao;
 
     @Autowired
-    SprintService sprintService;
+    SprintDao sprintDao;
 
     @Autowired
     PermissionService  permissionService;
@@ -294,7 +291,7 @@ public class TrackerServiceImpl implements TrackerService {
                                                     .build())
                                             .collect(Collectors.toList());
                         } else if (SystemFields.SPRINT.equals(systemProperty)) {
-                            Collection<SprintVo> sprintVos = sprintService.findSprints(projectId);
+                            List<SprintEntity> sprintVos = sprintDao.findSprints(projectId);
                             optionItems =
                                     sprintVos.stream().map(item -> OptionsField.OptionItem.builder().id((item.getId()))
                                                     .name(item.getName())

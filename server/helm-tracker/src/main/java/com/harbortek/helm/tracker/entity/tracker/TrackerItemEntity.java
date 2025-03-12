@@ -117,11 +117,11 @@ public class TrackerItemEntity extends BaseEntity {
 	 */
 	Double remainingWorkingHours;
 
-	/**
-	 * 迭代ID
-	 */
-	@EntityReference(SprintEntity.class)
-	Long sprintId;
+//	/**
+//	 * 迭代ID
+//	 */
+//	@EntityReference(SprintEntity.class)
+//	Long sprintId;
 
 	Map<Long,String> values = new HashMap<>();
 
@@ -146,6 +146,6 @@ public class TrackerItemEntity extends BaseEntity {
 	}
 
 	public void setCustomerFieldValue(TrackerField field, Object value) {
-		values.put(field.getId(),String.valueOf(value));
+		values.put(field.getId(),value.toString());
 	}
 }

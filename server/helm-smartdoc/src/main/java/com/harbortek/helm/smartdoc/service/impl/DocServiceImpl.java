@@ -490,8 +490,8 @@ public class DocServiceImpl implements DocService {
         trackerItemVo2.setProjectKeyName(projectVo.getKeyName());
         trackerItemVo2.setAssignedDate(trackerItemVo.getAssignedDate());
         trackerItemVo2.setTrackerId(trackerItemVo.getTracker().getId());
-        Optional.ofNullable(trackerItemVo.getSprint())
-                .ifPresent(value -> trackerItemVo2.setSprintId(value.getId()));
+//        Optional.ofNullable(trackerItemVo.getSprint())
+//                .ifPresent(value -> trackerItemVo2.setSprintId(value.getId()));
         Optional.ofNullable(trackerItemVo.getOwner())
                 .ifPresent(value -> trackerItemVo2.setOwnerId(value.getId()));
         Optional.ofNullable(trackerItemVo.getMeaning())

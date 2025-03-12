@@ -16,11 +16,13 @@
 
 package com.harbortek.helm.tracker.service.impl;
 
+import com.harbortek.helm.common.entity.BaseEntity;
 import com.harbortek.helm.tracker.dao.TrackerCommitDao;
 import com.harbortek.helm.tracker.dao.TrackerItemDao;
 import com.harbortek.helm.tracker.entity.code.TrackerCommitEntity;
 import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
 import com.harbortek.helm.tracker.service.TrackerCommitService;
+import com.harbortek.helm.util.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,8 +56,9 @@ public class TrackerCommitServiceImpl implements TrackerCommitService {
         if(sprintId == null){
             return null;
         }
-        List<TrackerItemEntity> trackerItemEntities = trackerItemDao.findBySprintIds(Arrays.asList(sprintId));
-        List<Long> itemIds = trackerItemEntities.stream().map(item -> item.getId()).collect(Collectors.toList());
+        Long projectId= (Long) SecurityUtils.get(SecurityUtils.PROJECT_ID);
+        List<TrackerItemEntity> trackerItemEntities = trackerItemDao.findBySprintIds(projectId, List.of(sprintId));
+        List<Long> itemIds = trackerItemEntities.stream().map(BaseEntity::getId).collect(Collectors.toList());
         return trackerCommitDao.findByItemIds(itemIds);
     }
 

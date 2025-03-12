@@ -230,8 +230,8 @@ public class ReqIFUtils {
             return trackerItem.getDescription();
         } else if (SystemFields.OWNER.equals(fieldName)) {
             return trackerItem.getOwner().getName();
-        } else if (SystemFields.SPRINT.equals(fieldName)) {
-            return trackerItem.getSprint().getName();
+//        } else if (SystemFields.SPRINT.equals(fieldName)) {
+//            return trackerItem.getSprint().getName();
         } else if (SystemFields.CREATE_BY.equals(fieldName)) {
             return trackerItem.getCreateBy().getName();
         } else if (SystemFields.CREATE_DATE.equals(fieldName)) {
