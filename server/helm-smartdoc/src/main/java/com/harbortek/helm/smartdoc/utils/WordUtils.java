@@ -113,7 +113,7 @@ public class WordUtils {
      * @param config
      * @return
      */
-    public ExtractionRule getMatchRule(DocBlock block,List<DocBlock> parentHeadingBlocks, WordImportJobVo config) {
+    public ExtractionRule getMatchRule(DocBlock block, List<DocBlock> parentHeadingBlocks, WordImportJobVo config) {
         String heading = block.getId();
 
         for (ExtractionRule rule : config.getRules()) {
@@ -132,32 +132,32 @@ public class WordUtils {
         return null;
     }
 
-    public static Element blockElements(DocBlock block){
-        if (BlockTypes.HEADING.equals(block.getType())){
-            String tag = "h"+((HeaderBlockData)block.getData()).getLevel();
-            String html = "<"+tag+">" +(block.getData()).getText() + "</"+tag+">";
+    public static Element blockElements(DocBlock block) {
+        if (BlockTypes.HEADING.equals(block.getType())) {
+            String tag = "h" + ((HeaderBlockData) block.getData()).getLevel();
+            String html = "<" + tag + ">" + (block.getData()).getText() + "</" + tag + ">";
             return Jsoup.parseBodyFragment(html).body().firstElementChild();
-        }else if (BlockTypes.PARAGRAPH.equals(block.getType())){
-            String html = (block.getData()).getText();
+        } else if (BlockTypes.PARAGRAPH.equals(block.getType())) {
+            String html = "<p>" + (block.getData()).getText() + "</p>";
             return Jsoup.parseBodyFragment(html).body().firstElementChild();
         }
         return null;
     }
 
-    public static List<Element> blockElements(List<DocBlock> blocks){
+    public static List<Element> blockElements(List<DocBlock> blocks) {
         StringBuilder sb = new StringBuilder();
         for (DocBlock block : blocks) {
-            if (BlockTypes.HEADING.equals(block.getType())){
-                String tag = "h"+((HeaderBlockData)block.getData()).getLevel();
-                String html = "<"+tag+">" +(block.getData()).getText() + "</"+tag+">";
+            if (BlockTypes.HEADING.equals(block.getType())) {
+                String tag = "h" + ((HeaderBlockData) block.getData()).getLevel();
+                String html = "<" + tag + ">" + (block.getData()).getText() + "</" + tag + ">";
                 sb.append(html).append("\n");
-            }else if (BlockTypes.PARAGRAPH.equals(block.getType())){
+            } else if (BlockTypes.PARAGRAPH.equals(block.getType())) {
                 String html = (block.getData()).getText();
-                sb.append(html).append("\n");
+                sb.append("<p>").append(html).append("</p>\n");
             }
         }
-        String html =  sb.toString();
-        return new ArrayList<>(Jsoup.parseBodyFragment(html).body().children() );
+        String html = sb.toString();
+        return new ArrayList<>(Jsoup.parseBodyFragment(html).body().children());
     }
 
     public static String html(List<Element> paragraphs) {
@@ -169,7 +169,7 @@ public class WordUtils {
     }
 
     public static String html(Element paragraph) {
-        return paragraph!=null ? paragraph.outerHtml() : "";
+        return paragraph != null ? paragraph.outerHtml() : "";
     }
 
     public static String plainText(List<Element> paragraphs) {
@@ -181,10 +181,8 @@ public class WordUtils {
     }
 
     public static String plainText(Element paragraph) {
-        return paragraph!=null ?paragraph.text() :"";
+        return paragraph != null ? paragraph.text() : "";
     }
-
-
 
 
 }

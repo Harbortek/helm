@@ -16,24 +16,13 @@
 
 package com.harbortek.helm.smartdoc.config;
 
-import cn.hutool.json.JSONArray;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.harbortek.helm.smartdoc.editor.operation.Operation;
 import com.harbortek.helm.smartdoc.editor.operation.util.SlateOperationApplier;
-import com.harbortek.helm.smartdoc.editor.operation.util.SlateParser;
 import com.harbortek.helm.system.vo.UserVo;
-import com.harbortek.helm.tracker.entity.block.DocBlock;
-import com.harbortek.helm.tracker.entity.block.DocEntity;
-import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.BlockParser;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateText;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.paragraph.ParagraphSlateElement;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.trackerItem.TrackerItemSlateElement;
 import com.harbortek.helm.tracker.service.DocService;
 import com.harbortek.helm.tracker.service.TrackerItemService;
 import com.harbortek.helm.tracker.vo.block.DocVo;
-import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
-import com.harbortek.helm.util.DataUtils;
 import com.harbortek.helm.util.JsonUtils;
 import com.harbortek.helm.util.SecurityUtils;
 import com.harbortek.helm.websocket.entity.WsMessage;
@@ -43,12 +32,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 @Component
 @Log

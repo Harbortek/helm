@@ -16,7 +16,7 @@
 
 package com.harbortek.helm.smartdoc.editor.operation.util;
 
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 
 import java.util.ArrayList;

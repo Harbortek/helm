@@ -60,6 +60,7 @@ export default {
             },
             doc: {
                 blocks: [],
+                elements: [],
             }
         }
     },
@@ -78,9 +79,11 @@ export default {
         loadData() {
             findWordImportJob(this.projectId, this.pageId).then(resp => {
                 this.content = resp
-                this.doc = { blocks: JSON.parse(this.content.blocksJSON) || [] }
+                this.doc = {
+                    elements: JSON.parse(this.content.blocksJSON) || [],
+                    // elements: this.content.elements
+                }
                 this.autoNumber = this.content.autoNumber
-                console.log(this.doc.blocks)
                 this.rules = cloneDeep(this.rules)
             })
         },
@@ -97,12 +100,15 @@ export default {
             }
             let content = cloneDeep(this.content)
             content.rules = this.rules
-            content.blocksJSON = JSON.stringify(this.$refs.liveDoc.doc.editorBlocks)
+            content.blocksJSON = JSON.stringify(this.$refs.liveDoc.doc.elements)
             content.autoNumber = this.autoNumber
             this.loading = true
             updateWordImportJob(this.pageId, content).then(resp => {
                 this.content = resp
-                this.doc = { blocks: JSON.parse(this.content.blocksJSON) || [] }
+                this.doc = {
+                    elements: JSON.parse(this.content.blocksJSON) || [],
+                    // elements: this.content.elements
+                }
                 this.autoNumber = this.content.autoNumber
                 this.rules = cloneDeep(this.rules)
                 this.loading = false
@@ -125,7 +131,10 @@ export default {
             this.loading = true
             withdrawWordImportJob(this.pageId, this.content.id).then(resp => {
                 this.content = resp
-                this.doc = { blocks: JSON.parse(this.content.blocksJSON) || [] }
+                this.doc = {
+                    elements: JSON.parse(this.content.blocksJSON) || [],
+                    // elements: this.content.elements
+                }
                 this.autoNumber = this.content.autoNumber
                 this.rules = cloneDeep(this.rules)
                 this.loading = false
@@ -136,7 +145,9 @@ export default {
         onImport() {
             let content = cloneDeep(this.content)
             content.rules = this.rules
-            content.blocksJSON = JSON.stringify(this.$refs.liveDoc.doc.editorBlocks)
+            // content.blocksJSON = JSON.stringify(this.$refs.liveDoc.doc.editorBlocks)
+            
+            content.blocksJSON = JSON.stringify(this.$refs.liveDoc.doc.elements)
             content.autoNumber = this.autoNumber
             this.loading = true
             completeWordImportJob(this.pageId, content).then(resp => {

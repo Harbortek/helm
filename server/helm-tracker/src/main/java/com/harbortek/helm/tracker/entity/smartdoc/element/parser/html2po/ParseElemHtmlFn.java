@@ -16,12 +16,12 @@
 
 package com.harbortek.helm.tracker.entity.smartdoc.element.parser.html2po;
 
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateDescendant;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
 import org.jsoup.nodes.Element;
 
 import java.util.List;
 
 public interface ParseElemHtmlFn {
-        SlateElement apply(Element elem, List<SlateDescendant> children);
+        SlateElement apply(Element elem, List<SlateNode> children);
     }

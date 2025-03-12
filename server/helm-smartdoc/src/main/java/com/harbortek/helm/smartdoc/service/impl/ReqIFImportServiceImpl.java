@@ -44,6 +44,8 @@ import com.harbortek.helm.tracker.entity.block.DocBlock;
 import com.harbortek.helm.tracker.entity.block.DocBlockLink;
 import com.harbortek.helm.tracker.entity.block.HeaderBlockData;
 import com.harbortek.helm.tracker.entity.block.TrackerItemBlockData;
+import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.Block2Node;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.service.*;
 import com.harbortek.helm.tracker.vo.ProjectVo;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
@@ -159,10 +161,10 @@ public class ReqIFImportServiceImpl implements ReqIFImportJobService {
                         List<DatatypeEnumerationValue> values = dataType.getEnumValues();
                         fieldMapping.setEnumMapping(values.stream().map(value -> {
                             return EnumerationValueMapping.builder().reqIFValueId(value.getId())
-                                                          .reqIFValueKey(value.getKey())
-                                                          .reqIFValue(value.getName() != null ? value.getName() :
-                                                                              value.getOtherContent())
-                                                          .build();
+                                    .reqIFValueKey(value.getKey())
+                                    .reqIFValue(value.getName() != null ? value.getName() :
+                                            value.getOtherContent())
+                                    .build();
                         }).collect(Collectors.toList()));
                     }
                     rule.getFieldMappings().add(fieldMapping);
@@ -213,7 +215,7 @@ public class ReqIFImportServiceImpl implements ReqIFImportJobService {
                 List<SpecHierarchy> specHierarchies = specification.getLvlOneSpecHierarchies();
                 for (SpecHierarchy specHierarchy : specHierarchies) {
                     newBlocks.addAll(processHierarchy(reqIFFile, document, null, specHierarchy, ruleMap, project,
-                                                      specRelations));
+                            specRelations));
                 }
             }
         }
@@ -270,12 +272,12 @@ public class ReqIFImportServiceImpl implements ReqIFImportJobService {
         itemBlockData.setName(trackerItem.getName());
         itemBlockData.setText(trackerItem.getDescription());
         return new DocBlock(specObject.getId(), String.valueOf(trackerItem.getTracker().getId()),
-                            itemBlockData);
+                itemBlockData);
     }
 
     private TrackerItemVo createWorkItem(ReqIFFile reqIFFile, ReqIFDocument reqIFDocument, SpecObject parent,
                                          SpecObject specObject, ReqIFRule rule, ProjectVo project
-                                        ) {
+    ) {
         TrackerVo tracker = trackerService.findOneTracker(rule.getTarget());
         TrackerItemVo trackerItem = new TrackerItemVo();
         trackerItem.setProject(new IdNameReference<>(project));
@@ -309,7 +311,7 @@ public class ReqIFImportServiceImpl implements ReqIFImportJobService {
                     if (value.getValue() != null && value.getValue().equals(enumMapping.getReqIFValue()) &&
                             ObjectUtils.isValid(enumMapping.getTrackerEnumValueId())) {
                         setFieldValue(trackerItem, trackerField, String.valueOf(enumMapping.getTrackerEnumValueId()),
-                                      rule);
+                                rule);
                         break;
                     }
                 }
@@ -395,7 +397,7 @@ public class ReqIFImportServiceImpl implements ReqIFImportJobService {
                 List<SpecHierarchy> specHierarchies = specification.getLvlOneSpecHierarchies();
                 for (SpecHierarchy specHierarchy : specHierarchies) {
                     blocks.addAll(processHierarchy(reqIFFile, document, null, specHierarchy, ruleMap, project,
-                                                   specParentChildRelations));
+                            specParentChildRelations));
                 }
             }
             specRelations.addAll(content.getSpecRelations().values());
@@ -413,12 +415,15 @@ public class ReqIFImportServiceImpl implements ReqIFImportJobService {
         specRelations.forEach(specRelation -> {
             String code = ReqIFUtils.mapRelationNameToCode(reqIFFile, specRelation.getType().getName());
             links.add(DocBlockLink.builder().sourceBlockId(specRelation.getSource().getId())
-                                  .targetBlockId(specRelation.getTarget().getId()).linkCode(
+                    .targetBlockId(specRelation.getTarget().getId()).linkCode(
                             code).build());
         });
 
 
-        docService.saveBlocksAndTrackerItems(projectId, pageId, blocks, links);
+        List<SlateNode> elements = blocks.stream().map(block -> {
+            return Block2Node.parse(block);
+        }).toList();
+        docService.saveBlocksAndTrackerItems(projectId, pageId, elements, links);
 
         reqIFImportJobDao.deleteJob(job.getId());
     }

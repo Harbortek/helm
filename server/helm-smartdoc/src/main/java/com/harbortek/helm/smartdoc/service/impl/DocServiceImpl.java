@@ -16,12 +16,10 @@
 
 package com.harbortek.helm.smartdoc.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HtmlUtil;
+import cn.hutool.json.JSONArray;
 import com.harbortek.helm.common.vo.IdNameReference;
-import com.harbortek.helm.smartdoc.utils.DocUtils;
-import com.harbortek.helm.system.entity.EnumItemEntity;
 import com.harbortek.helm.system.service.EnumService;
 import com.harbortek.helm.system.vo.EnumItemVo;
 import com.harbortek.helm.tracker.constants.Associations;
@@ -30,8 +28,9 @@ import com.harbortek.helm.tracker.constants.InternalTrackers;
 import com.harbortek.helm.tracker.dao.*;
 import com.harbortek.helm.tracker.entity.block.*;
 import com.harbortek.helm.tracker.entity.link.TrackerLinkEntity;
-import com.harbortek.helm.tracker.entity.project.ProjectEntity;
-import com.harbortek.helm.tracker.entity.project.ProjectPageEntity;
+import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.Node2Block;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
 import com.harbortek.helm.tracker.entity.tracker.TrackerEntity;
 import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
 import com.harbortek.helm.tracker.service.*;
@@ -44,15 +43,15 @@ import com.harbortek.helm.tracker.vo.pages.ProjectPageVo;
 import com.harbortek.helm.tracker.vo.tracker.TrackerVo;
 import com.harbortek.helm.util.DataUtils;
 import com.harbortek.helm.util.IDUtils;
+import com.harbortek.helm.util.JsonUtils;
 import com.harbortek.helm.util.ObjectUtils;
-import com.harbortek.helm.util.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.text.html.Option;
+import java.sql.Struct;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -86,128 +85,128 @@ public class DocServiceImpl implements DocService {
     TrackerDao trackerDao;
 
     @Override
-    public DocEntity saveBlocksAndTrackerItems(Long projectId, Long pageId, List<DocBlock> docBlocks) {
+    public DocEntity saveBlocksAndTrackerItems(Long projectId, Long pageId, List<SlateNode> docBlocks) {
         /**
          * docBlockLinks 为 null ，自动构建工作项目关系
          */
         return this.saveBlocksAndTrackerItems(projectId, pageId, docBlocks, null);
     }
 
-    @Override
-    public DocEntity saveBlocksAndTrackerItemsByPart(DocEntity modifiedDoc, List<DocBlock> updateBlocks) {
-        ProjectPageVo pageVo = projectPageService.findByDocId(modifiedDoc.getId());
-        List<DocBlock> modifiedDocBlocks = modifiedDoc.getBlocks();
-        //拿到库存 trackerItem
-        Map<Long, TrackerItemVo> id2TrackerItemVo = new HashMap<>();
+//    @Override
+//    public DocEntity saveBlocksAndTrackerItemsByPart(DocEntity modifiedDoc, List<SlateNode> updateBlocks) {
+//        ProjectPageVo pageVo = projectPageService.findByDocId(modifiedDoc.getId());
+//        List<DocBlock> modifiedDocBlocks = modifiedDoc.getBlocks();
+//        //拿到库存 trackerItem
+//        Map<Long, TrackerItemVo> id2TrackerItemVo = new HashMap<>();
+////        for (int i = 0; i < modifiedDocBlocks.size(); i++) {
+////            DocBlock docBlock = modifiedDocBlocks.get(i);
+////            Optional.ofNullable(docBlock.getData().getRefId())
+////                    .ifPresent(value -> id2TrackerItemVo.put(value, null));
+////        }
+////        List<Long> refIds = id2TrackerItemVo.keySet().stream().toList();
+////        List<TrackerItemVo> trackerItemVos = refIds.size() > 0
+////                ? trackerItemService.findTrackerItemByIds(refIds)
+////                : new ArrayList<>();
+////        for (TrackerItemVo trackerItemVo : trackerItemVos) {
+////            id2TrackerItemVo.put(trackerItemVo.getId(), trackerItemVo);
+////        }
+//
+//        //saveTrackerItems (新增、更新、删除)
 //        for (int i = 0; i < modifiedDocBlocks.size(); i++) {
+//
 //            DocBlock docBlock = modifiedDocBlocks.get(i);
-//            Optional.ofNullable(docBlock.getData().getRefId())
-//                    .ifPresent(value -> id2TrackerItemVo.put(value, null));
+//            Long refId = docBlock.getData().getRefId();
+////            TrackerItemVo trackerItemVo = id2TrackerItemVo.get(refId);
+//            TrackerItemVo trackerItemVo = null;
+//
+//            if (refId == null) {
+//                //新增
+//                trackerItemVo = this.block2TrackerItem(pageVo.getProjectId(), docBlock, trackerItemVo);
+//                //工作项关联wiki
+//                if (!trackerItemVo.getRelatedWikis().contains(pageVo.getId())) {
+//                    trackerItemVo.getRelatedWikis().add(pageVo.getId());
+//                }
+//
+//                trackerItemVo = trackerItemService.createTrackerItem(trackerItemVo);
+//                refId = trackerItemVo.getId();
+//                docBlock.getData().setRefId(refId);
+//            } else {
+//                for (DocBlock blockItem : updateBlocks) {
+//                    if (blockItem.getId().equals(docBlock.getId())) {
+//                        //更新
+//                        trackerItemVo = trackerItemService.findOneTrackerItem(refId);
+//                        trackerItemVo = this.block2TrackerItem(pageVo.getProjectId(), docBlock, trackerItemVo);
+//                        //工作项关联wiki
+//                        if (!trackerItemVo.getRelatedWikis().contains(pageVo.getId())) {
+//                            trackerItemVo.getRelatedWikis().add(pageVo.getId());
+//                        }
+//                        trackerItemService.updateTrackerItem(trackerItemVo);
+//                        break;
+//                    }
+//                }
+//                if (trackerItemVo == null) {
+//                    trackerItemVo = this.block2TrackerItem(pageVo.getProjectId(), docBlock, trackerItemVo);
+//                }
+//            }
+//            //更新map
+//            id2TrackerItemVo.put(refId, trackerItemVo);
+//
+//            if (docBlock.getData() instanceof TrackerItemBlockData) {
+//                TrackerVo trackerVo = trackerService.findOneTracker(Long.parseLong(docBlock.getType()));
+//                TrackerItemBlockData trackerItemBlockData = (TrackerItemBlockData) (docBlock.getData());
+//                trackerItemBlockData.setName(trackerItemVo.getName());
+//                TrackerItemVo finalTrackerItemVo = trackerItemVo;
+//                updateBlocks.stream().filter(blockItem -> blockItem.getId().equals(docBlock.getId()))
+//                        .forEach(blockItem -> {
+//                            trackerItemBlockData.setTrackerItem(fillTrackerItemVo(finalTrackerItemVo));
+//                        });
+//                trackerItemBlockData.getTrackerItem().getValues().forEach((key, value) -> {
+//                    trackerVo.getTrackerFields().stream().filter(field -> field.getId().equals(key));
+//                });
+//            }
 //        }
-//        List<Long> refIds = id2TrackerItemVo.keySet().stream().toList();
-//        List<TrackerItemVo> trackerItemVos = refIds.size() > 0
-//                ? trackerItemService.findTrackerItemByIds(refIds)
-//                : new ArrayList<>();
-//        for (TrackerItemVo trackerItemVo : trackerItemVos) {
-//            id2TrackerItemVo.put(trackerItemVo.getId(), trackerItemVo);
+//
+//        //删除
+//
+//        DocEntity docEntity = docDao.findById(modifiedDoc.getId(), DocEntity.class);
+//        if (ObjectUtils.isEmpty(docEntity)) {
+//            docEntity = DocEntity.builder().id(IDUtils.getId()).name(pageVo.getName()).build();
+//            pageVo.setSmartDocId(docEntity.getId());
+//            projectPageService.updateProjectPageBasicInfo(pageVo);
 //        }
+//        List<Long> oldRefIds = new ArrayList<>();
+//        if (ObjectUtils.isNotEmpty(docEntity.getBlocks())) {
+//            docEntity.getBlocks().forEach(docBlock -> {
+//                if (!id2TrackerItemVo.keySet().contains(docBlock.getData().getRefId())) {
+//                    if (docBlock.getData() instanceof TrackerItemBlockData) {
+//                        TrackerItemBlockData trackerItemBlockData = (TrackerItemBlockData) (docBlock.getData());
+//                        //link 不删
+//                        if (!trackerItemBlockData.getIsTrackerItemLink()) {
+//                            oldRefIds.add(docBlock.getData().getRefId());
+//                        }
+//                    } else {
+//                        oldRefIds.add(docBlock.getData().getRefId());
+//                    }
+//                }
+//            });
+//        }
+//        if (!oldRefIds.isEmpty()) {
+//            trackerItemService.batchDeleteTrackerItem(oldRefIds);
+//        }
+//        //save
+//        docEntity.setBlocks(modifiedDocBlocks);
+////        docEntity.setPageId(pageId);
+//        docEntity.setVersion(docEntity.getVersion() == null ? 0L : docEntity.getVersion() + 1);
+//
 
-        //saveTrackerItems (新增、更新、删除)
-        for (int i = 0; i < modifiedDocBlocks.size(); i++) {
-
-            DocBlock docBlock = modifiedDocBlocks.get(i);
-            Long refId = docBlock.getData().getRefId();
-//            TrackerItemVo trackerItemVo = id2TrackerItemVo.get(refId);
-            TrackerItemVo trackerItemVo = null;
-
-            if (refId == null) {
-                //新增
-                trackerItemVo = this.block2TrackerItem(pageVo.getProjectId(), docBlock, trackerItemVo);
-                //工作项关联wiki
-                if (!trackerItemVo.getRelatedWikis().contains(pageVo.getId())) {
-                    trackerItemVo.getRelatedWikis().add(pageVo.getId());
-                }
-
-                trackerItemVo = trackerItemService.createTrackerItem(trackerItemVo);
-                refId = trackerItemVo.getId();
-                docBlock.getData().setRefId(refId);
-            } else {
-                for (DocBlock blockItem : updateBlocks) {
-                    if (blockItem.getId().equals(docBlock.getId())) {
-                        //更新
-                        trackerItemVo = trackerItemService.findOneTrackerItem(refId);
-                        trackerItemVo = this.block2TrackerItem(pageVo.getProjectId(), docBlock, trackerItemVo);
-                        //工作项关联wiki
-                        if (!trackerItemVo.getRelatedWikis().contains(pageVo.getId())) {
-                            trackerItemVo.getRelatedWikis().add(pageVo.getId());
-                        }
-                        trackerItemService.updateTrackerItem(trackerItemVo);
-                        break;
-                    }
-                }
-                if (trackerItemVo == null) {
-                    trackerItemVo = this.block2TrackerItem(pageVo.getProjectId(), docBlock, trackerItemVo);
-                }
-            }
-            //更新map
-            id2TrackerItemVo.put(refId, trackerItemVo);
-
-            if (docBlock.getData() instanceof TrackerItemBlockData) {
-                TrackerVo trackerVo = trackerService.findOneTracker(Long.parseLong(docBlock.getType()));
-                TrackerItemBlockData trackerItemBlockData = (TrackerItemBlockData) (docBlock.getData());
-                trackerItemBlockData.setName(trackerItemVo.getName());
-                TrackerItemVo finalTrackerItemVo = trackerItemVo;
-                updateBlocks.stream().filter(blockItem -> blockItem.getId().equals(docBlock.getId()))
-                        .forEach(blockItem -> {
-                            trackerItemBlockData.setTrackerItem(fillTrackerItemVo(finalTrackerItemVo));
-                        });
-                trackerItemBlockData.getTrackerItem().getValues().forEach((key, value) -> {
-                    trackerVo.getTrackerFields().stream().filter(field -> field.getId().equals(key));
-                });
-            }
-        }
-
-        //删除
-
-        DocEntity docEntity = docDao.findById(modifiedDoc.getId(), DocEntity.class);
-        if (ObjectUtils.isEmpty(docEntity)) {
-            docEntity = DocEntity.builder().id(IDUtils.getId()).name(pageVo.getName()).build();
-            pageVo.setSmartDocId(docEntity.getId());
-            projectPageService.updateProjectPageBasicInfo(pageVo);
-        }
-        List<Long> oldRefIds = new ArrayList<>();
-        if (ObjectUtils.isNotEmpty(docEntity.getBlocks())) {
-            docEntity.getBlocks().forEach(docBlock -> {
-                if (!id2TrackerItemVo.keySet().contains(docBlock.getData().getRefId())) {
-                    if (docBlock.getData() instanceof TrackerItemBlockData) {
-                        TrackerItemBlockData trackerItemBlockData = (TrackerItemBlockData) (docBlock.getData());
-                        //link 不删
-                        if (!trackerItemBlockData.getIsTrackerItemLink()) {
-                            oldRefIds.add(docBlock.getData().getRefId());
-                        }
-                    } else {
-                        oldRefIds.add(docBlock.getData().getRefId());
-                    }
-                }
-            });
-        }
-        if (!oldRefIds.isEmpty()) {
-            trackerItemService.batchDeleteTrackerItem(oldRefIds);
-        }
-        //save
-        docEntity.setBlocks(modifiedDocBlocks);
-//        docEntity.setPageId(pageId);
-        docEntity.setVersion(docEntity.getVersion() == null ? 0L : docEntity.getVersion() + 1);
-
-//        ProjectPageVo projectPageVo = projectPageService.findOneProjectPage(pageId);
-//        docEntity.setName(projectPageVo.getName());
-
-        docEntity = docDao.saveDoc(docEntity);
-
-        this.buildLinks(pageVo.getProjectId(), docEntity, id2TrackerItemVo);
-        return docEntity;
-    }
-
+    /// /        ProjectPageVo projectPageVo = projectPageService.findOneProjectPage(pageId);
+    /// /        docEntity.setName(projectPageVo.getName());
+//
+//        docEntity = docDao.saveDoc(docEntity);
+//
+//        this.buildLinks(pageVo.getProjectId(), docEntity, id2TrackerItemVo);
+//        return docEntity;
+//    }
     @Override
     public DocEntity saveDoc(DocEntity docEntity) {
         /**
@@ -216,26 +215,26 @@ public class DocServiceImpl implements DocService {
         return docDao.saveDoc(docEntity);
     }
 
-    @Override
-    public void saveBlockAndTrackerItemV2(Long projectId, DocEntity doc, List<DocBlock> toAdd, List<DocBlock> toUpdate, List<DocBlock> toDelete) {
-        for (DocBlock docBlock : toAdd) {
-            TrackerItemBlockData item = (TrackerItemBlockData) docBlock.getData();
-            TrackerItemVo trackerItemVo = this.block2TrackerItem(projectId, docBlock, null);
-            trackerItemService.createTrackerItem(trackerItemVo);
-            item.setRefId(trackerItemVo.getId());
-        }
-        for (DocBlock docBlock : toUpdate) {
-            TrackerItemBlockData item = (TrackerItemBlockData) docBlock.getData();
-            TrackerItemVo trackerItemVo = trackerItemService.findOneTrackerItem(item.getRefId());
-            trackerItemVo = this.block2TrackerItem(projectId, docBlock, trackerItemVo);
-            trackerItemService.updateTrackerItem(trackerItemVo);
-        }
-        for (DocBlock docBlock : toDelete) {
-            TrackerItemBlockData item = (TrackerItemBlockData) docBlock.getData();
-            trackerItemService.deleteOneTrackerItem(item.getRefId());
-        }
-        saveDoc(doc);
-    }
+//    @Override
+//    public DocEntity saveBlockAndTrackerItemV2(Long projectId, DocEntity doc, List<DocBlock> toAdd, List<DocBlock> toUpdate, List<DocBlock> toDelete) {
+//        for (DocBlock docBlock : toAdd) {
+//            TrackerItemBlockData item = (TrackerItemBlockData) docBlock.getData();
+//            TrackerItemVo trackerItemVo = this.block2TrackerItem(projectId, docBlock, null);
+//            trackerItemService.createTrackerItem(trackerItemVo);
+//            item.setRefId(trackerItemVo.getId());
+//        }
+//        for (DocBlock docBlock : toUpdate) {
+//            TrackerItemBlockData item = (TrackerItemBlockData) docBlock.getData();
+//            TrackerItemVo trackerItemVo = trackerItemService.findOneTrackerItem(item.getRefId());
+//            trackerItemVo = this.block2TrackerItem(projectId, docBlock, trackerItemVo);
+//            trackerItemService.updateTrackerItem(trackerItemVo);
+//        }
+//        for (DocBlock docBlock : toDelete) {
+//            TrackerItemBlockData item = (TrackerItemBlockData) docBlock.getData();
+//            trackerItemService.deleteOneTrackerItem(item.getRefId());
+//        }
+//        saveDoc(doc);
+//    }
 
     @Override
     public DocBlock saveBlockAndTrackerItem(Long docId, DocBlock docBlock) {
@@ -299,17 +298,18 @@ public class DocServiceImpl implements DocService {
                     }
                     linkEntity.setTargetItemId(targetBlock.getData().getRefId());
                     TrackerItemVo targetTrackerItemVo = id2TrackerItemVo.get(targetBlock.getData().getRefId());
-                    boolean hasDuplicateRelatedWorkItem = targetTrackerItemVo.hasDuplicateRelatedWorkItem(
-                            TrackerLinkVo.builder()
-                                    .sourceItem(TrackerItemVo.builder().id(linkEntity.getSourceItemId()).build())
-                                    .targetItem(TrackerItemVo.builder().id(linkEntity.getTargetItemId()).build())
-                                    .linkType(TrackerLinkTypeVo.builder().code(Associations.PARENT.getId()).build())
-                                    .build());
+                    if (targetTrackerItemVo != null) {
+                        boolean hasDuplicateRelatedWorkItem = targetTrackerItemVo.hasDuplicateRelatedWorkItem(
+                                TrackerLinkVo.builder()
+                                        .sourceItem(TrackerItemVo.builder().id(linkEntity.getSourceItemId()).build())
+                                        .targetItem(TrackerItemVo.builder().id(linkEntity.getTargetItemId()).build())
+                                        .linkType(TrackerLinkTypeVo.builder().code(Associations.PARENT.getId()).build())
+                                        .build());
 
+                        if (!hasDuplicateRelatedWorkItem) {
 
-                    if (!hasDuplicateRelatedWorkItem) {
-
-                        addLinks.add(linkEntity);
+                            addLinks.add(linkEntity);
+                        }
                     }
                     break;
                 }
@@ -337,51 +337,50 @@ public class DocServiceImpl implements DocService {
      */
     @Override
     @Transactional
-    public DocEntity saveBlocksAndTrackerItems(Long projectId, Long pageId, List<DocBlock> docBlocks, List<DocBlockLink> docBlockLinks) {
-        //拿到库存 trackerItem
-        Map<Long, TrackerItemVo> id2TrackerItemVo = new HashMap<>();
-        for (int i = 0; i < docBlocks.size(); i++) {
-            DocBlock docBlock = docBlocks.get(i);
-            if (docBlock.getData().getRefId() != null) {
-                id2TrackerItemVo.put(docBlock.getData().getRefId(), null);
-            }
-        }
-        List<Long> refIds = new ArrayList<>();
-        for (Long key : id2TrackerItemVo.keySet()) {
-            refIds.add(key);
-        }
-        List<TrackerItemVo> trackerItemVos = refIds.size() > 0 ? trackerItemService.findTrackerItemByIds(refIds) : new ArrayList<>();
-        for (TrackerItemVo trackerItemVo : trackerItemVos) {
-            id2TrackerItemVo.put(trackerItemVo.getId(), trackerItemVo);
-        }
+    public DocEntity saveBlocksAndTrackerItems(Long projectId, Long pageId, List<SlateNode> docBlocks, List<DocBlockLink> docBlockLinks) {
         //saveTrackerItems (新增、更新、删除)
         for (int i = 0; i < docBlocks.size(); i++) {
-            DocBlock docBlock = docBlocks.get(i);
-            Long refId = docBlock.getData().getRefId();
-            TrackerItemVo trackerItemVo = id2TrackerItemVo.get(refId);
-            trackerItemVo = this.block2TrackerItem(projectId, docBlock, trackerItemVo);
+            SlateNode curBlock = docBlocks.get(i);
+            if (!(curBlock instanceof TrackerItemSlateElement<?>)) {
+                continue;
+            }
+            TrackerItemSlateElement docBlock = (TrackerItemSlateElement) curBlock;
+            TrackerItemVo trackerItemVo = docBlock.getTrackerItem();
+            trackerItemVo = this.block2TrackerItem(projectId, Node2Block.parse(docBlock), trackerItemVo);
             //工作项关联wiki
             if (!trackerItemVo.getRelatedWikis().contains(pageId)) {
                 trackerItemVo.getRelatedWikis().add(pageId);
             }
-            if (refId == null) {
-                //新增
-                trackerItemVo = trackerItemService.createTrackerItem(trackerItemVo);
-                refId = trackerItemVo.getId();
-            } else {
-                //更新
-                trackerItemService.updateTrackerItem(trackerItemVo);
-            }
-            //更新map
-            id2TrackerItemVo.put(refId, trackerItemVo);
+            for (Object v : docBlock.getChildren()) {
+                if (v instanceof TrackerItemSlateElement.TrackerItemTitleSlateElement) {
+                    String baseStr = StrUtil.removeAllLineBreaks(
+                            HtmlUtil.cleanHtmlTag(((TrackerItemSlateElement.TrackerItemTitleSlateElement) v).toHtml())
+                    );
+                    trackerItemVo.setName(baseStr);
+                } else if (v instanceof TrackerItemSlateElement.TrackerItemDescriptionSlateElement) {
+//                    String baseStr = StringUtils.trim(
+//                            HtmlUtil.cleanHtmlTag(((TrackerItemSlateElement.TrackerItemDescriptionSlateElement) v).toHtml())
+//                    );
+                    trackerItemVo.setDescription(JsonUtils.toJSONString(((TrackerItemSlateElement.TrackerItemDescriptionSlateElement) v).getChildren()));
+                } else if (v instanceof TrackerItemSlateElement.TrackerItemExtraSlateElement) {
 
-            docBlock.getData().setRefId(trackerItemVo.getId());
-            if (docBlock.getData() instanceof TrackerItemBlockData) {
-                TrackerItemBlockData trackerItemBlockData = (TrackerItemBlockData) (docBlock.getData());
-                trackerItemBlockData.setName(trackerItemVo.getName());
-                trackerItemBlockData.setTrackerItem(fillTrackerItemVo(trackerItemVo));
+                }
             }
+            trackerItemVo = trackerItemService.createTrackerItem(trackerItemVo);
+            String refId = trackerItemVo.getId().toString();
+            docBlock.getChildren().forEach(v -> {
+                if (v instanceof TrackerItemSlateElement.TrackerItemTitleSlateElement) {
+                    ((TrackerItemSlateElement.TrackerItemTitleSlateElement) v).setRef(refId);
+                } else if (v instanceof TrackerItemSlateElement.TrackerItemDescriptionSlateElement) {
+                    ((TrackerItemSlateElement.TrackerItemDescriptionSlateElement) v).setRef(refId);
+                } else if (v instanceof TrackerItemSlateElement.TrackerItemExtraSlateElement) {
+                    ((TrackerItemSlateElement.TrackerItemExtraSlateElement) v).setRef(refId);
+                }
+            });
+            docBlock.setRef(refId);
+            docBlock.setTrackerItem(trackerItemVo);
         }
+
         //删除
         ProjectPageVo oneProjectPage = projectPageService.findOneProjectPage(pageId);
         DocEntity docEntity = docDao.findById(oneProjectPage.getSmartDocId(), DocEntity.class);
@@ -390,58 +389,18 @@ public class DocServiceImpl implements DocService {
             oneProjectPage.setSmartDocId(docEntity.getId());
             projectPageService.updateProjectPageBasicInfo(oneProjectPage);
         }
-        List<Long> oldRefIds = new ArrayList<>();
-        if (ObjectUtils.isNotEmpty(docEntity.getBlocks())) {
-            docEntity.getBlocks().forEach(docBlock -> {
-                if (!id2TrackerItemVo.keySet().contains(docBlock.getData().getRefId())) {
-                    if (docBlock.getData() instanceof TrackerItemBlockData) {
-                        TrackerItemBlockData trackerItemBlockData = (TrackerItemBlockData) (docBlock.getData());
-                        //link 不删
-                        if (!trackerItemBlockData.getIsTrackerItemLink()) {
-                            oldRefIds.add(docBlock.getData().getRefId());
-                        }
-                    } else {
-                        oldRefIds.add(docBlock.getData().getRefId());
-                    }
-                }
-            });
-        }
-        trackerItemService.batchDeleteTrackerItem(oldRefIds);
+
         //save
-        docEntity.setBlocks(docBlocks);
+        docEntity.setElements(docBlocks);
 //        docEntity.setPageId(pageId);
         docEntity.setVersion(docEntity.getVersion() == null ? 0L : docEntity.getVersion() + 1);
-
+        docEntity.setBlocks(new ArrayList<>());
 //        ProjectPageVo projectPageVo = projectPageService.findOneProjectPage(pageId);
 //        docEntity.setName(projectPageVo.getName());
 
         docEntity = docDao.saveDoc(docEntity);
-
-        if (docBlockLinks == null) {
-            this.buildLinks(projectId, docEntity, id2TrackerItemVo);
-            return docEntity;
-        }
-
-        //以下根据 docBlockLinks 构建工作项关系
-        Map<String, TrackerLinkTypeVo> trackerLinkTypeMap = trackerLinkTypeService.findLinkTypes(projectId).stream()
-                .collect(Collectors.toMap(TrackerLinkTypeVo::getCode, Function.identity()));
-//        Map<Long, TrackerItemVo> trackerItemVoMap = trackerItemService.findTrackerItemByIds
-//                        (docEntity.getBlocks().stream().map(docBlock -> docBlock.getData().getRefId()).collect(Collectors.toList()))
-//                .stream().collect(Collectors.toMap(TrackerItemVo::getId, Function.identity()));
-        Map<String, Long> blockRefMap = docEntity.getBlocks().stream()
-                .collect(Collectors.toMap(docBlock -> docBlock.getId(), docBlock -> docBlock.getData().getRefId()));
-
-        List<TrackerLinkEntity> toUpdateLinks = new ArrayList<>();
-        docBlockLinks.stream().forEach(docBlockLink -> {
-            toUpdateLinks.add(TrackerLinkEntity.builder()
-                    .id(IDUtils.getId())
-                    .sourceItemId(blockRefMap.get(docBlockLink.getSourceBlockId()))
-                    .targetItemId(blockRefMap.get(docBlockLink.getTargetBlockId()))
-                    .linkTypeId(trackerLinkTypeMap.get(docBlockLink.getLinkCode()).getId())
-                    .build());
-        });
-        trackerLinkDao.batchCreateTrackerLinks(toUpdateLinks);
         return docEntity;
+
     }
 
     public List<TrackerItemVo> findTrackerItemByIds(List<Long> itemIds) {

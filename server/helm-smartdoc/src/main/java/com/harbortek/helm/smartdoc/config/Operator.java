@@ -17,22 +17,20 @@
 package com.harbortek.helm.smartdoc.config;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONArray;
 import com.harbortek.helm.smartdoc.editor.operation.util.SlateParser;
 import com.harbortek.helm.tracker.entity.block.DocBlock;
 import com.harbortek.helm.tracker.entity.block.DocEntity;
-import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.BlockParser;
+import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.Block2Node;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateText;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.paragraph.ParagraphSlateElement;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.elements.trackerItem.TrackerItemSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph.ParagraphSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
 import com.harbortek.helm.tracker.service.DocService;
 import com.harbortek.helm.tracker.service.TrackerItemService;
 import com.harbortek.helm.tracker.vo.block.DocVo;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
 import com.harbortek.helm.util.DataUtils;
-import com.harbortek.helm.util.ObjectUtils;
 import lombok.Data;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +68,7 @@ public class Operator {
             if (docVo.getElements() == null || docVo.getElements().isEmpty()) {
                 docVo.setElements(new ArrayList<SlateNode>());
                 for (DocBlock docBlock : docVo.getBlocks()) {
-                    docVo.getElements().add(BlockParser.parse(docBlock));
+                    docVo.getElements().add(Block2Node.parse(docBlock));
                 }
             } else {
                 List<Long> itemIds = docVo.getElements().stream()
@@ -95,7 +93,7 @@ public class Operator {
                             TrackerItemSlateElement.TrackerItemDescriptionSlateElement desc = ((TrackerItemSlateElement.TrackerItemDescriptionSlateElement) child);
                             List<SlateNode> descChildren = new ArrayList<>();
                             try {
-                                List<SlateNode> descSlateNodeChildren = SlateParser.parse(new JSONArray(item.getDescription()));
+                                List<SlateNode> descSlateNodeChildren = SlateParser.parseArray(new JSONArray(item.getDescription()));
                                 if (!descSlateNodeChildren.isEmpty()) {
                                     for (SlateNode slateNodeChild : descSlateNodeChildren) {
                                         if (slateNodeChild instanceof SlateText) {

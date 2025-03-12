@@ -16,7 +16,7 @@
 
 package com.harbortek.helm.tracker.entity.smartdoc.element.parser.html2po;
 
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateDescendant;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import org.jsoup.nodes.Element;
 
 import java.util.Arrays;
@@ -28,7 +28,7 @@ public class HtmlParser {
      * @param elem   DOM element
      * @return Descendant array
      */
-    public static SlateDescendant parseElemHtml(Element elem) {
+    public static SlateNode parseElemHtml(Element elem) {
         // Pre-parse
         for (PreParseHtmlConf conf : ParserRegister.PRE_PARSE_HTML_CONF_LIST) {
             if (elem instanceof Element) {

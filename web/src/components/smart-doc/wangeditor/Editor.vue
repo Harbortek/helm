@@ -95,6 +95,19 @@ export default Vue.extend({
       const editor = this.editor;
       if (editor == null) return;
       editor.clear()
+      let hasText = false;
+      for (let i = 0; i < content.length; i++) {
+        if (content[i].type === 'text') {
+          hasText = true;
+          break;
+        }
+      }
+      if (hasText) {
+        content = {
+          type: 'paragraph',
+          children: content
+        }
+      }
       SlateTransforms.insertNodes(editor, content, { at: [0] });
       this.preValue = _.cloneDeep(editor.children);
       editor.history.undos = [];
@@ -174,7 +187,7 @@ export default Vue.extend({
             if (_.isEqual(this.preValue, curValue)) {
               return;
             }
-            
+
             this.$emit("onChange", editor.operations);
             this.preValue = _.cloneDeep(curValue);
             // const currentNode = this.findParentNode(editor);
