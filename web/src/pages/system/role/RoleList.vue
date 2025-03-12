@@ -134,7 +134,9 @@ export default {
       parameter = parameter || {}
       this.roleLoading = true
       const that = this
-      return getRolesNoPage().then(res => {
+      return getRolesNoPage({
+        scope: 'SCOPE_GLOBAL'
+      }).then(res => {
         that.roles = res.map(function (item) {
           return {
             name: item.name,

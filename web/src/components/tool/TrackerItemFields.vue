@@ -24,7 +24,7 @@
             v-model="newValue" :disabled="readOnly"  :placeholder="readOnly?'':fields.name"
             @change="(v)=>onChangeCustomerField(fields.id,v)"></project-select>
         
-        <sprint-select v-else-if="fields.system&&fields.systemProperty=='sprintId'"
+        <sprint-select v-else-if="!fields.system&&fields.inputType=='SPRINT'"
             v-model="newValue" :projectId="projectId" :disabled="readOnly" :placeholder="readOnly?'':fields.name"
                 @change="(v,e)=>onChangeCustomerField(fields.id,v)"/>
         <a-select v-else-if="fields.inputType == 'OPTIONS'" allowClear
@@ -189,7 +189,7 @@ import ProjectSelect from "@/components/select/ProjectSelect.vue";
 import TrackerStatusSelect from '@/components/select/TrackerStatusSelect.vue';
 import TrackerStatusTypeSelect from '@/components/select/TrackerStatusTypeSelect.vue';
 export default {
-  name: 'ItemCustomFieldsShow',
+  name: 'TrackerItemFields',
   components: {SimpleEditor,ProjectUserSelect,TrackerSelect,SprintSelect,ProjectSelect,
     TrackerStatusSelect, TrackerStatusTypeSelect},
   model: {

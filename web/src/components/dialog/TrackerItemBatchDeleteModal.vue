@@ -81,7 +81,7 @@
                         </div>
                     </template>
                   </vxe-column>
-                  <vxe-column field="sprint.name" title="所属迭代" min-width="100"></vxe-column>
+                  <!-- <vxe-column field="sprint.name" title="所属迭代" min-width="100"></vxe-column> -->
                   <vxe-column field="closeDate" title="关闭时间" min-width="100"></vxe-column>
               </vxe-table>
             </div>

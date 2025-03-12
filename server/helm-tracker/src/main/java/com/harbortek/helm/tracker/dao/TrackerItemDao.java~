@@ -210,14 +210,10 @@ public class TrackerItemDao extends BaseJdbcDao {
                 conditionList.add(getField(TrackerItemEntity.Fields.trackerId).eq(trackerId));
         }
         if (sprintId != null) {
-            if(sprintId == -1){ //未规划至迭代
-                Field<JSON> externalArray = DSL.jsonArray(sprintIds.stream().map(t->DSL.inline(String.valueOf(t))).toList());
-                conditionList.add(DSL.field("JSON_OVERLAPS({0},COALESCE(JSON_EXTRACT({1},'$.*'),'[]'))",
-                        externalArray,getField(TrackerItemEntity.Fields.values)).eq(false));
-            }else if(sprintId != -2){ //指定迭代
-                Field<JSON> externalArray = DSL.jsonArray(DSL.inline(String.valueOf(sprintId)));
-                conditionList.add(DSL.field("JSON_OVERLAPS({0},COALESCE(JSON_EXTRACT({1},'$.*'),'[]'))",
-                        externalArray,getField(TrackerItemEntity.Fields.values)).eq(true));
+            if (sprintId.longValue() != 0) {
+                conditionList.add(getField(TrackerItemEntity.Fields.sprintId).eq(sprintId));
+            } else {
+                conditionList.add(getField(TrackerItemEntity.Fields.sprintId).isNull());
             }
         }
         if (StringUtils.isNotEmpty(keyword)) {

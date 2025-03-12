@@ -29,14 +29,15 @@ import com.harbortek.helm.util.SQLUtils;
 import com.harbortek.helm.util.SecurityUtils;
 import org.jooq.Condition;
 import org.jooq.Field;
+import org.jooq.JSON;
+import org.jooq.impl.DSL;
 import org.springframework.data.relational.core.query.Criteria;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.noCondition;
@@ -201,14 +202,20 @@ public class FilterUtils {
         return criteria;
     }
 
-    public static Condition getCondition(ObjectFilter filter) {
+    /**
+     *
+     * @param filter
+     * @param sprintIds 过滤sprint
+     * @return
+     */
+    public static Condition getCondition(ObjectFilter filter,List<Long> sprintIds) {
         List<ConditionGroup> groups = filter.getConditionGroups();
         Condition allGroup = noCondition();
         for (ConditionGroup group : groups) {
             Condition oneGroup = noCondition();
             boolean flag=false;
             for (FilterCondition filterCondition : group.getConditions()) {
-                Condition  condition =  filterConditionToCondition(filterCondition);
+                Condition  condition =  filterConditionToCondition(filterCondition,sprintIds);
                 if(condition != null){
                     oneGroup =  oneGroup.and(condition);
                     flag=true;
@@ -247,7 +254,7 @@ public class FilterUtils {
         return allGroup.and(groupCondition);
     }
 
-    private static Condition filterConditionToCondition(FilterCondition filterCondition) {
+    private static Condition filterConditionToCondition(FilterCondition filterCondition,List<Long> sprintIds) {
         Condition condition = noCondition();
         if (filterCondition.getField() == null) {
             return condition;
@@ -299,52 +306,50 @@ public class FilterUtils {
             }
         }
 
-        if (filterCondition.getOperator().equals("INCL")) {
+        if (filterCondition.getOperator().equals("INCL")) {//包含
             if ((filterCondition.getType().equals("USER")&&!"watchers".equals(filterCondition.getField())) ||
                     filterCondition.getType().equals("STATUS") ||
                     filterCondition.getType().equals("OPTIONS") || filterCondition.getType().equals("WORK_ITEM") ||
                     filterCondition.getType().equals("WORK_ITEM_TYPE") ||
                     filterCondition.getType().equals("STATUS_TYPE")) {
-                if (((ArrayList) filterCondition.getValue()).isEmpty()) {
-                    return condition;
-                }
                 List<Long> longs = new ArrayList<>();
                 ((ArrayList) filterCondition.getValue()).forEach(item -> {
                     longs.add(Long.parseLong(item.toString()));
                 });
                 condition = getField(filterCondition.getField()).in(longs);
             }else if(filterCondition.getType().equals("USER")){
-                if (((ArrayList) filterCondition.getValue()).isEmpty()) {
-                    return condition;
-                }
                 for (Object item : (ArrayList) filterCondition.getValue()) {
                     condition=condition.or(getField(filterCondition.getField()).like("%"+ item.toString()+"%"));
                 }
+            }else if(filterCondition.getType().equals("SPRINT")){
+                ArrayList<String> list = (ArrayList) filterCondition.getValue();
+                Field<JSON> externalArray = DSL.jsonArray(list.stream().map(t->DSL.inline(String.valueOf(t))).toList());
+                condition=DSL.field("JSON_OVERLAPS({0},COALESCE(JSON_EXTRACT({1},'$.*'),'[]'))",
+                        externalArray,getField(TrackerItemEntity.Fields.values)).eq(true);
             }else {
                 condition = getField(filterCondition.getField()).like("%"+ filterCondition.getValue().toString()+"%");
             }
-        } else if (filterCondition.getOperator().equals("EXCL")) {
+        } else if (filterCondition.getOperator().equals("EXCL")) { //不包含
             if ((filterCondition.getType().equals("USER")&&!"watchers".equals(filterCondition.getField())) || //屏蔽watchers
                     filterCondition.getType().equals("STATUS") ||
                     filterCondition.getType().equals("OPTIONS") || filterCondition.getType().equals("WORK_ITEM") ||
                     filterCondition.getType().equals("WORK_ITEM_TYPE") ||
                     filterCondition.getType().equals("STATUS_TYPE")) {
-                if (((ArrayList) filterCondition.getValue()).isEmpty()) {
-                    return condition;
-                }
                 List<Long> longs = new ArrayList<>();
                 ((ArrayList) filterCondition.getValue()).forEach(item -> {
                     longs.add(Long.parseLong(item.toString()));
                 });
                 condition = getField(filterCondition.getField()).notIn(longs);
             } else if(filterCondition.getType().equals("USER")){
-                if (((ArrayList) filterCondition.getValue()).isEmpty()) {
-                    return condition;
-                }
                 for (Object item : (ArrayList) filterCondition.getValue()) {
                     condition=condition.and(getField(filterCondition.getField())
                             .notLike("%"+ item.toString()+"%"));
                 }
+            } else if(filterCondition.getType().equals("SPRINT")){
+                ArrayList<String> list = (ArrayList) filterCondition.getValue();
+                Field<JSON> externalArray = DSL.jsonArray(list.stream().map(t->DSL.inline(String.valueOf(t))).toList());
+                condition=DSL.field("JSON_OVERLAPS({0},COALESCE(JSON_EXTRACT({1},'$.*'),'[]'))",
+                        externalArray,getField(TrackerItemEntity.Fields.values)).eq(false);
             } else {
                 condition = getField(filterCondition.getField())
                         .notLike("%"+ filterCondition.getValue().toString()+"%");
@@ -367,10 +372,22 @@ public class FilterUtils {
             Object[] objects = ((ArrayList) filterCondition.getValue()).toArray();
             condition = getField(filterCondition.getField()).between(objects[0], objects[1]);
         } else if (filterCondition.getOperator().equals("NULL")) {
-            condition = getField(filterCondition.getField()).eq("").or(
-                    getField(filterCondition.getField()).isNull());
+            if(filterCondition.getType().equals("SPRINT")){
+                Field<JSON> externalArray = DSL.jsonArray(sprintIds.stream().map(t->DSL.inline(String.valueOf(t))).toList());
+                condition = DSL.field("JSON_OVERLAPS({0},COALESCE(JSON_EXTRACT({1},'$.*'),'[]'))",
+                        externalArray,getField(TrackerItemEntity.Fields.values)).eq(false);
+            }else{
+                condition = getField(filterCondition.getField()).eq("").or(
+                        getField(filterCondition.getField()).isNull());
+            }
         } else if (filterCondition.getOperator().equals("NN")) {
-            condition = getField(filterCondition.getField()).ne("").and(getField(filterCondition.getField()).isNotNull());
+            if(filterCondition.getType().equals("SPRINT")){
+                Field<JSON> externalArray = DSL.jsonArray(sprintIds.stream().map(t->DSL.inline(String.valueOf(t))).toList());
+                condition = DSL.field("JSON_OVERLAPS({0},COALESCE(JSON_EXTRACT({1},'$.*'),'[]'))",
+                        externalArray,getField(TrackerItemEntity.Fields.values)).eq(true);
+            }else{
+                condition = getField(filterCondition.getField()).ne("").and(getField(filterCondition.getField()).isNotNull());
+            }
         }
         return condition;
     }

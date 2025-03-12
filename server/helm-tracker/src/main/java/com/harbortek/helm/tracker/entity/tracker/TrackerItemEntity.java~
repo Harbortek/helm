@@ -146,6 +146,6 @@ public class TrackerItemEntity extends BaseEntity {
 	}
 
 	public void setCustomerFieldValue(TrackerField field, Object value) {
-		values.put(field.getId(),String.valueOf(value));
+		values.put(field.getId(),value.toString());
 	}
 }

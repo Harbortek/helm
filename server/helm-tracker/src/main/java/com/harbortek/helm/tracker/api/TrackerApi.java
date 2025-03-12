@@ -166,7 +166,7 @@ public class TrackerApi {
 
     @Parameter(name="创建工作项属性")
     @RequestMapping(value = "/{trackerId}/fields", method = RequestMethod.POST)
-    ResponseEntity<Void> createTrackerField(@PathVariable(value = "trackerId", required = true) Long trackerId,
+    ResponseEntity<Void> createTrackerField(@PathVariable(value = "trackerId") Long trackerId,
                                             @RequestBody TrackerField trackerField) {
         trackerService.createTrackerField(trackerId, trackerField);
         return ResponseEntity.ok().build();

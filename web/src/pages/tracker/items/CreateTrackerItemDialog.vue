@@ -21,18 +21,18 @@
                             :trackerPermName="'ITEM_CREATE'"></tracker-select>
                     </a-form-model-item>
                 </a-col>
-                <a-col :span="12">
+                <!-- <a-col :span="12">
                     <a-form-model-item ref="sprintId" label="所属迭代" placeholder="工作项迭代" prop="sprintId">
                         <sprint-select v-model="formData.sprintId" :projectId="projectId"></sprint-select>
                     </a-form-model-item>
-                </a-col>
+                </a-col> -->
             </a-row>
 
             <a-row :gutter="15">
-                <a-col :span="f.inputType == 'WIKI' ? 24 : 12" v-for="(f, index) in customerFields" :key="f.id">
+                <a-col :span="f.inputType == 'WIKI' ? 24 : 12" v-for="(f) in customerFields" :key="f.id">
                     <a-form-model-item :label="f.name" :prop="f.name" :required="f.required">
-                        <ItemCustomFieldsShow :fields="f" v-model="formData.values[f.id]" :projectId="projectId" 
-                        :trackerId="trackerCopy?.id"></ItemCustomFieldsShow>
+                        <TrackerItemFields :fields="f" v-model="formData.values[f.id]" :projectId="projectId" 
+                        :trackerId="trackerCopy?.id"></TrackerItemFields>
                     </a-form-model-item>
                 </a-col>
             </a-row>
@@ -114,7 +114,7 @@
 <script>
 import {cloneDeep} from 'lodash'
 import moment from 'moment'
-import ItemCustomFieldsShow from '@/components/tool/ItemCustomFieldsShow.vue';
+import TrackerItemFields from '@/components/tool/TrackerItemFields.vue';
 import ProjectSelect from '../../../components/select/ProjectSelect.vue';
 import TrackerSelect from '../../../components/select/TrackerSelect.vue';
 import SprintSelect from '../../../components/select/SprintSelect.vue';
@@ -146,7 +146,7 @@ export default {
     components: {
         ProjectSelect, TrackerSelect, SprintSelect, ProjectUserSelect, PrioritySelect, RoleMembersTable,
         SimpleEditor, TrackerItemSelectModal, TrackerHyperlinks, TrackerTestCases, TrackerCycleProgress, TrackerRelatedItem,
-        TrackerRelatedWiki, TrackerAttachment, ItemCustomFieldsShow
+        TrackerRelatedWiki, TrackerAttachment, TrackerItemFields
     },
     data() {
         return {
@@ -247,6 +247,8 @@ export default {
                     this.trackerCopy = cloneDeep(this.tracker)
                     this.loadData();
                     this.initData();
+                    console.log("adfasdfa",this.formData.description)
+
                 }
             }
         },
@@ -265,7 +267,6 @@ export default {
         onChangeTracker(id) {
             findOneTracker(id).then(res => {
                 this.trackerCopy = res;
-                console.log("findONeTaracker", res)
             }).finally(() => {
                 let name = this.formData.name;
                 let sprintId = this.formData.sprintId;

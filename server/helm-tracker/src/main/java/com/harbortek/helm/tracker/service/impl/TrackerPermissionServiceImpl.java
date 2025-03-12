@@ -250,7 +250,7 @@ public class TrackerPermissionServiceImpl implements TrackerPermissionService {
         if (SpecialRole.ALL_USERS.equals(role.getSpecialRoleType())) {
             return true;
         } else if (SpecialRole.PROJECT_OWNER.equals(role.getSpecialRoleType())) {
-            ProjectEntity project = projectDao.findOneProject(tracker.getProjectId());
+            ProjectEntity project = projectDao.findOneProject(tracker.getProjectId(),SecurityUtils.getCurrentUser().getId());
             return Objects.equals(project.getOwnerId(), userId);
         } else if (SpecialRole.PROJECT_ALL_MEMBERS.equals(role.getSpecialRoleType())) {
             return ObjectUtils.isNotEmpty(roles);

@@ -62,11 +62,11 @@ public class ProjectDao extends BaseJdbcDao {
     }
 
 
-    public ProjectEntity findOneProject(Long id) {
+    public ProjectEntity findOneProject(Long id,Long userId) {
         SelectConditionStep<?> query = getDslContext().selectFrom(getTable(ProjectEntity.class))
                 .where(getField(BaseEntity.Fields.id).eq(id))
                 .and(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
-                .and("project_has_permission(id," + SecurityUtils.getCurrentUser().getId() + ",'"+ ProjectPermissions.PROJECT_VIEW+"') ");
+                .and("project_has_permission(id," + userId + ",'"+ ProjectPermissions.PROJECT_VIEW+"') ");
         return findFirst(query.getSQL(ParamType.INLINED),null, ProjectEntity.class);
 //        return findById(id, ProjectEntity.class);
     }
@@ -130,7 +130,7 @@ public class ProjectDao extends BaseJdbcDao {
         }
         //filter
         if (filter!=null){
-            conditionList.add(FilterUtils.getCondition(filter));
+            conditionList.add(FilterUtils.getCondition(filter,null));
         }
         //排序
         List<SortField<?>> sortFields = new ArrayList<>();

@@ -121,6 +121,7 @@ import {
 import {
   findEnumsByCode
 } from "@/services/system/EnumService";
+import { findSprints } from '@/services/plan/SprintService'
 import TrackerItemFilter from "../tool/TrackerItemFilter.vue";
 import Vue from "vue";
 
@@ -347,6 +348,12 @@ export default {
         resp.forEach(item => {
           this.tracker.meaning.push({ id: item.id, name: item.name })
         });
+      })
+      findSprints(this.projectId).then(resp => {
+          this.tracker.sprintId = Vue.observable([]);
+          resp.forEach(item => {
+              this.tracker.sprintId.push({ id: item.id, name: item.name })
+          });
       })
     },
     initTrackerFields() {

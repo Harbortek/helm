@@ -15,8 +15,8 @@ export function saveRolePerms(roleId, perms) {
 }
 export function isExistsByName(name, scope, ownerResourceId) {
   return request({
-    url: "sys/role/exist-name/",
-    method: METHOD.POST,
+    url: "sys/role/exist-name",
+    method: METHOD.GET,
     params: { name, scope, ownerResourceId },
   });
 }

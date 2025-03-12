@@ -41,7 +41,7 @@
 
                           <a-select @change="onChangeConditionOperator(condition)" 
                               v-if="condition.type=='STATUS'||condition.type=='OPTIONS'||condition.type=='WORK_ITEM'||
-                              condition.type=='WORK_ITEM_TYPE'||condition.type=='USER'||condition.type=='STATUS_TYPE'"
+                              condition.type=='WORK_ITEM_TYPE'||condition.type=='USER'||condition.type=='STATUS_TYPE'||condition.type=='SPRINT'"
                             v-model="condition.operator" style="width:90px;">
                               <a-select-option value="INCL">包含</a-select-option>
                               <a-select-option value="EXCL">不包含</a-select-option>
@@ -79,7 +79,7 @@
                             </a-select>
 
                             <a-select v-if="condition.type=='OPTIONS'||condition.type=='WORK_ITEM'||condition.type=='STATUS_TYPE'||
-                              condition.type=='WORK_ITEM_TYPE'" mode="multiple" optionFilterProp="label" 
+                              condition.type=='WORK_ITEM_TYPE'||condition.type=='SPRINT'" mode="multiple" optionFilterProp="label" 
                               v-model="condition.value" style="width: 260px" placeholder="请选择..." @change="onChangeConditionSelect(condition)">
                               <a-select-option v-for="status in tracker[condition.field]" :key="status.id" :label="status.name">
                                 <a-icon style="margin-right:5px;" v-if="status.icon" :component="status.icon"/>{{ status.name }}
@@ -160,7 +160,6 @@ export default {
     }
   },
   mounted() {
-    
   },
   watch: {
     activeKey: {
@@ -301,6 +300,7 @@ export default {
         })
         this.onChangeCondition(this.conditionGroups[idx].conditions[len],fields[0])   
       }
+      console.log("sdjpfapdjfasdf",this.conditionGroups,this.tracker)
          
     },
     refresh(){

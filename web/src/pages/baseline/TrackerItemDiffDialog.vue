@@ -85,7 +85,7 @@ export default {
                                     leftData.push({'left':element?.priority?.name,'item':'优先级'})
                                     leftData.push({'left':element?.owner?.name,'item':'负责人'})
                                     leftData.push({'left':element?.assignedTo?.name,'item':'分配给'})
-                                    leftData.push({'left':element?.sprint?.name,'item':'所属迭代'})
+                                    // leftData.push({'left':element?.sprint?.name,'item':'所属迭代'})
                                     leftData.push({'left':element?.lastModifiedBy?.name,'item':'修改者'})
                                     leftData.push({'left':this.tracker.trackerStatuses.find(v=>v.id==element?.statusId)?.name,'item':'状态'})
                                     // values //watchers relatedWorkItems //attachments
@@ -107,7 +107,7 @@ export default {
                                     rightData.push({'right':element?.priority?.name,'item':'优先级'})
                                     rightData.push({'right':element?.owner?.name,'item':'负责人'})
                                     rightData.push({'right':element?.assignedTo?.name,'item':'分配给'})
-                                    rightData.push({'right':element?.sprint?.name,'item':'所属迭代'})
+                                    // rightData.push({'right':element?.sprint?.name,'item':'所属迭代'})
                                     rightData.push({'right':element?.lastModifiedBy?.name,'item':'修改者'})
                                     rightData.push({'right':this.tracker.trackerStatuses.find(v=>v.id==element?.statusId)?.name,'item':'状态'})
                                     for(let item in element){

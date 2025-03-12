@@ -97,11 +97,11 @@
 
 
                 </a-layout-sider>
-                <a-layout-content class="layout-content">
+                <a-layout-content class="layout-content" style="position:relative">
                     <div v-show="sprintType" class="toolbar-header" style="height:5%">
                         <div class="title">{{ sprintType == 'All' ? '所有工作项' : '未规划工作项' }}</div>
                     </div>
-                    <div style="height:5%" v-if="sprintId && sprintId != '0'" class="toolbar-header">
+                    <div style="height:5%" v-if="sprintId && sprintId > 0" class="toolbar-header">
                         <a-popover v-model="popoverVisible" trigger="click" placement="bottom">
                             <template slot="content">
                                 <a-input-search v-model="keyword" placeholder="搜索迭代" style="width: 260px" />
@@ -126,7 +126,7 @@
                             <a-tab-pane key="code" tab="代码"></a-tab-pane>
                         </a-tabs>
 
-                        <div style="position: absolute;right: 20px;">
+                        <div style="position: absolute;right: 10px;">
                             <vxe-button v-if="currentSprint?.meaning != 'ENDED'" status="text"
                                 v-action="'PAGE_WRITE|'+pageId" @click="onClickConvertSprint">
                                 {{ currentSprint?.meaning == 'NOT_STARTED' ? '开始' : '完成' }}迭代</vxe-button>
@@ -371,10 +371,10 @@ export default {
 
             if (newValue.id == '1') {
                 this.sprintType = 'Unplanned'
-                this.sprintId = '0';//
+                this.sprintId = '-1';
             } else {
                 this.sprintType = 'All'
-                this.sprintId = '';
+                this.sprintId = '-2';
             }
 
             this.$refs.sprintTable.clearCurrentRow()
