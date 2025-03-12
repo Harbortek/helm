@@ -16,17 +16,25 @@
 
 package com.harbortek.helm.tracker.entity.smartdoc.element.parser.block;
 
+import com.harbortek.helm.common.vo.IdNameReference;
+import com.harbortek.helm.system.vo.EnumItemVo;
 import com.harbortek.helm.tracker.entity.block.*;
 
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.html2po.HtmlParser;
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.html2po.ParserRegister;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.list.ListHtmlParserConf;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.list.ListSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph.ParagraphHtmlParserConf;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.header.*;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph.ParagraphSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.title.TitleSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
+import com.harbortek.helm.tracker.vo.ProjectVo;
+import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
+import com.harbortek.helm.tracker.vo.tracker.TrackerVo;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -34,11 +42,13 @@ import org.jsoup.nodes.TextNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class Block2Node {
     static {
         ParserRegister.registerParseStyleHtmlHandler(new DefaultParserStyleHtmlFn());
         ParserRegister.registerParseElemHtmlConf(new ParagraphHtmlParserConf());
+        ParserRegister.registerParseElemHtmlConf(new ListHtmlParserConf());
     }
 
     public static SlateNode parse(DocBlock docBlock) {
@@ -52,25 +62,47 @@ public class Block2Node {
                 SlateNode parseElemHtml = HtmlParser.parseElemHtml(element);
                 children.add(parseElemHtml);
             }
-
             titleSlateElement.setChildren(children);
+            titleSlateElement.setId(docBlock.getId());
             return titleSlateElement;
         } else if (blockData instanceof ParagraphBlockData) {
             ParagraphBlockData paragraphBlockData = (ParagraphBlockData) blockData;
-            ParagraphSlateElement<SlateNode> paragraphSlateElement = new ParagraphSlateElement<>();
             List<SlateNode> children = new ArrayList<>();
-            for (Node node : Jsoup.parse(paragraphBlockData.getText()).body().childNodes()) {
-                Element element = wrapperText(node);
-                SlateNode parseElemHtml = HtmlParser.parseElemHtml(element);
-                children.add(parseElemHtml);
+            List<Node> all = Jsoup.parse(paragraphBlockData.getText()).body().childNodes();
+            if (all.isEmpty()) {
+                return null;
             }
-            paragraphSlateElement.setChildren(children);
-            return paragraphSlateElement;
+            //ul,ol 特殊处理
+            if (all.get(0) instanceof Element && ((Element) all.get(0)).is("ul,ol")) {
+                Element firstChild = (Element) all.get(0);
+                ListSlateElement listSlateElement = new ListSlateElement<>();
+                for (Node node : firstChild.childNodes()) {
+                    Element element = wrapperText(node);
+                    SlateNode parseElemHtml = HtmlParser.parseElemHtml(element);
+                    children.add(parseElemHtml);
+                }
+                listSlateElement.setOrdered(firstChild.tagName().equals("ol"));
+                listSlateElement.setChildren(children);
+                listSlateElement.setId(docBlock.getId());
+                return listSlateElement;
+            } else {
+                ParagraphSlateElement<SlateNode> paragraphSlateElement = new ParagraphSlateElement<>();
+                for (Node node : Jsoup.parse(paragraphBlockData.getText()).body().childNodes()) {
+                    Element element = wrapperText(node);
+
+                    SlateNode parseElemHtml = HtmlParser.parseElemHtml(element);
+                    children.add(parseElemHtml);
+                }
+                paragraphSlateElement.setChildren(children);
+                paragraphSlateElement.setId(docBlock.getId());
+                return paragraphSlateElement;
+            }
         } else if (blockData instanceof TrackerItemBlockData) {
             TrackerItemBlockData trackerItemBlockData = (TrackerItemBlockData) blockData;
             TrackerItemSlateElement<SlateNode> trackerItemSlateElement = new TrackerItemSlateElement<>();
             List<SlateNode> children = new ArrayList<>();
-            trackerItemSlateElement.setRef(trackerItemBlockData.getRefId().toString());
+            String refId = trackerItemBlockData.getRefId() == null ? null : trackerItemBlockData.getRefId().toString();
+            trackerItemSlateElement.setRef(refId);
             for (Node node : Jsoup.parse(trackerItemBlockData.getName()).body().childNodes()) {
                 TrackerItemSlateElement.TrackerItemTitleSlateElement trackerItemTitleSlateElement = new TrackerItemSlateElement.TrackerItemTitleSlateElement();
                 children.add(trackerItemTitleSlateElement);
@@ -79,16 +111,17 @@ public class Block2Node {
                 SlateNode parseElemHtml = HtmlParser.parseElemHtml(element);
                 subChildren.add(parseElemHtml);
                 trackerItemTitleSlateElement.setChildren(subChildren);
-                trackerItemTitleSlateElement.setRef(trackerItemBlockData.getRefId().toString());
+                trackerItemTitleSlateElement.setRef(refId);
             }
             TrackerItemSlateElement.TrackerItemDescriptionSlateElement trackerItemDescriptionSlateElement = new TrackerItemSlateElement.TrackerItemDescriptionSlateElement();
             children.add(trackerItemDescriptionSlateElement);
             List<SlateNode> subChildren = new ArrayList<>();
             trackerItemDescriptionSlateElement.setChildren(subChildren);
-            trackerItemDescriptionSlateElement.setRef(trackerItemBlockData.getRefId().toString());
+            trackerItemDescriptionSlateElement.setRef(refId);
 
             Element container = new Element("span");
-            for (Node node : Jsoup.parse(trackerItemBlockData.getText()).body().childNodes()) {
+            String txt = StringUtils.isEmpty(trackerItemBlockData.getText()) ? "" : trackerItemBlockData.getText();
+            for (Node node : Jsoup.parse(txt).body().childNodes()) {
                 Element element = wrapperText(node);
                 container.appendChild(element);
             }
@@ -104,8 +137,11 @@ public class Block2Node {
             SlateText text = new SlateText("");
 //            p.getChildren().add(text);
             subChildren2.add(text);
+
             trackerItemExtraSlateElement.setChildren(subChildren2);
-            trackerItemExtraSlateElement.setRef(trackerItemBlockData.getRefId().toString());
+            trackerItemExtraSlateElement.setRef(refId);
+            trackerItemSlateElement.setTrackerItem(fillTrackerItemVo(trackerItemBlockData.getTrackerItem()));
+            trackerItemSlateElement.setId(docBlock.getId());
             return trackerItemSlateElement;
         } else if (blockData instanceof HeaderBlockData) {
             HeaderBlockData headerBlockData = (HeaderBlockData) blockData;
@@ -130,6 +166,7 @@ public class Block2Node {
                 children.add(parseElemHtml);
             }
             headerSlateElement.setChildren(children);
+            headerSlateElement.setId(docBlock.getId());
             return headerSlateElement;
         } else {
             return null;
@@ -144,5 +181,34 @@ public class Block2Node {
         } else {
             return (Element) textNode;
         }
+    }
+
+    private static TrackerItemVo fillTrackerItemVo(TrackerItemBlockData.InnerTrackerItemVo trackerItemVo) {
+        TrackerItemVo trackerItemVo2 = new TrackerItemVo();
+        IdNameReference<ProjectVo> project = new IdNameReference<>();
+        project.setId(trackerItemVo.getProjectId());
+        trackerItemVo2.setProject(project);
+        trackerItemVo2.setId(trackerItemVo.getId());
+        IdNameReference<TrackerVo> trackerVo = new IdNameReference<>();
+        trackerVo.setId(trackerItemVo.getTrackerId());
+        trackerVo.setIcon(trackerItemVo.getTrackerIcon());
+        trackerVo.setId(trackerItemVo.getTrackerId());
+        trackerItemVo2.setTracker(trackerVo);
+
+        trackerItemVo2.setRealEndDate(trackerItemVo.getRealEndDate());
+        trackerItemVo2.setItemNo(trackerItemVo.getItemNo());
+        trackerItemVo2.setAssignedDate(trackerItemVo.getAssignedDate());
+
+        trackerItemVo2.setProgress(trackerItemVo.getProgress());
+        trackerItemVo2.setCloseDate(trackerItemVo.getCloseDate());
+        trackerItemVo2.setEstimateWorkingHours(trackerItemVo.getEstimateWorkingHours());
+        trackerItemVo2.setPlanEndDate(trackerItemVo.getPlanEndDate());
+        trackerItemVo2.setPlanStartDate(trackerItemVo.getPlanStartDate());
+        trackerItemVo2.setRegisteredWorkingHours(trackerItemVo.getRegisteredWorkingHours());
+        trackerItemVo2.setRemainingWorkingHours(trackerItemVo.getRemainingWorkingHours());
+        trackerItemVo2.setRevision(trackerItemVo.getRevision());
+        trackerItemVo2.setStatusId(trackerItemVo.getStatusId());
+        trackerItemVo2.setValues(trackerItemVo.getValues());
+        return trackerItemVo2;
     }
 }

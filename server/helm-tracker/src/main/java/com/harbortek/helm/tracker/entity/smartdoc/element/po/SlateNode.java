@@ -16,9 +16,13 @@
 
 package com.harbortek.helm.tracker.entity.smartdoc.element.po;
 
+import cn.hutool.core.lang.id.NanoId;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.style.SlateStyle;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.annotation.Transient;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -33,6 +37,7 @@ import java.util.List;
 public abstract class SlateNode implements Serializable {
     protected String type;
 
+    private String id ;
     protected List<SlateStyle> styles = new ArrayList();
 
     abstract public String toHtml();
@@ -43,5 +48,20 @@ public abstract class SlateNode implements Serializable {
             html = style.styleToHtml(this, html);
         }
         return html;
+    }
+
+    public void setId(String id) {
+        if (StringUtils.isEmpty(id)) {
+            this.id = NanoId.randomNanoId();
+        } else {
+            this.id = id;
+        }
+    }
+
+    public String getId() {
+        if (StringUtils.isEmpty(id)) {
+            this.id = NanoId.randomNanoId();
+        }
+        return id;
     }
 }

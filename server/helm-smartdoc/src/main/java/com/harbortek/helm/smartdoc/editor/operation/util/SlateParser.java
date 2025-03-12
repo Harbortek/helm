@@ -19,6 +19,7 @@ package com.harbortek.helm.smartdoc.editor.operation.util;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONNull;
 import cn.hutool.json.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
@@ -26,14 +27,17 @@ import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.*;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.header.*;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.list.ListSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph.ParagraphSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.table.TableSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.title.TitleSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.style.*;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
+import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
 import com.harbortek.helm.util.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,6 +54,9 @@ public class SlateParser {
     public static List<SlateNode> parseArray(JSONArray jsonArray) throws IOException {
         List<SlateNode> slateNodes = new ArrayList<>();
         for (Object item : jsonArray) {
+            if (item instanceof JSONNull) {
+                continue;
+            }
             JSONObject obj = (JSONObject) item;
             SlateNode child = parseOne(obj);
             slateNodes.add(child);
@@ -109,12 +116,18 @@ public class SlateParser {
             node = new TrackerItemSlateElement.TrackerItemExtraSlateElement();
         } else if (SlateElements.LINK.equals(type)) {
             node = new LinkSlateElement();
+        } else if (SlateElements.LIST.equals(type)) {
+            node = new ListSlateElement();
         } else {
             node = new SlateText();
         }
         BeanUtil.fillBeanWithMap(obj, node, CopyOptions.create().ignoreError().setIgnoreProperties(
                 "styles"
         ));
+        if (SlateElements.TRACKER_ITEM.equals(type)) {
+            TrackerItemSlateElement item = (TrackerItemSlateElement)node;
+            item.setTrackerItem(JsonUtils.toObject(obj.getStr("trackerItem"), TrackerItemVo.class));
+        }
         node.setStyles(styles);
         String children = obj.getStr("children");
         if (node instanceof SlateElement<?>) {

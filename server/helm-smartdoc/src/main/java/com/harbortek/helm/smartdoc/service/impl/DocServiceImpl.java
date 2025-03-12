@@ -18,6 +18,7 @@ package com.harbortek.helm.smartdoc.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HtmlUtil;
+import cn.hutool.json.JSONArray;
 import com.harbortek.helm.common.vo.IdNameReference;
 import com.harbortek.helm.system.service.EnumService;
 import com.harbortek.helm.system.vo.EnumItemVo;
@@ -42,6 +43,7 @@ import com.harbortek.helm.tracker.vo.pages.ProjectPageVo;
 import com.harbortek.helm.tracker.vo.tracker.TrackerVo;
 import com.harbortek.helm.util.DataUtils;
 import com.harbortek.helm.util.IDUtils;
+import com.harbortek.helm.util.JsonUtils;
 import com.harbortek.helm.util.ObjectUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -49,6 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Struct;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -335,23 +338,6 @@ public class DocServiceImpl implements DocService {
     @Override
     @Transactional
     public DocEntity saveBlocksAndTrackerItems(Long projectId, Long pageId, List<SlateNode> docBlocks, List<DocBlockLink> docBlockLinks) {
-        //拿到库存 trackerItem
-        Map<Long, TrackerItemVo> id2TrackerItemVo = new HashMap<>();
-        for (int i = 0; i < docBlocks.size(); i++) {
-            SlateNode docBlock = docBlocks.get(i);
-            if (docBlock instanceof TrackerItemSlateElement<?>) {
-                Long refId = Long.parseLong(((TrackerItemSlateElement<?>) docBlock).getRef());
-                id2TrackerItemVo.put(refId, null);
-            }
-        }
-        List<Long> refIds = new ArrayList<>();
-        for (Long key : id2TrackerItemVo.keySet()) {
-            refIds.add(key);
-        }
-        List<TrackerItemVo> trackerItemVos = refIds.size() > 0 ? trackerItemService.findTrackerItemByIds(refIds) : new ArrayList<>();
-        for (TrackerItemVo trackerItemVo : trackerItemVos) {
-            id2TrackerItemVo.put(trackerItemVo.getId(), trackerItemVo);
-        }
         //saveTrackerItems (新增、更新、删除)
         for (int i = 0; i < docBlocks.size(); i++) {
             SlateNode curBlock = docBlocks.get(i);
@@ -359,25 +345,37 @@ public class DocServiceImpl implements DocService {
                 continue;
             }
             TrackerItemSlateElement docBlock = (TrackerItemSlateElement) curBlock;
-            Long refId = Long.parseLong(docBlock.getRef());
-            TrackerItemVo trackerItemVo = id2TrackerItemVo.get(refId);
+            TrackerItemVo trackerItemVo = docBlock.getTrackerItem();
             trackerItemVo = this.block2TrackerItem(projectId, Node2Block.parse(docBlock), trackerItemVo);
             //工作项关联wiki
             if (!trackerItemVo.getRelatedWikis().contains(pageId)) {
                 trackerItemVo.getRelatedWikis().add(pageId);
             }
-            if (refId == null) {
-                //新增
-                trackerItemVo = trackerItemService.createTrackerItem(trackerItemVo);
-                refId = trackerItemVo.getId();
-            } else {
-                //更新
-                trackerItemService.updateTrackerItem(trackerItemVo);
-            }
-            //更新map
-            id2TrackerItemVo.put(refId, trackerItemVo);
+            for (Object v : docBlock.getChildren()) {
+                if (v instanceof TrackerItemSlateElement.TrackerItemTitleSlateElement) {
+                    String baseStr = HtmlUtil.cleanHtmlTag(((TrackerItemSlateElement.TrackerItemTitleSlateElement) v).toHtml());
+                    trackerItemVo.setName(baseStr);
+                } else if (v instanceof TrackerItemSlateElement.TrackerItemDescriptionSlateElement) {
+//                    String baseStr = StringUtils.trim(
+//                            HtmlUtil.cleanHtmlTag(((TrackerItemSlateElement.TrackerItemDescriptionSlateElement) v).toHtml())
+//                    );
+                    trackerItemVo.setDescription(JsonUtils.toJSONString(((TrackerItemSlateElement.TrackerItemDescriptionSlateElement) v).getChildren()));
+                } else if (v instanceof TrackerItemSlateElement.TrackerItemExtraSlateElement) {
 
-            docBlock.setRef(trackerItemVo.getId().toString());
+                }
+            }
+            trackerItemVo = trackerItemService.createTrackerItem(trackerItemVo);
+            String refId = trackerItemVo.getId().toString();
+            docBlock.getChildren().forEach(v -> {
+                if (v instanceof TrackerItemSlateElement.TrackerItemTitleSlateElement) {
+                    ((TrackerItemSlateElement.TrackerItemTitleSlateElement) v).setRef(refId);
+                } else if (v instanceof TrackerItemSlateElement.TrackerItemDescriptionSlateElement) {
+                    ((TrackerItemSlateElement.TrackerItemDescriptionSlateElement) v).setRef(refId);
+                } else if (v instanceof TrackerItemSlateElement.TrackerItemExtraSlateElement) {
+                    ((TrackerItemSlateElement.TrackerItemExtraSlateElement) v).setRef(refId);
+                }
+            });
+            docBlock.setRef(refId);
             docBlock.setTrackerItem(trackerItemVo);
         }
 
@@ -390,23 +388,6 @@ public class DocServiceImpl implements DocService {
             projectPageService.updateProjectPageBasicInfo(oneProjectPage);
         }
 
-        List<Long> oldRefIds = new ArrayList<>();
-        if (ObjectUtils.isNotEmpty(docEntity.getBlocks())) {
-            docEntity.getBlocks().forEach(docBlock -> {
-                if (!id2TrackerItemVo.keySet().contains(docBlock.getData().getRefId())) {
-                    if (docBlock.getData() instanceof TrackerItemBlockData) {
-                        TrackerItemBlockData trackerItemBlockData = (TrackerItemBlockData) (docBlock.getData());
-                        //link 不删
-                        if (!trackerItemBlockData.getIsTrackerItemLink()) {
-                            oldRefIds.add(docBlock.getData().getRefId());
-                        }
-                    } else {
-                        oldRefIds.add(docBlock.getData().getRefId());
-                    }
-                }
-            });
-        }
-        trackerItemService.batchDeleteTrackerItem(oldRefIds);
         //save
         docEntity.setElements(docBlocks);
 //        docEntity.setPageId(pageId);
@@ -416,36 +397,8 @@ public class DocServiceImpl implements DocService {
 //        docEntity.setName(projectPageVo.getName());
 
         docEntity = docDao.saveDoc(docEntity);
-
-        if (docBlockLinks == null) {
-            this.buildLinks(projectId, docEntity, id2TrackerItemVo);
-            return docEntity;
-        }
-
-        //以下根据 docBlockLinks 构建工作项关系
-        Map<String, TrackerLinkTypeVo> trackerLinkTypeMap = trackerLinkTypeService.findLinkTypes(projectId).stream()
-                .collect(Collectors.toMap(TrackerLinkTypeVo::getCode, Function.identity()));
-        //        Map<Long, TrackerItemVo> trackerItemVoMap = trackerItemService.findTrackerItemByIds
-//                        (docEntity.getBlocks().stream().map(docBlock -> docBlock.getData().getRefId()).collect(Collectors.toList()))
-//                .stream().collect(Collectors.toMap(TrackerItemVo::getId, Function.identity()));
-        Map<String, Long> blockRefMap = docEntity.getBlocks().stream()
-                .collect(Collectors.toMap(docBlock -> docBlock.getId(), docBlock -> docBlock.getData().getRefId()));
-
-        List<TrackerLinkEntity> toUpdateLinks = new ArrayList<>();
-        docBlockLinks.stream().
-
-                forEach(docBlockLink ->
-
-                {
-                    toUpdateLinks.add(TrackerLinkEntity.builder()
-                            .id(IDUtils.getId())
-                            .sourceItemId(blockRefMap.get(docBlockLink.getSourceBlockId()))
-                            .targetItemId(blockRefMap.get(docBlockLink.getTargetBlockId()))
-                            .linkTypeId(trackerLinkTypeMap.get(docBlockLink.getLinkCode()).getId())
-                            .build());
-                });
-        trackerLinkDao.batchCreateTrackerLinks(toUpdateLinks);
         return docEntity;
+
     }
 
     public List<TrackerItemVo> findTrackerItemByIds(List<Long> itemIds) {

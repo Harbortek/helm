@@ -51,6 +51,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +80,10 @@ public class DocApi {
         if (docVo.getElements() == null || docVo.getElements().isEmpty()) {
             docVo.setElements(new ArrayList<SlateNode>());
             for (DocBlock docBlock : docVo.getBlocks()) {
-                docVo.getElements().add(Block2Node.parse(docBlock));
+                SlateNode node = Block2Node.parse(docBlock);
+                if (node != null) {
+                    docVo.getElements().add(node);
+                }
             }
         }
         if (!docVo.getElements().isEmpty()) {
@@ -231,7 +235,7 @@ public class DocApi {
         DocVo docVo = docService.findDocByPageId(pageId);
 
         String fileName = docVo.getName() + ".docx";
-        String contentDisposition = "attachment; filename=\"" + URLEncoder.encode(fileName,StandardCharsets.UTF_8)+"\"";
+        String contentDisposition = "attachment; filename=\"" + URLEncoder.encode(fileName, StandardCharsets.UTF_8) + "\"";
 
         response.setHeader("Content-disposition", contentDisposition);
         response.setHeader(HttpHeaders.CONTENT_TYPE,

@@ -24,7 +24,7 @@ public class SlateElements {
     public static final String PARAGRAPH = "paragraph";
     public static final String TEXT = "text";
     public static final String PURE_TEXT = "pure-text";
-
+    public static final String LIST = "list-item";
     public static final String FontSizeAndFamilySlateText = "font-size-family-text";
     public static final String EmptySlateText = "empty-text";
     public static final String StyleSlateText = "style-text";

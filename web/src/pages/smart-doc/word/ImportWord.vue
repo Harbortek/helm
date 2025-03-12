@@ -100,7 +100,7 @@ export default {
             }
             let content = cloneDeep(this.content)
             content.rules = this.rules
-            content.blocksJSON = JSON.stringify(this.$refs.liveDoc.doc.editorBlocks)
+            content.blocksJSON = JSON.stringify(this.$refs.liveDoc.doc.elements)
             content.autoNumber = this.autoNumber
             this.loading = true
             updateWordImportJob(this.pageId, content).then(resp => {

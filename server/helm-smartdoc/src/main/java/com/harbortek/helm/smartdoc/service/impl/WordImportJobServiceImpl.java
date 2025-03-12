@@ -16,6 +16,7 @@
 
 package com.harbortek.helm.smartdoc.service.impl;
 
+import cn.hutool.http.HtmlUtil;
 import com.harbortek.helm.common.exception.ServiceException;
 import com.harbortek.helm.common.vo.IdNameReference;
 import com.harbortek.helm.smartdoc.constants.ConditionMatchTypes;
@@ -185,7 +186,11 @@ public class WordImportJobServiceImpl implements WordImportJobService {
                 } else {
                     if (!isToc(element)) {
                         ParagraphBlockData data = new ParagraphBlockData();
-                        data.setText(element.outerHtml());
+                        if (element.is("ul,ol")) {
+                            data.setText(element.outerHtml());
+                        } else {
+                            data.setText(element.html());
+                        }
                         DocBlock block = new DocBlock(IDUtils.getShortId(), BlockTypes.PARAGRAPH, data);
                         blocks.add(block);
                     }
@@ -197,7 +202,11 @@ public class WordImportJobServiceImpl implements WordImportJobService {
 
             List<SlateNode> elements = new ArrayList<>();
             for (DocBlock block : blocks) {
+
                 SlateNode node = Block2Node.parse(block);
+                if (node == null) {
+                    continue;
+                }
                 elements.add(node);
             }
             jobEntity.setBlocksJSON(JsonUtils.toJSONString(elements));
@@ -349,8 +358,13 @@ public class WordImportJobServiceImpl implements WordImportJobService {
                 project);
         TrackerItemBlockData itemBlockData = new TrackerItemBlockData();
         itemBlockData.setTrackerItem(docService.fillTrackerItemVo(trackerItem));
-        itemBlockData.setName(trackerItem.getName());
-        itemBlockData.setText(trackerItem.getDescription());
+        String baseStr = HtmlUtil.cleanHtmlTag(trackerItem.getName());
+        itemBlockData.setName(baseStr.length() > 100 ? baseStr.substring(0, 100) : baseStr);
+        if (StringUtils.isEmpty(trackerItem.getDescription())) {
+            itemBlockData.setText(baseStr);
+        }
+        trackerItem.setName(itemBlockData.getName());
+        trackerItem.setDescription(itemBlockData.getText());
         return new DocBlock(IDUtils.getShortId(), String.valueOf(trackerItem.getTracker().getId()),
                 itemBlockData);
     }

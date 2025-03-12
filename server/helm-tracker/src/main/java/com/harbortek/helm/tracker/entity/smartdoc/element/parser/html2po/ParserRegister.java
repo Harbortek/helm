@@ -55,7 +55,7 @@ public class ParserRegister {
     }
     // Common text tags
     public static final String[] TEXT_TAGS = {
-            "span", "b", "strong", "i", "em", "s", "strike", "u", "font", "sub", "sup"
+            "span", "b", "strong", "i", "em", "s", "strike", "u", "font", "sub", "sup","li"
     };
 
     public static boolean isVoid(SlateNode node) {

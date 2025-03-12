@@ -76,12 +76,12 @@ module.exports = {
       hints: false,
     };
     config.plugins.push(
-      new ThemeColorReplacer({
-        fileName: "css/theme-colors-[contenthash:8].css",
-        matchColors: getThemeColors(),
-        injectCss: true,
-        resolveCss,
-      })
+      // new ThemeColorReplacer({
+      //   fileName: "css/theme-colors-[contenthash:8].css",
+      //   matchColors: getThemeColors(),
+      //   injectCss: true,
+      //   resolveCss,
+      // })
     );
     // Ignore all locale files of moment.js
     config.plugins.push(new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/));

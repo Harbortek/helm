@@ -22,11 +22,33 @@ import com.harbortek.helm.tracker.entity.block.*;
 
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.header.*;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.list.ListSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph.ParagraphSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.title.TitleSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
+import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+
+import java.util.List;
 
 public class Node2Block {
+
+    private static String unwrapper(String html) {
+        List<Node> all = Jsoup.parse(html).body().childNodes();
+        if (all.isEmpty()) {
+            return "";
+        }
+        Node elem = all.get(0);
+        StringBuilder sb = new StringBuilder();
+        if (elem != null) {
+            elem.childNodes().forEach(node -> {
+                sb.append(node.outerHtml());
+            });
+        }
+        return sb.toString();
+    }
 
     public static DocBlock parse(SlateNode node) {
         DocBlock docBlock = null;
@@ -35,7 +57,9 @@ public class Node2Block {
 
             docBlock = DocBlock.builder()
                     .type(BlockTypes.TITLE)
-                    .data(TitleBlockData.builder().text(titleSlateElement.toHtml()).build())
+                    .data(TitleBlockData.builder().text(
+                            unwrapper(titleSlateElement.toHtml())
+                    ).build())
                     .build();
         } else if (node instanceof HeaderSlateElement<?>) {
             HeaderSlateElement<?> headerSlateElement = (HeaderSlateElement<?>) node;
@@ -53,24 +77,42 @@ public class Node2Block {
             }
             docBlock = DocBlock.builder()
                     .type(BlockTypes.HEADING)
-                    .data(HeaderBlockData.builder().level(level).text(headerSlateElement.toHtml()).build())
+                    .data(HeaderBlockData.builder().level(level).text(
+                                    unwrapper(headerSlateElement.toHtml()))
+                            .build())
                     .build();
-        } else if (node instanceof ParagraphSlateElement<?>) {
-            ParagraphSlateElement<?> paragraphSlateElement = (ParagraphSlateElement<?>) node;
-            docBlock = DocBlock.builder()
-                    .type(BlockTypes.PARAGRAPH)
-                    .data(ParagraphBlockData.builder().text(paragraphSlateElement.toHtml()).build())
-                    .build();
+
         } else if (node instanceof TrackerItemSlateElement<?>) {
             TrackerItemSlateElement<?> trackerItemSlateElement = (TrackerItemSlateElement<?>) node;
-            Long refId = Long.parseLong(trackerItemSlateElement.getRef());
+            Long refId = null;
+            if (trackerItemSlateElement.getRef() != null) {
+                refId = Long.parseLong(trackerItemSlateElement.getRef());
+            }
+            TrackerItemVo trackerItemVo = trackerItemSlateElement.getTrackerItem();
+            String type = BlockTypes.TRACKER_ITEM;
+            if (trackerItemVo != null) {
+                type = trackerItemVo.getTracker().getId().toString();
+            }
             docBlock = DocBlock.builder()
-                    .type(BlockTypes.TRACKER_ITEM)
+                    .type(type)
                     .data(TrackerItemBlockData.builder().refId(refId).build())
                     .build();
+        } else if (node instanceof ListSlateElement<?>) {
+            ListSlateElement<?> listSlateElement = (ListSlateElement<?>) node;
+            docBlock = DocBlock.builder()
+                    .type(BlockTypes.PARAGRAPH)
+                    .data(ParagraphBlockData.builder().text(
+                            unwrapper((listSlateElement.toHtml()))).build())
+                    .build();
+        } else {
+            docBlock = DocBlock.builder()
+                    .type(BlockTypes.PARAGRAPH)
+                    .data(ParagraphBlockData.builder().text(
+                            unwrapper((node.toHtml()))).build())
+                    .build();
         }
-        docBlock.setId(NanoId.randomNanoId());
+        docBlock.setId(node.getId());
         return docBlock;
-    }
 
+    }
 }
