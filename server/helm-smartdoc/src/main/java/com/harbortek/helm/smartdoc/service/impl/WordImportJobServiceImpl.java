@@ -16,6 +16,7 @@
 
 package com.harbortek.helm.smartdoc.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HtmlUtil;
 import com.harbortek.helm.common.exception.ServiceException;
 import com.harbortek.helm.common.vo.IdNameReference;
@@ -358,7 +359,9 @@ public class WordImportJobServiceImpl implements WordImportJobService {
                 project);
         TrackerItemBlockData itemBlockData = new TrackerItemBlockData();
         itemBlockData.setTrackerItem(docService.fillTrackerItemVo(trackerItem));
-        String baseStr = HtmlUtil.cleanHtmlTag(trackerItem.getName());
+        String baseStr = StrUtil.removeAllLineBreaks(
+                HtmlUtil.cleanHtmlTag(trackerItem.getName())
+        );
         itemBlockData.setName(baseStr.length() > 100 ? baseStr.substring(0, 100) : baseStr);
         if (StringUtils.isEmpty(trackerItem.getDescription())) {
             itemBlockData.setText(baseStr);

@@ -353,7 +353,9 @@ public class DocServiceImpl implements DocService {
             }
             for (Object v : docBlock.getChildren()) {
                 if (v instanceof TrackerItemSlateElement.TrackerItemTitleSlateElement) {
-                    String baseStr = HtmlUtil.cleanHtmlTag(((TrackerItemSlateElement.TrackerItemTitleSlateElement) v).toHtml());
+                    String baseStr = StrUtil.removeAllLineBreaks(
+                            HtmlUtil.cleanHtmlTag(((TrackerItemSlateElement.TrackerItemTitleSlateElement) v).toHtml())
+                    );
                     trackerItemVo.setName(baseStr);
                 } else if (v instanceof TrackerItemSlateElement.TrackerItemDescriptionSlateElement) {
 //                    String baseStr = StringUtils.trim(

@@ -126,6 +126,13 @@ public class Block2Node {
                 container.appendChild(element);
             }
             SlateNode parseElemHtml = HtmlParser.parseElemHtml(container);
+//            if (parseElemHtml instanceof SlateText) {
+//                ParagraphSlateElement pItem = new ParagraphSlateElement<>();
+//                pItem.getChildren().add(parseElemHtml);
+//                subChildren.add(pItem);
+//            } else {
+//                subChildren.add(parseElemHtml);
+//            }
             subChildren.add(parseElemHtml);
             trackerItemSlateElement.setChildren(children);
 
