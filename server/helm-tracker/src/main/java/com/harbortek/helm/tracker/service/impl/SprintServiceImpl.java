@@ -17,19 +17,26 @@
 package com.harbortek.helm.tracker.service.impl;
 
 import com.harbortek.helm.common.entity.BaseEntity;
+import com.harbortek.helm.common.vo.IdNameVo;
 import com.harbortek.helm.system.service.EnumService;
 import com.harbortek.helm.tracker.constants.EnumCodes;
 import com.harbortek.helm.tracker.constants.ProjectStatusMeaning;
 import com.harbortek.helm.tracker.dao.ProjectDao;
 import com.harbortek.helm.tracker.dao.SprintDao;
+import com.harbortek.helm.tracker.dao.TrackerDao;
 import com.harbortek.helm.tracker.dao.TrackerItemDao;
 import com.harbortek.helm.tracker.entity.plan.SprintEntity;
+import com.harbortek.helm.tracker.entity.tracker.TrackerEntity;
 import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
 import com.harbortek.helm.tracker.service.SprintService;
+import com.harbortek.helm.tracker.service.TrackerItemService;
+import com.harbortek.helm.tracker.service.TrackerService;
 import com.harbortek.helm.tracker.vo.plan.SprintVo;
+import com.harbortek.helm.tracker.vo.tracker.fields.SprintField;
 import com.harbortek.helm.util.DataUtils;
 import com.harbortek.helm.util.DateUtils;
 import com.harbortek.helm.util.IDUtils;
+import com.harbortek.helm.util.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +44,8 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service("sprintService")
@@ -54,6 +63,12 @@ public class SprintServiceImpl implements SprintService {
     @Autowired
     EnumService enumService;
 
+    @Autowired
+    TrackerItemService trackerItemService;
+
+    @Autowired
+    TrackerDao trackerDao;
+
 
     @Override
     public Collection<SprintVo> findSprints(Long projectId) {
@@ -64,11 +79,23 @@ public class SprintServiceImpl implements SprintService {
         List<SprintVo> sprintVos = DataUtils.toVo(sprintEntities, SprintVo.class);
         //计算迭代进度
         List<Long> sprintIds = sprintEntities.stream().map(BaseEntity::getId).collect(Collectors.toList());
-        List<TrackerItemEntity> trackerItemList = trackerItemDao.findBySprintIds(sprintIds);
+        List<TrackerItemEntity> trackerItemList = trackerItemDao.findBySprintIds(projectId,sprintIds);
+
+        List<Long> itemIds = trackerItemList.stream().map(TrackerItemEntity::getTrackerId).toList();
+        Map<Long, Long> trackerMap= trackerDao.findByIds(itemIds, TrackerEntity.class)
+                .stream().collect(Collectors.toMap(BaseEntity::getId, tracker ->
+                    tracker.getTrackerFields().stream()
+                           .filter(field -> field instanceof SprintField&&!field.getSystem())
+                           .findFirst()
+                           .map(IdNameVo::getId)
+                           .orElse(0L)
+                ));
+
         sprintVos.forEach(sprintVo -> {
             double progress=0,duration=0,progressTotal=0,durationTotal=0;
             for (TrackerItemEntity trackerItem : trackerItemList) {
-                if(trackerItem.getSprintId().equals(sprintVo.getId())){
+                Long itemSprintId=trackerMap.get(trackerItem.getTrackerId());
+                if(itemSprintId.equals(sprintVo.getId())){
                     progress=0;duration=1;
                     if(trackerItem.getPlanStartDate()!=null&&trackerItem.getPlanEndDate()!=null){
                         duration=DateUtils.daysBetween(trackerItem.getPlanStartDate(),trackerItem.getPlanEndDate());
@@ -121,9 +148,13 @@ public class SprintServiceImpl implements SprintService {
 
     @Override
     public void deleteSprint(Long id) {
-        SprintEntity entity = sprintDao.findById(id);
+        //修改迭代下的item
+        Long projectId = (Long) SecurityUtils.get(SecurityUtils.PROJECT_ID);
+        List<Long> itemIds = trackerItemDao.findBySprintIds(projectId, List.of(id)).stream().map(TrackerItemEntity::getId).toList();
+        trackerItemService.updateTrackerItemSprint(null,itemIds);
+
+        //删除迭代
         sprintDao.deleteSprint(id);
-        trackerItemDao.deleteSprintId(id);
     }
 
     @Override

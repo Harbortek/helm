@@ -53,7 +53,7 @@ public class TrackerUtils {
                 DateField.builder().name("解决日期").systemProperty(SystemFields.RESOLVED_ON).build(),
                 ProjectField.builder().name("所属项目").systemProperty(SystemFields.PROJECT).build(),
                 WorkItemTypeField.builder().name("所属工作项类型").systemProperty(SystemFields.TRACKER).build(),
-                SprintField.builder().name("所属迭代").systemProperty(SystemFields.SPRINT).build(),
+//                SprintField.builder().name("所属迭代").systemProperty(SystemFields.SPRINT).build(),
                 DateField.builder().name("计划开始时间").systemProperty(SystemFields.PLAN_START_DATE).build(),
                 DateField.builder().name("计划结束时间").systemProperty(SystemFields.PLAN_END_DATE).build(),
                 DateField.builder().name("实际开始时间").systemProperty(SystemFields.REAL_START_DATE).build(),

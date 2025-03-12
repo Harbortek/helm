@@ -184,7 +184,7 @@ public class TrackerItemServiceImpl implements TrackerItemService {
             ).map(TrackerEntity::getId).collect(Collectors.toList());
         }else if(ObjectUtils.isNotEmpty(sprintId)){ //迭代
             trackerIds = trackerList.stream().filter(t ->
-                    t.getTrackerFields().stream().anyMatch(trackerField -> trackerField instanceof SprintField)
+                    t.getTrackerFields().stream().anyMatch(field -> field instanceof SprintField&&!field.getSystem())
             ).map(TrackerEntity::getId).collect(Collectors.toList());
         }
         if(ObjectUtils.isNotEmpty(trackerId)){
@@ -690,17 +690,6 @@ public class TrackerItemServiceImpl implements TrackerItemService {
 
                 //发送通知
                 trackerNotificationService.sendSystemNotification(NotificationEvents.CHANGE_ITEM_PLAN_START_DATE, tracker, item, SecurityUtils.getCurrentUser());
-            } else if (SystemFields.SPRINT.equals(systemProperty)) {
-                oldValue = item.getSprintId();
-                trackerItemDao.updateSystemField(item, TrackerItemEntity.Fields.sprintId, Long.parseLong(newValue.toString()));
-                if (ObjectUtils.isNotEmpty(oldValue)) {
-                    SprintEntity sprintEntity = sprintDao.findById((Long) oldValue);
-                    if (ObjectUtils.isNotEmpty(sprintEntity)) {
-                        oldValue = sprintEntity.getName();
-                    }
-                }
-                newValue = sprintDao.findById(Long.parseLong(newValue.toString())).getName();
-
 //            } else if (SystemFields.TEST_CASE_TYPE.equals(systemProperty)) {
 //                oldValue = item.getTestCaseTypeId();
 //                trackerItemDao.updateSystemField(item, TrackerItemEntity.Fields.testCaseTypeId, Long.parseLong(newValue.toString()));
@@ -1187,8 +1176,8 @@ public class TrackerItemServiceImpl implements TrackerItemService {
                         itemMap.put(mapKey, getNotNullData(itemVo.getProject()));
                     } else if (SystemFields.TRACKER.equals(mapKey)) {
                         itemMap.put(mapKey, getNotNullData(itemVo.getTracker()));
-                    } else if (SystemFields.SPRINT.equals(mapKey)) {
-                        itemMap.put(mapKey, getNotNullData(itemVo.getSprint()));
+//                    } else if (SystemFields.SPRINT.equals(mapKey)) {
+//                        itemMap.put(mapKey, getNotNullData(itemVo.getSprint()));
                     }
                 } else {//custom
                     if (!mapKey.equals(SystemFields.PARENT)) {
@@ -1292,52 +1281,43 @@ public class TrackerItemServiceImpl implements TrackerItemService {
 
     @Override
     public void updateTrackerItemSprint(Long sprintId, List<Long> trackerItemIds) {
-        SprintEntity sprintEntity = null;
-        if (sprintId != null) {
-            sprintEntity = sprintDao.findById(sprintId);
-        }
         List<TrackerItemEntity> trackerItemEntities = trackerItemDao.findByIds(trackerItemIds);
         trackerItemEntities.forEach(item -> {
             checkTrackerPermission(List.of(TrackerPermissions.ITEM_EDIT), item.getTrackerId(),
                     item.getId(),"","没有修改工作项权限");
         });
 
-        Map<Long, SprintEntity> springMap = new HashMap<>();
+        Map<Long, SprintEntity> sprintMap = new HashMap<>();
         Map<Long, TrackerEntity> trackerMap = new HashMap<>();
 
         if (!trackerItemEntities.isEmpty()) {
-            List<Long> sprintIds = trackerItemEntities.stream()
-                    .map(TrackerItemEntity::getSprintId).filter(ObjectUtils::isNotEmpty).collect(Collectors.toList());
             List<Long> trackerIds = trackerItemEntities.stream()
                     .map(TrackerItemEntity::getTrackerId).filter(ObjectUtils::isNotEmpty).collect(Collectors.toList());
-            List<SprintEntity> sprintList = sprintDao.findSprintsByIds(sprintIds);
+            List<SprintEntity> sprintList = sprintDao.findSprintByProjectId((Long) SecurityUtils.get(SecurityUtils.PROJECT_ID));
             List<TrackerEntity> trackerList = trackerDao.findByIds(trackerIds, TrackerEntity.class,true);
             for (SprintEntity entity : sprintList) {
-                springMap.put(entity.getId(), entity);
+                sprintMap.put(entity.getId(), entity);
             }
             for (TrackerEntity entity : trackerList) {
                 trackerMap.put(entity.getId(), entity);
             }
         }
 
-        //修改sprint
-
-
         //记录日志
         AtomicReference<Object> oldValue = new AtomicReference<>();
         String newValue = null;
-        if (sprintEntity != null) {
-            newValue = sprintEntity.getName();
+        if (sprintId != null) {
+            newValue = sprintMap.get(sprintId).getName();
         }
         for (TrackerItemEntity itemEntity : trackerItemEntities) {
             TrackerEntity trackerEntity = trackerMap.get(itemEntity.getTrackerId());
-            trackerEntity.getTrackerFields().stream().filter(field -> field instanceof SprintField)
+            trackerEntity.getTrackerFields().stream().filter(field -> field instanceof SprintField&&!field.getSystem())
                     .findFirst().ifPresent(field ->{
                         Object oldField = itemEntity.getCustomerFieldValue(field);
                         if(ObjectUtils.isNotEmpty(oldField)){
-                            oldValue.set(springMap.get(Long.parseLong(oldField.toString())).getName());
+                            oldValue.set(sprintMap.get(Long.parseLong(oldField.toString())).getName());
                         }
-                        itemEntity.setCustomerFieldValue(field, sprintId);
+                        itemEntity.setCustomerFieldValue(field, Objects.requireNonNullElse(sprintId, ""));
                     });
 
             if (sprintId != null && String.valueOf(sprintId).equals(oldValue.get())) {
@@ -1354,9 +1334,7 @@ public class TrackerItemServiceImpl implements TrackerItemService {
             }
 
         }
-//        trackerItemDao.batchUpdateCustomField(trackerItemEntities);
-//        trackerItemDao.updateTrackerItemSprint(sprintId, newValue, trackerItemIds);
-
+        trackerItemDao.batchUpdateCustomField(trackerItemEntities);
     }
 
     @Override
@@ -1456,9 +1434,10 @@ public class TrackerItemServiceImpl implements TrackerItemService {
 
     @Override
     public List<TrackerEntity> findTrackersBySprint(Long sprintId) {
-        List<Long> trackerIds = trackerItemDao.findTrackersBySprint(sprintId);
-        List<TrackerEntity> trackers = trackerDao.findByIds(trackerIds, TrackerEntity.class,true);
-        return trackers;
+        Long projectId = (Long) SecurityUtils.get(SecurityUtils.PROJECT_ID);
+        List<Long> trackerIds = trackerItemDao.findBySprintIds(projectId,List.of(sprintId))
+                .stream().map(TrackerItemEntity::getTrackerId).collect(Collectors.toList());
+        return trackerDao.findByIds(trackerIds, TrackerEntity.class,true);
     }
 
     @Override
@@ -1725,8 +1704,8 @@ public class TrackerItemServiceImpl implements TrackerItemService {
             trackerItem.setDescription(value.toString());
         } else if (SystemFields.OWNER.equals(field)) {
             trackerItem.setOwner(new IdNameReference<>(UserVo.builder().id(Long.valueOf(value.toString())).build()));
-        } else if (SystemFields.SPRINT.equals(field)) {
-            trackerItem.setSprint(new IdNameReference<>(SprintVo.builder().id(Long.valueOf(value.toString())).build()));
+//        } else if (SystemFields.SPRINT.equals(field)) {
+//            trackerItem.setSprint(new IdNameReference<>(SprintVo.builder().id(Long.valueOf(value.toString())).build()));
         } else if (SystemFields.CREATE_BY.equals(field)) {
             trackerItem.setCreateBy(new IdNameReference<>(UserVo.builder().id(Long.valueOf(value.toString())).build()));
         } else if (SystemFields.CREATE_DATE.equals(field)) {

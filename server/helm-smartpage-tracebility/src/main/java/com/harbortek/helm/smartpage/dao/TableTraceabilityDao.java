@@ -22,7 +22,13 @@ import com.harbortek.helm.tracker.entity.link.TrackerLinkEntity;
 import com.harbortek.helm.tracker.entity.plan.SprintEntity;
 import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
 import com.harbortek.helm.util.ObjectUtils;
+import com.harbortek.helm.util.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.jooq.Field;
+import org.jooq.JSON;
+import org.jooq.SelectConditionStep;
+import org.jooq.conf.ParamType;
+import org.jooq.impl.DSL;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -33,18 +39,20 @@ import java.util.*;
 @Slf4j
 public class TableTraceabilityDao extends BaseJdbcDao {
     public List<TrackerItemEntity> findTrackerItemsByTrackerId(Long trackerId,Long targetVersionId){
-        Criteria criteria = Criteria.empty();
-        criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
-        criteria = criteria.and(Criteria.where(TrackerItemEntity.Fields.trackerId).is(trackerId));
+
+
+        SelectConditionStep<?> query = getDslContext().selectFrom(getTable(TrackerItemEntity.class))
+                .where(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
+                .and(getField(TrackerItemEntity.Fields.trackerId).eq(trackerId)
+                .and("tracker_item_has_permission(id," + SecurityUtils.getCurrentUser().getId() + ",'ITEM_VIEW') "));
+
         if (ObjectUtils.isValid(targetVersionId)){
             Collection<Long> sprintIds = findSprintByTargetVersion(targetVersionId);
-            criteria = criteria.and(Criteria.where(TrackerItemEntity.Fields.sprintId).in(sprintIds));
+            Field<JSON> externalArray = DSL.jsonArray(sprintIds.stream().map(t->DSL.inline(String.valueOf(t))).toList());
+            query = query.and(DSL.field("JSON_OVERLAPS({0},COALESCE(JSON_EXTRACT({1},'$.*'),'[]'))",
+                    externalArray, getField(TrackerItemEntity.Fields.values)).eq(true));
         }
-        Query query = Query.query(criteria);
-        query.columns(BaseEntity.Fields.id,BaseEntity.Fields.name,BaseEntity.Fields.description,
-                               TrackerItemEntity.Fields.trackerId,TrackerItemEntity.Fields.sprintId);
-
-        return find(query,TrackerItemEntity.class);
+        return find(query.getSQL(ParamType.INLINED),null, TrackerItemEntity.class);
     }
 
     public Map<Long,List<TrackerItemEntity>> findLinkedTrackerItems(Collection<Long> targetIds, Long trackerId,
@@ -59,7 +67,7 @@ public class TableTraceabilityDao extends BaseJdbcDao {
         criteria = criteria.and(Criteria.where(BaseEntity.Fields.id).in(sourceItemIds));
         Query query =Query.query(criteria);
         query.columns(BaseEntity.Fields.id,BaseEntity.Fields.name,BaseEntity.Fields.description,TrackerItemEntity.Fields.itemNo,
-                               TrackerItemEntity.Fields.trackerId,TrackerItemEntity.Fields.sprintId);
+                               TrackerItemEntity.Fields.trackerId);
         List<TrackerItemEntity> sourceItems = find(query,TrackerItemEntity.class);
         Map<Long,List<TrackerItemEntity>> result = new HashMap<>();
         for(TrackerLinkEntity link : links) {

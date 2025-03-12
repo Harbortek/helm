@@ -112,11 +112,11 @@ public class TrackerItemHistoryVo extends BaseVo {
      */
     Double remainingWorkingHours;
 
-    /**
-     * 所属迭代
-     */
-    @Schema(hidden = true)
-    IdNameReference<SprintVo> sprint;
+//    /**
+//     * 所属迭代
+//     */
+//    @Schema(hidden = true)
+//    IdNameReference<SprintVo> sprint;
 
     Map<Long,Object> values = new HashMap<>();
 

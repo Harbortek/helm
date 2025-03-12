@@ -116,8 +116,8 @@ public class TrackerItemVo extends BaseVo {
     /**
      * 所属迭代
      */
-    @Schema(hidden = true)
-    IdNameReference<SprintVo> sprint;
+//    @Schema(hidden = true)
+//    IdNameReference<SprintVo> sprint;
 
     Map<Long, String> values = new HashMap<>();
 
@@ -270,7 +270,7 @@ public class TrackerItemVo extends BaseVo {
                 ", estimateWorkingHours=" + estimateWorkingHours +
                 ", registeredWorkingHours=" + registeredWorkingHours +
                 ", remainingWorkingHours=" + remainingWorkingHours +
-                ", sprint=" + sprint +
+//                ", sprint=" + sprint +
                 ", values=" + values +
                 ", assignedTo=" + assignedTo +
                 ", assignedDate=" + assignedDate +

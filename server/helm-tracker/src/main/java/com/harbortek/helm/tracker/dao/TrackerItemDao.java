@@ -277,41 +277,17 @@ public class TrackerItemDao extends BaseJdbcDao {
 
     }
 
-    public void updateTrackerItemSprint(Long sprintId, String sprintName, List<Long> trackerItemIds) {
-        getDslContext().update(getTable(TrackerItemEntity.class))
-                       .set(getField(TrackerItemEntity.Fields.sprintId), sprintId)
-                .where(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
-                .and(getField(BaseEntity.Fields.id).in(trackerItemIds))
-                       .execute();
-    }
-
-    public void deleteSprintId(Long sprintId) {
-//        Criteria criteria = Criteria.empty();
-//        criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
-//        criteria.and(Criteria.where(TrackerItemEntity.Fields.sprintId).is(sprintId));
-//        Query query = Query.query(criteria);
-//        updateMulti(query, Update.update(TrackerItemEntity.Fields.sprintId, null), TrackerItemEntity.class);
-        getDslContext().update(getTable(TrackerItemEntity.class))
-                .set(getField(TrackerItemEntity.Fields.sprintId),val((Integer) null))
-                .where(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
-                .and(getField(TrackerItemEntity.Fields.sprintId).eq(sprintId))
-                       .execute();
-        CacheUtils.evict(sprintId, TrackerItemEntity.class);
-    }
-
-    public List<TrackerItemEntity> findBySprintIds(List<Long> sprintIds) {
-//        Criteria criteria = Criteria.empty();
-//        criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
-//        criteria = criteria.and(Criteria.where(TrackerItemEntity.Fields.sprintId).in(sprintIds));
-//        Query query = Query.query(criteria);
-//        return find(query, TrackerItemEntity.class);
+    public List<TrackerItemEntity> findBySprintIds(Long projectId,List<Long> sprintIds) {
         if(ObjectUtils.isEmpty(sprintIds)){
             return null;
         }
 
+        Field<JSON> externalArray = DSL.jsonArray(sprintIds.stream().map(t->DSL.inline(String.valueOf(t))).toList());
         SelectConditionStep<?> query = getDslContext().selectFrom(getTable(TrackerItemEntity.class))
-                .where(getField(TrackerItemEntity.Fields.sprintId).in(sprintIds))
+                .where(getField(TrackerItemEntity.Fields.projectId).eq(projectId))
                 .and(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
+                .and(DSL.field("JSON_OVERLAPS({0},COALESCE(JSON_EXTRACT({1},'$.*'),'[]'))",
+                        externalArray,getField(TrackerItemEntity.Fields.values)).eq(true))
                 .and("tracker_item_has_permission(id," + SecurityUtils.getCurrentUser().getId() + ",'ITEM_VIEW') ");
         return find(query.getSQL(ParamType.INLINED),null, TrackerItemEntity.class);
 
@@ -348,9 +324,8 @@ public class TrackerItemDao extends BaseJdbcDao {
     }
 
     public void batchUpdateTrackerItem(List<TrackerItemEntity> trackerItemEntities) {
-        List<Long> itemIds = new ArrayList<>();
         String sql =
-                "update tracker_items set priority_id = :priorityId,owner_id = :ownerId,watchers = :watchers,close_date = :closeDate,sprint_id = :sprintId,revision = revision + 1 where id = :id";
+                "update tracker_items set priority_id = :priorityId,owner_id = :ownerId,watchers = :watchers,close_date = :closeDate,revision = revision + 1 where id = :id";
         List<SqlParameterSource> parameterSources = new ArrayList<>();
 
         trackerItemEntities.forEach(item -> {
@@ -361,31 +336,25 @@ public class TrackerItemDao extends BaseJdbcDao {
             params.put("ownerId", item.getOwnerId());
             params.put("watchers", JsonUtils.toJSONString(item.getWatchers()));
             params.put("closeDate", item.getCloseDate());
-            params.put("sprintId", item.getSprintId());
             parameterSources.add(new MapSqlParameterSource(params));
         });
 
         batchUpdate(sql, parameterSources.toArray(new SqlParameterSource[0]), TrackerItemEntity.class);
     }
 
-    public List<Long> findTrackersBySprint(Long sprintId) {
-//        Criteria criteria = Criteria.empty();
-//        criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
-//        criteria = criteria.and(Criteria.where(TrackerItemEntity.Fields.sprintId).is(sprintId));
-//        Query query = Query.query(criteria);
-//        query.columns(TrackerItemEntity.Fields.trackerId);
-//        List<TrackerItemEntity> trackerItems = find(query,TrackerItemEntity.class);
-//        return trackerItems.stream().map(TrackerItemEntity::getTrackerId).distinct().collect(Collectors.toList());
+    public void batchUpdateCustomField(List<TrackerItemEntity> trackerItemEntities) {
+        String sql =
+                "update tracker_items set `values` = :values,revision = revision + 1 where id = :id";
+        List<SqlParameterSource> parameterSources = new ArrayList<>();
 
-        SelectConditionStep<?> query = getDslContext().selectDistinct(getField(TrackerItemEntity.Fields.trackerId))
-                .from(getTable(TrackerItemEntity.class))
-                .where(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
-                .and(getField(TrackerItemEntity.Fields.sprintId).eq(sprintId))
-                .and("tracker_item_has_permission(id," + SecurityUtils.getCurrentUser().getId() + ",'ITEM_VIEW') ");
-        List<TrackerItemEntity> trackerItemEntities = find(query.getSQL(ParamType.INLINED), null, TrackerItemEntity.class);
-        return trackerItemEntities.stream().map(TrackerItemEntity::getTrackerId).toList();
+        trackerItemEntities.forEach(item -> {
+            Map<String,Object> params = new HashMap<>();
+            params.put("id", item.getId());
+            params.put("values", JsonUtils.toJSONString(item.getValues()));
+            parameterSources.add(new MapSqlParameterSource(params));
+        });
 
-
+        batchUpdate(sql, parameterSources.toArray(new SqlParameterSource[0]), TrackerItemEntity.class);
     }
 
     public Date findLastModified(Long projectId) {
