@@ -36,7 +36,7 @@
     <import-word-dialog :is-show-dialog="showImportWordDialog" :projectId="projectId" :page-id="pageId"
       @cancel="showImportWordDialog = false" @ok="onImportWordOK" />
     <import-reqIF-dialog :is-show-dialog="showImportReqIFDialog" :projectId="projectId" :page-id="pageId"
-      @cancel="showImportReqIFDialog = false" />
+      @cancel="showImportReqIFDialog = false" @ok="onImportReqIFOK"/>
     <export-reqIF-dialog :is-show-dialog="showExportReqIFDialog" :projectId="projectId" :page-id="pageId"
       @cancel="showExportReqIFDialog = false" />
 

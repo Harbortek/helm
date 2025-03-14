@@ -87,7 +87,9 @@ public class DefaultParserStyleHtmlFn implements ParseStyleHtmlFn {
             style.setThrough(true);
             styleChanged = true;
         }
-        text.setStyles(List.of(style));
+        if (styleChanged) {
+            text.setStyles(List.of(style));
+        }
         return text;
     }
 }

@@ -20,6 +20,7 @@ import com.harbortek.helm.smartdoc.exporter.word.html2docx.converter.HtmlToOpenX
 import com.harbortek.helm.smartdoc.exporter.word.html2docx.util.RunUtils;
 import com.harbortek.helm.tracker.constants.BlockTypes;
 import com.harbortek.helm.tracker.entity.block.*;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.util.ResourceUtils;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
 import org.apache.commons.lang3.StringUtils;
@@ -77,7 +78,7 @@ public class Block2Docx {
         wordMLPackage = new HtmlToOpenXMLConverter().convert(
                 html,
                 clearDocumentContent(wordMLPackage)
-                                                            );
+        );
         updateToc(wordMLPackage);
 //        addTOC(wordMLPackage);
 //        addPageBreak(wordMLPackage);
@@ -158,10 +159,10 @@ public class Block2Docx {
         return wordMLPackage;
     }
 
-    public static void convert(List<DocBlock> docBlocks, OutputStream outputStream) throws Exception {
+    public static void convert(List<SlateNode> docBlocks, OutputStream outputStream) throws Exception {
         StringBuilder sb = new StringBuilder();
-        for (DocBlock docBlock : docBlocks) {
-            sb.append(convert2Html(docBlock));
+        for (SlateNode docBlock : docBlocks) {
+            sb.append(docBlock.toHtml());
         }
         String html = sb.toString();
         logger.info("block2html :" + html);

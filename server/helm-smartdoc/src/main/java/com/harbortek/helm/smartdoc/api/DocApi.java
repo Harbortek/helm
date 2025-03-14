@@ -240,7 +240,7 @@ public class DocApi {
         response.setHeader("Content-disposition", contentDisposition);
         response.setHeader(HttpHeaders.CONTENT_TYPE,
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-        Block2Docx.convert(docVo.getBlocks(), response.getOutputStream());
+        Block2Docx.convert(docVo.getElements(), response.getOutputStream());
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
