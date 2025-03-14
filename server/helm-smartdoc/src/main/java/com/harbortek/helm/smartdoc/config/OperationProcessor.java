@@ -79,7 +79,7 @@ public class OperationProcessor {
 
                         operator.tryToSave();
                     }
-                    Thread.sleep(8 * 1000);
+                    Thread.sleep(5 * 1000);
                 } catch (Exception e) {
                     log.severe(e.getMessage());
                 }
