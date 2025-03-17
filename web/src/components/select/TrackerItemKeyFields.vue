@@ -52,46 +52,26 @@
                 </quick-picker>
             </a-popover>
 
-            <a-popover v-else-if="item.inputType == 'OPTIONS'" v-model="popoverVisible[item.id]" trigger="click"
-             placement="bottomLeft"  :style="{pointerEvents: !trackerItem?.notPagePerm?'':'none'}"
-            overlayClassName="tracker-select-dropdown">
+            <a-popover v-else-if="item.inputType == 'OPTIONS'&&item.system" v-model="popoverVisible[item.id]" trigger="click"
+             placement="bottomLeft" :style="{pointerEvents: !trackerItem?.notPagePerm?'':'none'}"
+                overlayClassName="tracker-select-dropdown">
                 <template slot="content">
                     <div @click.stop>
                         <div class="tracker-select-option"
-                            :style="{ color: p.name === trackerItem?.values[item.id] ? '#338fe5' : '' }"
+                            :style="{ color: p.id === getFieldsData(item) ? '#338fe5' : '' }"
                             v-for="p in item.items" :key="p.id">
                             <div class="option-item">
-                                <div class="option-item-content" @click="changeType(item.id, p.id, p.name)">
+                                <div class="option-item-content" @click="changeSystemType(item, p.id)">
                                     <span class="option-item-text"> {{ p.name }}</span>
                                 </div>
-                                <div class="option-item-icon "><a-icon type="check"
-                                        v-if="p.name === trackerItem?.values[item.id]" />
+                                <div class="option-item-icon"><a-icon type="check"
+                                        v-if="p.id === getFieldsData(item)" />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </template>
-                <quick-picker v-if="trackerItem?.values" :title="trackerItem?.values[item.id] || '未设置'" :sub-title="item.name">                    <template slot="icon">
-                        <a-avatar :style="{ color: '#606060', backgroundColor: '#e8e8e8' }">
-                            <a-icon type="book" />
-                        </a-avatar>
-                    </template>
-                </quick-picker>
-            </a-popover>
-
-            <a-popover v-else trigger="click" :style="{pointerEvents: !trackerItem?.notPagePerm?'':'none'}">
-                <template slot="content">
-                    <div @click.stop>
-                        <div class="tracker-select-option">
-                            <div class="option-item">
-                                <div class="option-item-content">
-                                    <span class="option-item-text">{{ trackerItem[item.systemProperty] }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-                <quick-picker :title="trackerItem[item.systemProperty] || '未设置'" :sub-title="item.name">
+                <quick-picker :title="getFieldsDataValue(item) || '未设置'" :sub-title="item.name">                    
                     <template slot="icon">
                         <a-avatar :style="{ color: '#606060', backgroundColor: '#e8e8e8' }">
                             <a-icon type="book" />
@@ -99,6 +79,53 @@
                     </template>
                 </quick-picker>
             </a-popover>
+
+            <a-popover v-else-if="item.inputType == 'OPTIONS'" v-model="popoverVisible[item.id]" trigger="click"
+             placement="bottomLeft"  :style="{pointerEvents: !trackerItem?.notPagePerm?'':'none'}"
+                overlayClassName="tracker-select-dropdown">
+                <template slot="content">
+                    <div @click.stop v-if="trackerItem.values">
+                        <div class="tracker-select-option"
+                            :style="{ color: p.name === trackerItem?.values[item.id] ? '#338fe5' : '' }"
+                            v-for="p in item.items" :key="p.id">
+                            <div class="option-item">
+                                <div class="option-item-content" @click="changeType(item.id, p.id, p.name)">
+                                    <span class="option-item-text"> {{ p.name }}</span>
+                                </div>
+                                <div class="option-item-icon"><a-icon type="check"
+                                        v-if="p.name === trackerItem?.values[item.id]" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <quick-picker v-if="trackerItem?.values" :title="getFieldsDataValue(item) || '未设置'" :sub-title="item.name">                    <template slot="icon">
+                        <a-avatar :style="{ color: '#606060', backgroundColor: '#e8e8e8' }">
+                            <a-icon type="book" />
+                        </a-avatar>
+                    </template>
+                </quick-picker>
+            </a-popover>
+            <a-date-picker v-else-if="item.inputType == 'DATE'" v-model="newDateValue[item.id]" show-time
+                 @ok="onChangeDatePicker(item)" :placeholder="item.name">
+                <quick-picker   :title="getDateValue(item) || '未设置'" :sub-title="item.name"> 
+                    <template slot="icon">
+                        <a-avatar :style="{ color: '#606060', backgroundColor: '#e8e8e8' }">
+                            <a-icon type="book" />
+                        </a-avatar>
+                    </template>
+                </quick-picker>
+            </a-date-picker>
+            <div v-else  class="quick-default">
+                <quick-picker :title="trackerItem[item.systemProperty] || '未设置'" :sub-title="item.name">
+                    <template slot="icon">
+                        <a-avatar :style="{ color: '#606060', backgroundColor: '#e8e8e8' }">
+                            <a-icon type="book" />
+                        </a-avatar>
+                    </template>
+                </quick-picker>
+            </div>
+            <!-- </a-popover> -->
         </div>
     </div>
 </template>
@@ -114,7 +141,8 @@ import TrackerItemStatusPopover from '@/components/tool/TrackerItemStatusPopover
 import {
     findEnumsByCode
 } from "@/services/system/EnumService";
-import { state } from "@antv/g2plot/lib/adaptor/common";
+import _ from 'lodash'
+import moment from 'moment'
 
 
 export default ({
@@ -136,21 +164,31 @@ export default ({
             required: true
         },
     },
-    // keyFields: {
-    //     item: {
-    //         handler: function (newVal, oldVal) {
-
-    //         }
-    //     },
-    // },
+    watch: {
+        // 监听keyFields属性变化
+        keyFields: {
+            handler(newVal) {
+                if(newVal) {
+                    for (let item of newVal) {
+                        this.$set(this.popoverVisible, item.id, false)
+                        if(item.inputType == 'DATE'){
+                            if(item.system){
+                                this.$set(this.newDateValue, item.id, moment(this.trackerItem[item.systemProperty]))
+                            }else{
+                                this.$set(this.newDateValue, item.id, moment(this.trackerItem.values[item.id]))
+                            }
+                        }
+                    }
+                }
+            },
+            immediate: true
+        }
+    },
     computed:{
     },
     mounted() {
         if(this.projectId){
             this.loadData();
-        }
-        for (let item of this.keyFields) {
-            this.$set(this.popoverVisible, item.id, false)
         }
     },
     data() {
@@ -160,15 +198,22 @@ export default ({
             priorityPopoverVisible: false,  
             popoverVisible: {},
             priorities: [],
+            newDateValue:{},
         };
     },
     methods: {
-        changeType(ItemId, pName) {
-            this.onChangeCustomerField(ItemId, PId,pName);
+        changeType(ItemId,pId,pName) {
+            this.onChangeCustomerField(ItemId, pId);
             this.popoverVisible[ItemId] = false
         },
-        onChangeCustomerField(id, valueId,value) {
-            changeCustomerField(this.trackerItem.id, id, valueId).then(resp => {
+        changeSystemType(item,value) {
+            changeSystemField(this.trackerItem.id, item.systemProperty,value).then(resp => {
+                this.refresh()
+            })
+            this.popoverVisible[item.id] = false
+        },
+        onChangeCustomerField(id, value) {
+            changeCustomerField(this.trackerItem.id, id, value).then(resp => {
                 this.refresh()
             })
         },
@@ -185,6 +230,62 @@ export default ({
         },
         refresh(){
             this.$emit("refresh");
+        },
+        getSystemProperty(field) {
+            let property = _.get(this.trackerItem, field.systemProperty)
+            if (property) {
+                if (property instanceof Object) {
+                    return field.systemProperty + ".id"
+                } else {
+                    return field.systemProperty
+                }
+            }
+            if (field.systemProperty.endsWith("Id")) {
+                return field.systemProperty.substring(0, field.systemProperty.length - 2) + ".id"
+            }
+            
+            return "";
+        },
+        getFieldsData(field) {
+            if (field.system) {
+                var systemProperty = this.getSystemProperty(field)
+                if (systemProperty) {
+                    return _.get(this.trackerItem, systemProperty)
+                }
+                return "";
+            } else {
+                if (this.trackerItem?.values) {
+                    return this.trackerItem?.values[field.id]
+                } else {
+                    return "";
+                }
+            }
+        },
+        getFieldsDataValue(field){
+            let value= this.getFieldsData(field);
+            let item = field.items.find(i => i.id === value);
+            return item ? item.name : '';
+        },
+        getDateValue(field){
+            if(field.system){
+                return this.trackerItem[field.systemProperty]
+            }else{
+                return this.trackerItem.values[field.id]
+            }
+        },
+        onChangeDatePicker(field) {
+            if (this.newDateValue[field.id]) {
+                let datePicker = moment(this.newDateValue[field.id]).format("YYYY-MM-DD HH:mm:ss")
+                console.log("datePicker",datePicker)
+                if(field.system){
+                    this.changeSystemType(field, datePicker);
+                }else{
+                    this.onChangeCustomerField(field.id, datePicker);
+                }
+            } else {
+                this.newDateValue[field.id] = null;
+            }
+            this.popoverVisible[field.id] = false
         },
         loadData() {
             findProjectUsers(this.projectId).then(resp => {
@@ -294,5 +395,8 @@ export default ({
             }
         }
     }
+}
+quick-default /deep/ .ui-task-primary-fields .task-basic-quick-picker .basic-info-model{
+    cursor: default;
 }
 </style>

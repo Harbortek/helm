@@ -1640,7 +1640,7 @@ export default {
 }
 
 /deep/.ant-popover-inner-content {
-    padding: 12px 10px;
+    padding: 8px 10px;
 }
 
 .table-layout {

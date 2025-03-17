@@ -79,10 +79,10 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div style="position:relative">
+                                        <div style="position:relative;margin-top:10px">
                                             <span v-if="isCustomConfig" @click="onClickSelectSpan('field')"
                                                 :class="{ 'clickable-zoom': true, actived: selectTab == 'field' }"
-                                                style="inset:0;position: absolute;z-index: 210;"></span>
+                                                style="inset:-2px -5px;position: absolute;z-index: 210;"></span>
                                             <div class="">
                                                 <div class="task-detail-module-title">
                                                     <div class="task-detail-module-title-text">自定义属性</div>
@@ -93,7 +93,7 @@
                                                         <a-col :span="isTable(f)?24:12"
                                                             v-for="(f) in customerFields" :key="f.id">
                                                             <a-form-item :label="f.name" :prop="f.name"
-                                                                :required="f.required"
+                                                                :required="f.required" v-if="formData.values"
                                                                 :labelCol="{ span: isTable(f) ? 4 : 8 }"
                                                                 :wrapperCol="{ span: isTable(f) ? 20 : 16 }">
                                                                 <TrackerItemFields :fields="f" v-model="formData.values[f.id]" :projectId="projectId" :trackerId="tracker.id"

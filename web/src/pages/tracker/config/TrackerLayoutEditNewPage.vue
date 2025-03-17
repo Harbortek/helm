@@ -237,7 +237,7 @@ export default {
                 // {value:"WORK_ITEMS",name:"子工作项",desc:"显示当前工作项下的子工作项列表。"},
                 { value: "CYCLE_PROGRESS", name: "周期与进度", desc: "显示当前工作项下的进度、计划开始日期、计划完成日期。" },
                 { value: "WORK_HOURS", name: "工时", desc: "显示当前工作项的工时信息和关联的工作记录。" },
-                { value: "TEST_CASES", name: "测试情况", desc: "显示当前工作项作为测试用例的测试信息。" },
+                // { value: "TEST_CASES", name: "测试情况", desc: "显示当前工作项作为测试用例的测试信息。" },
                 { value: "RELATED_ITEMS", name: "关联工作项", desc: "显示当前工作项关联的工作项列表。" },
                 // {value:"RELATED_CODE",name:"代码关联",desc:"显示当前工作项关联的代码提交、合并请求、代码分支信息。"},
                 { value: "RELATED_WIKI", name: "关联Wiki页面", desc: "显示当前工作项关联的Wiki页面。" },
@@ -343,7 +343,7 @@ export default {
                 }
                 this.addFieldsVisible = false;
                 this.formData.field = undefined;
-            }
+            }            
         },
         onOKAddSections() {
             if (this.formData.sections) {

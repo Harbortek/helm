@@ -390,7 +390,6 @@ export default {
                         }
                     }
                 }
-
                 this.addSectionsVisible = false;
                 this.formData.sections = undefined;
             }

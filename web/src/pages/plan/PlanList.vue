@@ -485,6 +485,9 @@ export default {
             buildGantt(this.projectId).then(resp => {
                 this.tableData = resp.tasks || []
                 this.tableData.forEach(f => { f.owner = f.owner || { id: '' } })
+                this.tableData.sort((a, b) => {
+                    return (a.ordinary || 0) - (b.ordinary || 0)
+                })
                 this.loading = false
                 if (!this.sortable) {
                     this.rowDrop()
@@ -557,6 +560,8 @@ export default {
             this.currentPlan = row
             // 判断单元格值是否被修改
             if (row.updated) {
+                row.planStartDate=moment(row.planStartDate).format('YYYY-MM-DD HH:mm:ss')
+                row.planEndDate=moment(row.planEndDate).format('YYYY-MM-DD HH:mm:ss')
                 updatePlan(row).then(resp => {
                     for (let i = 0; i < this.tableData.length; i++) {
                         if (this.tableData[i].id === row.id) {
@@ -611,7 +616,7 @@ export default {
         onPlanStartDateChange(scope) {
             const { row } = scope
             if (row.planStartDate && row.duration) {
-                row.planEndDate = moment(row.planStartDate).clone().add(row.duration, 'days').format('YYYY-MM-DD')
+                row.planEndDate = moment(row.planStartDate).clone().add(row.duration, 'days').format('YYYY-MM-DD HH:mm:ss')
             }
             scope.row.updated = true
         },
@@ -626,7 +631,7 @@ export default {
         onDurationChange(scope) {
             const { row } = scope
             if (row.planStartDate && row.duration) {
-                row.planEndDate = moment(row.planStartDate).clone().add(row.duration, 'days').format('YYYY-MM-DD')
+                row.planEndDate = moment(row.planStartDate).clone().add(row.duration, 'days').format('YYYY-MM-DD HH:mm:ss')
             }
             scope.row.updated = true
         },
@@ -637,12 +642,12 @@ export default {
         },
         onCreateTask(parentId) {
             this.editMode = 'create'
-            this.currentPlan = { projectId: this.projectId, name: '', type: 'TASK', parentId: parentId, planStartDate: moment().format('YYYY-MM-DD'), duration: 1, owner: { id: '' } }
+            this.currentPlan = { projectId: this.projectId, name: '', type: 'TASK', parentId: parentId, planStartDate: moment().format('YYYY-MM-DD HH:mm:ss'), duration: 1, owner: { id: '' } }
             this.showCreateDialog = true
         },
         onCreateMilestone(parentId) {
             this.editMode = 'create'
-            this.currentPlan = { projectId: this.projectId, name: '', type: 'MILE_STONE', parentId: parentId, planEndDate: moment().format('YYYY-MM-DD'), owner: { id: '' } }
+            this.currentPlan = { projectId: this.projectId, name: '', type: 'MILE_STONE', parentId: parentId, planEndDate: moment().format('YYYY-MM-DD HH:mm:ss'), owner: { id: '' } }
             this.showCreateDialog = true
         },
         onEditPlan(item) {

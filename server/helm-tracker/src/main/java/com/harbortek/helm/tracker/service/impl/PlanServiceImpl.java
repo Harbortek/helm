@@ -347,6 +347,7 @@ public class PlanServiceImpl implements PlanService {
                              .orElse(DeliverableEntity.builder().id(IDUtils.getId()).projectId(projectId)
                                                       .milestoneId(planId).createBy(currentUserId)
 //                                                      .createDate(new Date())
+                                                      .committed(Boolean.FALSE)
                                                       .lastModifiedBy(currentUserId)
                                                       .lastModifiedDate(new Date()).build());
             existed.setName(deliverableVo.getName());
@@ -590,6 +591,7 @@ public class PlanServiceImpl implements PlanService {
     private void autoPlanFromStart(Collection<Long> ids, Map<Long, PlanVo> taskMap) {
         ids.forEach(id -> {
             PlanVo item = taskMap.get(id);
+
             LocalDateTime startDate = item.getPlanStartDate();
             LocalDateTime endDate = item.getPlanEndDate();
 

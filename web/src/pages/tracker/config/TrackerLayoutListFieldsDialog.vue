@@ -3,7 +3,7 @@
         <template #footer>
             <a-button @click="onCancel">关闭</a-button>
         </template>
-        <config-page style="padding:0;" title="" description="定义该工作项类型下的工作项在“看板”视图可以显示的属性信息。除标题，描述和状态外，最多可以添加 5 个属性。选项配色请到配置中心的工作项属性里调整。">
+        <config-page style="padding:0;height:auto;" title="" description="定义该工作项类型下的工作项在“看板”视图可以显示的属性信息。除标题，描述和状态外，最多可以添加 5 个属性。选项配色请到配置中心的工作项属性里调整。">
             <div style="height:45px;">
                 <a-button style="float:right" type="primary" @click="onClickAddListFields">添加列表属性</a-button>
             </div>
@@ -439,5 +439,12 @@ export default {
         border:none;
         background-color: rgba(144,144,144,.15);
     }
+}
+/deep/ .config-page .header-footer-panel{
+    height: auto;
+    margin-bottom: 30px;
+}
+/deep/ .config-page .header-footer-panel .panel-body{
+    height: auto;
 }
 </style>

@@ -76,6 +76,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void deleteProject(Long projectId) {
         projectDao.deleteProject(projectId);
+        projectDao.deleteRecentProject(projectId);
         PermissionCacheUtils.evictGrantedPermissions(projectId);
     }
 
