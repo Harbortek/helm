@@ -16,6 +16,8 @@
 
 package com.harbortek.helm.tracker.entity.smartdoc.element.po.style;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
@@ -28,6 +30,7 @@ import org.jsoup.nodes.Element;
 
 @Data
 @Builder
+@JsonTypeName(SlateElements.JUSTIFY)
 public class JustifyStyle extends SlateStyle {
 
     private String textAlign;

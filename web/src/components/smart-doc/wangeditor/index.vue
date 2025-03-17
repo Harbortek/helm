@@ -402,11 +402,14 @@ export default {
       this.$refs.toolbarRef.create(editor);
       this.editor = editor;
     },
-    onChange(data) {
+    onChange(data, editor, isChanged) {
+      this.$emit("change", data, editor);
+      if (!isChanged) {
+        return
+      }
       if (!this.autoSave) {
         return;
       }
-      this.$emit("change", data);
       this.queuedData.push(...data);
 
       this.debouncedSave();

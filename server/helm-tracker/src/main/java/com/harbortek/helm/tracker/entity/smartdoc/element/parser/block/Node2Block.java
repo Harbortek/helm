@@ -17,6 +17,9 @@
 package com.harbortek.helm.tracker.entity.smartdoc.element.parser.block;
 
 import cn.hutool.core.lang.id.NanoId;
+import cn.hutool.http.HtmlUtil;
+import com.harbortek.helm.common.vo.IdNameReference;
+import com.harbortek.helm.system.vo.EnumItemVo;
 import com.harbortek.helm.tracker.constants.BlockTypes;
 import com.harbortek.helm.tracker.entity.block.*;
 
@@ -26,12 +29,15 @@ import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.list.ListSl
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph.ParagraphSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.title.TitleSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
+import com.harbortek.helm.tracker.vo.ProjectVo;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
+import com.harbortek.helm.tracker.vo.tracker.TrackerVo;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 
 import java.util.List;
+import java.util.Optional;
 
 public class Node2Block {
 
@@ -93,9 +99,15 @@ public class Node2Block {
             if (trackerItemVo != null) {
                 type = trackerItemVo.getTracker().getId().toString();
             }
+            List<SlateNode> children = trackerItemSlateElement.getChildren();
+            String name = HtmlUtil.cleanHtmlTag(children.get(0).toHtml());
+            String description = children.get(1).toHtml();
+            Long trackerId = trackerItemVo.getTracker() != null ? trackerItemVo.getTracker().getId() : null;
             docBlock = DocBlock.builder()
                     .type(type)
-                    .data(TrackerItemBlockData.builder().refId(refId).build())
+                    .data(TrackerItemBlockData.builder().refId(refId).name(name)
+                            .text(description).trackerId(trackerId)
+                            .trackerItem(fillTrackerItemVo(trackerItemVo)).build())
                     .build();
         } else if (node instanceof ListSlateElement<?>) {
             ListSlateElement<?> listSlateElement = (ListSlateElement<?>) node;
@@ -114,5 +126,63 @@ public class Node2Block {
         docBlock.setId(node.getId());
         return docBlock;
 
+    }
+
+    private static TrackerItemBlockData.InnerTrackerItemVo fillTrackerItemVo(TrackerItemVo trackerItemVo) {
+        TrackerVo tracker = trackerItemVo.getTracker() != null ?
+                TrackerVo.builder()
+                        .id(trackerItemVo.getTracker().getId())
+                        .name(trackerItemVo.getTracker().getName())
+                        .icon(trackerItemVo.getTracker().getIcon())
+                        .build()
+                : new TrackerVo();
+        if (trackerItemVo.getTracker() == null) {
+            trackerItemVo.setTracker(new IdNameReference<>());
+        }
+        if (trackerItemVo.getProject() == null) {
+            trackerItemVo.setProject(new IdNameReference<>());
+        }
+        ProjectVo projectVo = trackerItemVo.getProject() != null ?
+                ProjectVo.builder().id(trackerItemVo.getProject().getId()).build()
+                : new ProjectVo();
+        EnumItemVo trackerType = tracker.getTrackerType();
+        if (trackerType == null) {
+            trackerType = new EnumItemVo();
+        }
+        TrackerItemBlockData.InnerTrackerItemVo trackerItemVo2 = new TrackerItemBlockData.InnerTrackerItemVo();
+        trackerItemVo2.setProjectId(trackerItemVo.getProject().getId());
+        trackerItemVo2.setId(trackerItemVo.getId());
+        trackerItemVo2.setTrackerIcon(tracker.getIcon());
+        trackerItemVo2.setTrackerColor(trackerType.getColor());
+        trackerItemVo2.setTrackerBackgroundColor(trackerType.getBackgroundColor());
+        trackerItemVo2.setRealEndDate(trackerItemVo.getRealEndDate());
+        trackerItemVo2.setItemNo(trackerItemVo.getItemNo());
+        trackerItemVo2.setProjectKeyName(projectVo.getKeyName());
+        trackerItemVo2.setAssignedDate(trackerItemVo.getAssignedDate());
+        trackerItemVo2.setTrackerId(trackerItemVo.getTracker().getId());
+//        Optional.ofNullable(trackerItemVo.getSprint())
+//                .ifPresent(value -> trackerItemVo2.setSprintId(value.getId()));
+        Optional.ofNullable(trackerItemVo.getOwner())
+                .ifPresent(value -> trackerItemVo2.setOwnerId(value.getId()));
+        Optional.ofNullable(trackerItemVo.getMeaning())
+                .ifPresent(value -> trackerItemVo2.setMeaningId(value.getId()));
+        Optional.ofNullable(trackerItemVo.getPriority())
+                .ifPresent(value -> trackerItemVo2.setPriorityId(value.getId()));
+        Optional.ofNullable(trackerItemVo.getAssignedTo())
+                .ifPresent(value -> trackerItemVo2.setAssignedTo(value.getId()));
+        Optional.ofNullable(trackerItemVo.getSeverity())
+                .ifPresent(value -> trackerItemVo2.setSeverityId(value.getId()));
+
+        trackerItemVo2.setProgress(trackerItemVo.getProgress());
+        trackerItemVo2.setCloseDate(trackerItemVo.getCloseDate());
+        trackerItemVo2.setEstimateWorkingHours(trackerItemVo.getEstimateWorkingHours());
+        trackerItemVo2.setPlanEndDate(trackerItemVo.getPlanEndDate());
+        trackerItemVo2.setPlanStartDate(trackerItemVo.getPlanStartDate());
+        trackerItemVo2.setRegisteredWorkingHours(trackerItemVo.getRegisteredWorkingHours());
+        trackerItemVo2.setRemainingWorkingHours(trackerItemVo.getRemainingWorkingHours());
+        trackerItemVo2.setRevision(trackerItemVo.getRevision());
+        trackerItemVo2.setStatusId(trackerItemVo.getStatusId());
+        trackerItemVo2.setValues(trackerItemVo.getValues());
+        return trackerItemVo2;
     }
 }

@@ -16,6 +16,8 @@
 
 package com.harbortek.helm.tracker.entity.smartdoc.element.po.style;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
 import lombok.Builder;
@@ -27,6 +29,7 @@ import org.jsoup.nodes.Element;
 
 @Builder
 @Data
+@JsonTypeName(SlateElements.COLOR_SLATE_TEXT)
 public class ColorStyle extends SlateStyle {
 
     private String color;

@@ -184,11 +184,12 @@ export default Vue.extend({
           onChange: (editor) => {
             this.numberHeaders(this.$refs.box);
             const curValue = editor.children;
-            if (_.isEqual(this.preValue, curValue)) {
+            const isChanged = !_.isEqual(this.preValue, curValue);
+            this.$emit("onChange", editor.operations, editor, isChanged);
+            if (!isChanged) {
               return;
             }
 
-            this.$emit("onChange", editor.operations);
             this.preValue = _.cloneDeep(curValue);
             // const currentNode = this.findParentNode(editor);
             // const children = editor.children;

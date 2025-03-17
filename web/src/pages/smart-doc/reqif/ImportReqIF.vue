@@ -87,15 +87,18 @@ export default {
             }
             let content = cloneDeep(this.content)
             content.rules = this.rules
-            content.blocksJSON = JSON.stringify(this.$refs.liveDoc.doc.editorBlocks)
+
+            content.blocksJSON = JSON.stringify(this.$refs.liveDoc.doc.elements)
             this.loading = true
             updateReqIFImportJob(this.pageId, content).then(resp => {
                 this.content = resp
-                this.doc = { blocks: JSON.parse(this.content.blocksJSON) || [] }
+
+                this.doc = {
+                    elements: JSON.parse(this.content.blocksJSON) || [],
+                }
                 this.autoNumber = this.content.autoNumber
                 this.rules = cloneDeep(this.rules)
                 this.loading = false
-                console.log(this.doc.blocks)
             }).catch(() => {
                 this.loading = false
             })
@@ -125,7 +128,9 @@ export default {
         onImport() {
             let content = cloneDeep(this.content)
             content.rules = this.rules
-            content.blocksJSON = JSON.stringify(this.$refs.liveDoc.doc.editorBlocks)
+
+            content.blocksJSON = JSON.stringify(this.$refs.liveDoc.doc.elements)
+
             this.loading = true
             completeReqIFImportJob(this.pageId, content).then(resp => {
                 this.loading = false

@@ -220,7 +220,8 @@ public class ReqIFImportServiceImpl implements ReqIFImportJobService {
             }
         }
 
-        job.setBlocksJSON(JsonUtils.toJSONString(newBlocks));
+        job.setBlocksJSON(JsonUtils.toJSONString(
+                newBlocks.stream().map(block -> Block2Node.parse(block)).toList()));
         ReqIFImportJobEntity jobEntity = DataUtils.toEntity(job, ReqIFImportJobEntity.class);
         reqIFImportJobDao.updateJob(jobEntity);
 

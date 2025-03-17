@@ -105,11 +105,14 @@ export default ({
   },
   computed: {
     hasEditPerm() {
-      return hasPermission('PAGE_WRITE',this.page?.id);
+      return hasPermission('PAGE_WRITE', this.page?.id);
     },
     printConf() {
+      const ph = this.printHolder
+      const cssSelector = `#${ph} div[data-slate-editor]`;
+      let printHolderId = document.querySelector(cssSelector).id;
       return {
-        id: this.printHolder,
+        id: printHolderId,
         popTitle: this.printHolder,
         extraCss: "",
         extraHead: '<meta http-equiv="Content-Language"content="zh-cn"/>',

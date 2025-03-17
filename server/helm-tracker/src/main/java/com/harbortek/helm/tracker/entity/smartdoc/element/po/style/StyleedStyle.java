@@ -16,7 +16,9 @@
 
 package com.harbortek.helm.tracker.entity.smartdoc.element.po.style;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.PoUtils;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
 import lombok.Builder;
@@ -27,6 +29,7 @@ import org.jsoup.nodes.Element;
 
 @Data
 @Builder
+@JsonTypeName(SlateElements.StyleSlateText)
 public class StyleedStyle extends SlateStyle {
 
     private Boolean bold;

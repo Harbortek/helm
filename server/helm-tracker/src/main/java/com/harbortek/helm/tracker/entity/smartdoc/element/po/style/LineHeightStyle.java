@@ -16,6 +16,8 @@
 
 package com.harbortek.helm.tracker.entity.smartdoc.element.po.style;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
 import lombok.Builder;
@@ -27,6 +29,7 @@ import org.jsoup.nodes.Element;
 
 @Data
 @Builder
+@JsonTypeName(SlateElements.LINE_HEIGHT)
 public class LineHeightStyle extends SlateStyle {
     private String lineHeight;
 

@@ -16,6 +16,7 @@
 
 package com.harbortek.helm.tracker.entity.smartdoc.element.parser.block;
 
+import cn.hutool.http.HtmlUtil;
 import com.harbortek.helm.common.vo.IdNameReference;
 import com.harbortek.helm.system.vo.EnumItemVo;
 import com.harbortek.helm.tracker.entity.block.*;
@@ -70,7 +71,10 @@ public class Block2Node {
             List<SlateNode> children = new ArrayList<>();
             List<Node> all = Jsoup.parse(paragraphBlockData.getText()).body().childNodes();
             if (all.isEmpty()) {
-                return null;
+                ParagraphSlateElement<SlateNode> paragraphSlateElement = new ParagraphSlateElement<>();
+                SlateText slateText = new SlateText();
+                paragraphSlateElement.getChildren().add(slateText);
+                return paragraphSlateElement;
             }
             //ul,ol 特殊处理
             if (all.get(0) instanceof Element && ((Element) all.get(0)).is("ul,ol")) {
@@ -87,7 +91,8 @@ public class Block2Node {
                 return listSlateElement;
             } else {
                 ParagraphSlateElement<SlateNode> paragraphSlateElement = new ParagraphSlateElement<>();
-                for (Node node : Jsoup.parse(paragraphBlockData.getText()).body().childNodes()) {
+                String html = HtmlUtil.removeHtmlTag(paragraphBlockData.getText(), "p");
+                for (Node node : Jsoup.parse(html).body().childNodes()) {
                     Element element = wrapperText(node);
 
                     SlateNode parseElemHtml = HtmlParser.parseElemHtml(element);
@@ -191,6 +196,9 @@ public class Block2Node {
     }
 
     private static TrackerItemVo fillTrackerItemVo(TrackerItemBlockData.InnerTrackerItemVo trackerItemVo) {
+        if(trackerItemVo == null){
+            trackerItemVo = new TrackerItemBlockData.InnerTrackerItemVo();
+        }
         TrackerItemVo trackerItemVo2 = new TrackerItemVo();
         IdNameReference<ProjectVo> project = new IdNameReference<>();
         project.setId(trackerItemVo.getProjectId());

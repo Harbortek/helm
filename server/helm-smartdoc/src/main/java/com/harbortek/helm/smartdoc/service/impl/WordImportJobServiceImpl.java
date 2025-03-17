@@ -363,11 +363,11 @@ public class WordImportJobServiceImpl implements WordImportJobService {
                 HtmlUtil.cleanHtmlTag(trackerItem.getName())
         );
         itemBlockData.setName(baseStr.length() > 100 ? baseStr.substring(0, 100) : baseStr);
-        if (StringUtils.isEmpty(trackerItem.getDescription())) {
-            itemBlockData.setText(baseStr);
+        if (StringUtils.isNotEmpty(trackerItem.getDescription())) {
+            itemBlockData.setText(trackerItem.getDescription());
         }
-        trackerItem.setName(itemBlockData.getName());
-        trackerItem.setDescription(itemBlockData.getText());
+//        trackerItem.setName(itemBlockData.getName());
+//        trackerItem.setDescription(itemBlockData.getText());
         return new DocBlock(IDUtils.getShortId(), String.valueOf(trackerItem.getTracker().getId()),
                 itemBlockData);
     }
@@ -462,8 +462,8 @@ public class WordImportJobServiceImpl implements WordImportJobService {
             trackerItem.setName(paragraphs.get(0).text());
         }
 
+        StringBuilder sb = new StringBuilder();
         for (Element paragraph : paragraphs) {
-            StringBuilder sb = new StringBuilder();
             if (conditionsMatch(pRule.getNextParagraph().getConditions(),
                     pRule.getNextParagraph().getConditionsMatchType(), paragraph)) {
                 sb.append(WordUtils.html(paragraph)).append("\n");
