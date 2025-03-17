@@ -169,7 +169,9 @@ public class PlanDao extends BaseJdbcDao {
                     .set(getField(PlanEntity.Fields.parentId), d.getParentId())
                     .where(getField(BaseEntity.Fields.id).eq(d.getId()))
                     .execute();
+            CacheUtils.evict(d.getId(), PlanEntity.class);
         });
+        CacheUtils.evictAll(PlanEntity.class);
     }
 
     public void batchCreatePlans(List<PlanEntity> plans) {

@@ -48,7 +48,7 @@ public class TrackerUtils {
                 StatusTypeField.builder().name("状态类型").systemProperty(SystemFields.STATUS_TYPE).build(),
                 UserField.builder().name("分配给").systemProperty(SystemFields.ASSIGNED_TO).build(),
                 DateField.builder().name("分配日期").systemProperty(SystemFields.ASSIGNED_DATE).build(),
-                DateField.builder().name("截止日期").systemProperty(SystemFields.DUE_DATE).build(),
+//                DateField.builder().name("截止日期").systemProperty(SystemFields.DUE_DATE).build(),
                 DateField.builder().name("解决方案").systemProperty(SystemFields.RESOLUTION).build(),
                 DateField.builder().name("解决日期").systemProperty(SystemFields.RESOLVED_ON).build(),
                 ProjectField.builder().name("所属项目").systemProperty(SystemFields.PROJECT).build(),

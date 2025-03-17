@@ -26,6 +26,7 @@ import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
 import com.harbortek.helm.tracker.util.FilterUtils;
 import com.harbortek.helm.tracker.vo.RecentProjectVo;
 import com.harbortek.helm.tracker.vo.view.ObjectFilter;
+import com.harbortek.helm.util.CacheUtils;
 import com.harbortek.helm.util.ObjectUtils;
 import com.harbortek.helm.util.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -247,6 +248,14 @@ public class ProjectDao extends BaseJdbcDao {
         return save(recentProjectEntity);
     }
 
+    public void deleteRecentProject(Long projectId) {
+        getDslContext().update(getTable(RecentProjectEntity.class))
+                .set(getField(BaseEntity.Fields.deleted), Boolean.TRUE)
+                .where(getField(RecentProjectEntity.Fields.projectId).eq(projectId))
+                .and(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
+                .execute();
+        CacheUtils.evictAll(RecentProjectEntity.class);
+    }
 
     public List<Long> findProjectIdByCreateBy(Long userId) {
 

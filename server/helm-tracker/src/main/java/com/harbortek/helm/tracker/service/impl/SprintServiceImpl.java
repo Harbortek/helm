@@ -33,10 +33,7 @@ import com.harbortek.helm.tracker.service.TrackerItemService;
 import com.harbortek.helm.tracker.service.TrackerService;
 import com.harbortek.helm.tracker.vo.plan.SprintVo;
 import com.harbortek.helm.tracker.vo.tracker.fields.SprintField;
-import com.harbortek.helm.util.DataUtils;
-import com.harbortek.helm.util.DateUtils;
-import com.harbortek.helm.util.IDUtils;
-import com.harbortek.helm.util.SecurityUtils;
+import com.harbortek.helm.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -80,39 +77,40 @@ public class SprintServiceImpl implements SprintService {
         //计算迭代进度
         List<Long> sprintIds = sprintEntities.stream().map(BaseEntity::getId).collect(Collectors.toList());
         List<TrackerItemEntity> trackerItemList = trackerItemDao.findBySprintIds(projectId,sprintIds);
+        if(ObjectUtils.isNotEmpty(trackerItemList)){
+            List<Long> itemIds = trackerItemList.stream().map(TrackerItemEntity::getTrackerId).toList();
+            Map<Long, Long> trackerMap= trackerDao.findByIds(itemIds, TrackerEntity.class)
+                    .stream().collect(Collectors.toMap(BaseEntity::getId, tracker ->
+                            tracker.getTrackerFields().stream()
+                                    .filter(field -> field instanceof SprintField&&!field.getSystem())
+                                    .findFirst()
+                                    .map(IdNameVo::getId)
+                                    .orElse(0L)
+                    ));
 
-        List<Long> itemIds = trackerItemList.stream().map(TrackerItemEntity::getTrackerId).toList();
-        Map<Long, Long> trackerMap= trackerDao.findByIds(itemIds, TrackerEntity.class)
-                .stream().collect(Collectors.toMap(BaseEntity::getId, tracker ->
-                    tracker.getTrackerFields().stream()
-                           .filter(field -> field instanceof SprintField&&!field.getSystem())
-                           .findFirst()
-                           .map(IdNameVo::getId)
-                           .orElse(0L)
-                ));
-
-        sprintVos.forEach(sprintVo -> {
-            double progress=0,duration=0,progressTotal=0,durationTotal=0;
-            for (TrackerItemEntity trackerItem : trackerItemList) {
-                Long itemSprintId=trackerMap.get(trackerItem.getTrackerId());
-                if(itemSprintId.equals(sprintVo.getId())){
-                    progress=0;duration=1;
-                    if(trackerItem.getPlanStartDate()!=null&&trackerItem.getPlanEndDate()!=null){
-                        duration=DateUtils.daysBetween(trackerItem.getPlanStartDate(),trackerItem.getPlanEndDate());
+            sprintVos.forEach(sprintVo -> {
+                double progress=0,duration=0,progressTotal=0,durationTotal=0;
+                for (TrackerItemEntity trackerItem : trackerItemList) {
+                    Long itemSprintId=trackerMap.get(trackerItem.getTrackerId());
+                    if(itemSprintId.equals(sprintVo.getId())){
+                        progress=0;duration=1;
+                        if(trackerItem.getPlanStartDate()!=null&&trackerItem.getPlanEndDate()!=null){
+                            duration=DateUtils.daysBetween(trackerItem.getPlanStartDate(),trackerItem.getPlanEndDate());
+                        }
+                        if(trackerItem.getProgress()!=null&&trackerItem.getProgress()!=0){
+                            progress=trackerItem.getProgress();
+                        }
+                        progressTotal+=(duration*progress);
+                        durationTotal+=duration;
                     }
-                    if(trackerItem.getProgress()!=null&&trackerItem.getProgress()!=0){
-                        progress=trackerItem.getProgress();
-                    }
-                    progressTotal+=(duration*progress);
-                    durationTotal+=duration;
                 }
-            }
-            if(progressTotal==0){
-                sprintVo.setProgress(0);
-            }else{
-                sprintVo.setProgress(Integer.parseInt(String.format("%.0f",(progressTotal/durationTotal))));
-            }
-        });
+                if(progressTotal==0){
+                    sprintVo.setProgress(0);
+                }else{
+                    sprintVo.setProgress(Integer.parseInt(String.format("%.0f",(progressTotal/durationTotal))));
+                }
+            });
+        }
         return sprintVos;
     }
 

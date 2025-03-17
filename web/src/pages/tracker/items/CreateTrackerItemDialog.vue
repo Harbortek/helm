@@ -40,10 +40,13 @@
             <div v-for="item in sections" :key="item">
                 <a-row :gutter="15" v-if="item == 'DETAIL'">
                     <a-col :span="24">
+                                
                         <a-form-model-item ref="description" label="描述" prop="description">
-                            <simple-editor v-model="formData.description" :showToolbar="editorInEditMode.description"
-                                @focus="editorInEditMode.description = true"
-                                @blur="editorInEditMode.description = false" />
+                            <div :style="{ 'border': editorInEditMode.description ? 'solid 1px #cccccc' : '','margin-bottom':'15px'}">
+                                <simple-editor v-model="formData.description" :showToolbar="editorInEditMode.description"
+                                    @focus="editorInEditMode.description = true"
+                                    @blur="editorInEditMode.description = false" />
+                            </div>
                         </a-form-model-item>
                     </a-col>
                     <a-col :span="12">

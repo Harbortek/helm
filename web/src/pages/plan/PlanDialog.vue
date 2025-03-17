@@ -216,10 +216,10 @@ export default {
                 this.formData = cloneDeep(this.currentPlan)
                 if (this.formData.planStartDate && this.formData.duration) {
                     this.formData.planStartDate = moment(this.formData.planStartDate)
-                    this.formData.planEndDate = this.formData.planStartDate.clone().add(this.formData.duration, 'days')
+                    this.$set(this.formData, 'planEndDate', this.formData.planStartDate.clone().add(this.formData.duration, 'days'))
                 }
                 else if (this.formData.planEndDate) {
-                    this.formData.planEndDate = moment(this.formData.planEndDate)
+                    this.$set(this.formData, 'planEndDate', moment(this.formData.planEndDate))
                 }
                 this.preTasks = this.formData.preTasks || []
                 this.postTasks = this.formData.postTasks || []
@@ -227,7 +227,7 @@ export default {
                 this.formData = {
                     name: '',
                     type: 'group',
-                    owner: {}
+                    owner: {},
                 }
                 this.preTasks = []
                 this.postTasks = []
@@ -237,13 +237,13 @@ export default {
             if (this.formData.planStartDate && this.formData.duration) {
                 this.formData.planEndDate = this.formData.planStartDate.clone().add(this.formData.duration, 'days')
                 this.$set(this.formData, 'planEndDate', this.formData.planEndDate)
-            } ``
+            }
         },
         onDurationChange() {
             if (this.formData.planStartDate && this.formData.duration) {
                 this.formData.planEndDate = this.formData.planStartDate.clone().add(this.formData.duration, 'days')
                 this.$set(this.formData, 'planEndDate', this.formData.planEndDate)
-                console.log(this.formData.planEndDate.format('YYYY MM DD'))
+                console.log(this.formData.planEndDate?.format('YYYY MM DD'))
             }
         },
         onEndDateChange() {
@@ -263,7 +263,7 @@ export default {
             const currentPlanId = this.currentPlan?.id
             const totalPlans = this.plans || []
 
-            return totalPlans.filter(p => { return p.id !== currentPlanId && p.parentId !== currentPlanId && !this.containsPaln(this.preTasks, p.id) || p.id === row.id })
+            return totalPlans.filter(p => { return p.id !== currentPlanId && (p.parentId !== currentPlanId||p.parentId==undefined) && !this.containsPaln(this.preTasks, p.id) || p.id === row.id })
         },
         onAddPostTask() {
             this.postTasks.push({ id: '-', linkType: 'FS' })
@@ -275,8 +275,7 @@ export default {
         availablePostTasks(row) {
             const currentPlanId = this.currentPlan?.id
             const totalPlans = this.plans || []
-
-            return totalPlans.filter(p => { return p.id !== currentPlanId && p.parentId !== currentPlanId && !this.containsPaln(this.postTasks, p.id) || p.id === row.id })
+            return totalPlans.filter(p => { return p.id !== currentPlanId && (p.parentId !== currentPlanId||p.parentId==undefined) && !this.containsPaln(this.postTasks, p.id) || p.id === row.id })
         },
         formatPlanName(currentPlanId) {
             if (currentPlanId && this.plans && this.plans.length > 0) {
@@ -302,10 +301,10 @@ export default {
                 if (valid) {
                     let result = cloneDeep(this.formData)
                     if (result.type === 'TASK') {
-                        result.planStartDate = this.formData.planStartDate.format('YYYY-MM-DD')
-                        result.planEndDate = this.formData.planEndDate.format('YYYY-MM-DD')
+                        result.planStartDate = this.formData.planStartDate?.format('yyyy-MM-DD HH:mm:ss')
+                        result.planEndDate = this.formData.planEndDate?.format('yyyy-MM-DD HH:mm:ss')
                     } else if (result.type === 'MILE_STONE') {
-                        result.planEndDate = this.formData.planEndDate.format('YYYY-MM-DD')
+                        result.planEndDate = this.formData.planEndDate?.format('yyyy-MM-DD HH:mm:ss')
                     }
                     result.preTasks = this.preTasks
                     result.postTasks = this.postTasks

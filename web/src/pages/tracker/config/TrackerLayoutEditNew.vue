@@ -22,6 +22,7 @@
                     <span v-if="isCustomConfig" @click="onClickSelectSpan"
                         :class="{ 'clickable-zoom': true, actived: selectTab == 'field' }"
                         style="inset: 0px -16px;position: absolute;z-index: 20;"></span>
+                    <a-col :span="12" v-if="customerFields?.length==0" style="min-height: 50px;"></a-col>
                     <a-col :span="12" v-for="f in customerFields" :key="f.id">
                         <a-form-item :label="f.name" :prop="f.name" :required="f.required">
 

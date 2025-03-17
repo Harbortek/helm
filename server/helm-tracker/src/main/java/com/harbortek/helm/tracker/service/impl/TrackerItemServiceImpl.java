@@ -1583,6 +1583,9 @@ public class TrackerItemServiceImpl implements TrackerItemService {
 
     private boolean checkFieldPermission(FieldPermission permission, TrackerEntity tracker, TrackerItemEntity item,
                                          Long userId) {
+        if(ObjectUtils.isEmpty(permission)){
+            return true;
+        }
         if (FieldPermission.UNRESTRICTED.equals(permission.getType())) {
             return true;
         } else if (FieldPermission.SINGLE.equals(permission.getType())) {

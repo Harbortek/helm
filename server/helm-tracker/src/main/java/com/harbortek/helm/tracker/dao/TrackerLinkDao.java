@@ -152,16 +152,6 @@ public class TrackerLinkDao extends BaseJdbcDao {
     }
 
     public void deleteByItemIds(Collection<Long> itemIds) {
-//        Criteria criteria = Criteria.empty();
-//        criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
-//        criteria.and(
-//                Criteria.where(TrackerLinkEntity.Fields.sourceItemId).in(itemIds).or(
-//                        Criteria.where(TrackerLinkEntity.Fields.targetItemId).in(itemIds)));
-//        Query query = Query.query(criteria);
-//        Update update =
-//                Update.update(BaseEntity.Fields.deleted, Boolean.TRUE);
-//        updateMulti(query, update, TrackerLinkEntity.class);
-
         Condition condition = DSL.noCondition();
         condition = condition.and(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE));
         condition = condition.and(getField(TrackerLinkEntity.Fields.sourceItemId).in(itemIds).or(getField(TrackerLinkEntity.Fields.targetItemId).in(itemIds)));

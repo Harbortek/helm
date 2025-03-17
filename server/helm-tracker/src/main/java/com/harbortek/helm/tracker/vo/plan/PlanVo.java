@@ -67,14 +67,14 @@ public class PlanVo extends BaseVo {
     /**
      * 计划开始时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+8") // 返回到前台
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8") // 返回到前台
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     LocalDateTime planStartDate;
 
     /**
      * 计划结束时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+8") // 返回到前台
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8") // 返回到前台
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     LocalDateTime planEndDate;
 

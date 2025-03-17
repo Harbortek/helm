@@ -104,14 +104,20 @@
                     <div style="height:5%" v-if="sprintId && sprintId > 0" class="toolbar-header">
                         <a-popover v-model="popoverVisible" trigger="click" placement="bottom">
                             <template slot="content">
-                                <a-input-search v-model="keyword" placeholder="搜索迭代" style="width: 260px" />
-                                <vxe-table ref="popoverTable" border="none" size="mini"
-                                    :row-config="{ isCurrent: true, isHover: true }"
+                                <a-input-search v-model="keyword" placeholder="搜索迭代1" style="width: 260px" />
+                                <!-- <vxe-table ref="popoverTable" border="none" size="mini" height="auto"
+                                    :row-config="{ isCurrent: true, isHover: true }" style="height:auto"
                                     :column-config="{ isCurrent: true, isHover: true }" :show-header="false"
-                                    @current-change="currentChangeEvent" :data="getSprintData">
+                                    @current-change="" :data="getSprintData">
                                     <vxe-column field="name" width="260"></vxe-column>
 
-                                </vxe-table>
+                                </vxe-table> -->
+                                
+                                <a-menu :selectable="true" class="sprint-menu">
+                                        <a-menu-item v-for="p in  getSprintData" :key="p?.id" class="sprint-menu-item"
+                                            @click="currentChangeEvent(p)">
+                                        {{ p.name }} </a-menu-item>
+                                </a-menu>
                             </template>
                             <div style="display: flex;align-items: center;margin: auto 20px;cursor: pointer;">
                                 {{ currentSprint?.name }}<a-icon style="margin-left:5px;" type="down" />
@@ -250,9 +256,7 @@ export default {
             })
         },
         isFilterSprint(){
-            console.log("???",this.sprintFilterNow)
             if(this.sprintFilterNow.status||this.sprintFilterNow.ownerId||this.sprintFilterNow.sprintName){
-                console.log("！！！",this.sprintFilterNow)
                 return true;
             }
             return false;
@@ -321,7 +325,7 @@ export default {
                 })
             }
         },
-        currentChangeEvent({ newValue }) {
+        currentChangeEvent(newValue) {
             this.popoverVisible = false;
             this.currentSprint = newValue
             this.sprintId = newValue.id;
@@ -529,5 +533,20 @@ export default {
 .layout-content{
     background-color: #fff;
     padding:10px;
+}
+.sprint-menu{
+    margin-top:8px;
+    .sprint-menu-item{
+        height:30px;
+        line-height:30px;
+        cursor:pointer;
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+    .sprint-menu-item:hover{
+        background-color: #f0faff;
+    }
+}
+.sprint-menu:hover{
 }
 </style>

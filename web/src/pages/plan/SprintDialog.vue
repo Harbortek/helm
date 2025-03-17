@@ -154,12 +154,12 @@ export default {
             this.$refs["planForm"].validate((valid) => {
                 if (valid) {
                     let result = cloneDeep(this.formData)
-                    if (result.type === 'TASK') {
-                        result.planStartDate = this.formData.planStartDate.format('YYYY-MM-DD')
-                        result.planEndDate = this.formData.planEndDate.format('YYYY-MM-DD')
-                    } else if (result.type === 'MILE_STONE') {
-                        result.planEndDate = this.formData.planEndDate.format('YYYY-MM-DD')
-                    }
+                    // if (result.type === 'TASK') {
+                    //     result.planStartDate = this.formData.planStartDate.format('YYYY-MM-DD')
+                    //     result.planEndDate = this.formData.planEndDate.format('YYYY-MM-DD')
+                    // } else if (result.type === 'MILE_STONE') {
+                    //     result.planEndDate = this.formData.planEndDate.format('YYYY-MM-DD')
+                    // }
                     result.targetVersion = { id: this.formData.targetVersionId }
                     result.owner = { id: this.formData.ownerId }
                     console.log(result)
