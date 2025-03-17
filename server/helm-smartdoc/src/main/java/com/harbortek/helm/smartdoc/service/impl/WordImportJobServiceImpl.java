@@ -41,6 +41,7 @@ import com.harbortek.helm.tracker.entity.block.*;
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.Block2Node;
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.Node2Block;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
 import com.harbortek.helm.tracker.service.*;
 import com.harbortek.helm.tracker.vo.ProjectVo;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
@@ -310,7 +311,14 @@ public class WordImportJobServiceImpl implements WordImportJobService {
         Long projectId = job.getProjectId();
         Long pageId = job.getPageId();
         List<SlateNode> blocks = SlateParser.parseArray(job.getBlocksJSON());
-
+        for (SlateNode node : blocks) {
+            if (node instanceof TrackerItemSlateElement<?>) {
+                TrackerItemSlateElement ele = (TrackerItemSlateElement) node;
+                if (ele.getTrackerItem() != null) {
+                    ele.getTrackerItem().setItemNo("");
+                }
+            }
+        }
         docService.saveBlocksAndTrackerItems(projectId, pageId, blocks);
 
         wordImportJobDao.deleteJob(job.getId());

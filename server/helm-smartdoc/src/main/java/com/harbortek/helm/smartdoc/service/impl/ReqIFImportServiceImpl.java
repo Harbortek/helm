@@ -46,6 +46,7 @@ import com.harbortek.helm.tracker.entity.block.HeaderBlockData;
 import com.harbortek.helm.tracker.entity.block.TrackerItemBlockData;
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.Block2Node;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
 import com.harbortek.helm.tracker.service.*;
 import com.harbortek.helm.tracker.vo.ProjectVo;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
@@ -424,6 +425,14 @@ public class ReqIFImportServiceImpl implements ReqIFImportJobService {
         List<SlateNode> elements = blocks.stream().map(block -> {
             return Block2Node.parse(block);
         }).toList();
+        for (SlateNode node : elements) {
+            if (node instanceof TrackerItemSlateElement<?>) {
+                TrackerItemSlateElement ele = (TrackerItemSlateElement) node;
+                if (ele.getTrackerItem() != null) {
+                    ele.getTrackerItem().setItemNo("");
+                }
+            }
+        }
         docService.saveBlocksAndTrackerItems(projectId, pageId, elements, links);
 
         reqIFImportJobDao.deleteJob(job.getId());
