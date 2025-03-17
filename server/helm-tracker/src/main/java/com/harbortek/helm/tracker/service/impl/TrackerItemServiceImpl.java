@@ -279,6 +279,8 @@ public class TrackerItemServiceImpl implements TrackerItemService {
 //        }
         if (trackerItemVo.getOwner() != null) {
             item.setOwnerId(trackerItemVo.getOwner().getId());
+        }else{
+            item.setOwnerId(SecurityUtils.getCurrentUser().getId());
         }
         if (trackerItemVo.getPriority() != null && trackerItemVo.getPriority().getId() != null) {
             item.setPriorityId(trackerItemVo.getPriority().getId());
@@ -1760,5 +1762,10 @@ public class TrackerItemServiceImpl implements TrackerItemService {
         } else {
             trackerItem.setCustomerFieldValue(trackerField.get(), value);
         }
+    }
+
+    @Override
+    public void deleteTrackerItemsByPageId(Long pageId) {
+        trackerItemDao.deleteTrackerItemsByPageId(pageId);
     }
 }

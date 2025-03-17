@@ -139,16 +139,5 @@ export function fileDownload(projectId, path, branchName) {
     normalizedPath.lastIndexOf("/") + 1
   );
   download(url, { path: path, branchName: branchName }, filename);
-  // const accessToken = localStorage.get(ACCESS_TOKEN)
-  // const accessToken = Cookies.get("Authorization");
-  // const downloadUrl =
-  //   process.env.VUE_APP_API_BASE_URL +
-  //   `/scm/code/${projectId}/fileDownload?access_token=${accessToken}&path=${path}&branchName=${branchName}`;
-  // var iframe = document.createElement("iframe");
-  // iframe.style.display = "none";
-  // iframe.src = downloadUrl;
-  // iframe.onload = function () {
-  //   document.body.removeChild(iframe);
-  // };
-  // document.body.appendChild(iframe);
+  
 }

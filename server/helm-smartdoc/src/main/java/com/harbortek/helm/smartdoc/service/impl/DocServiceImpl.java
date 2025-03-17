@@ -338,6 +338,9 @@ public class DocServiceImpl implements DocService {
     @Override
     @Transactional
     public DocEntity saveBlocksAndTrackerItems(Long projectId, Long pageId, List<SlateNode> docBlocks, List<DocBlockLink> docBlockLinks) {
+        //删除该文档相关的历史工作项
+        trackerItemService.deleteTrackerItemsByPageId(pageId);
+
         //saveTrackerItems (新增、更新、删除)
         for (int i = 0; i < docBlocks.size(); i++) {
             SlateNode curBlock = docBlocks.get(i);

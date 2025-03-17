@@ -487,7 +487,6 @@ public class DatasetServiceImpl implements DatasetService {
                                status.meaning                                        as '通用状态',
                                priority_enum.name                                    as '优先级',
                                severity.name                                         as '严重程度',
-                               sprint.name                                           as '迭代',
                                items.assigned_date                                   as '分配日期',
                                u3.name                                               as '当前处理人',
                                items.close_date                                      as '关闭日期',
@@ -513,7 +512,6 @@ public class DatasetServiceImpl implements DatasetService {
                                  left join enum_items meaning on (items.meaning_id = meaning.id)
                                  left join enum_items severity on (items.severity_id = severity.id)
                                  left join json_table(tracker.tracker_statuses,'$[*]' COLUMNS (id bigint path '$.id', name varchar(200) path '$.name',meaning varchar(200) path '$.meaning.name')) status on (items.status_id = status.id)
-                                 left join sprints sprint on items.sprint_id = sprint.id
                                  left join users u1 on items.create_by = u1.id
                                  left join users u2 on items.last_modified_by = u2.id
                                  left join users u3 on items.assigned_to_id = u3.id
@@ -544,7 +542,6 @@ public class DatasetServiceImpl implements DatasetService {
                            status.meaning                                        as '通用状态',
                            priority_enum.name                                    as '优先级',
                            severity.name                                         as '严重程度',
-                           sprint.name                                           as '迭代',
                            items.assigned_date                                   as '分配日期',
                            u3.name                                               as '当前处理人',
                            items.close_date                                      as '关闭日期',
@@ -572,7 +569,6 @@ public class DatasetServiceImpl implements DatasetService {
                                  left join enum_items meaning on (items.meaning_id = meaning.id)
                                  left join enum_items severity on (items.severity_id = severity.id)
                                  left join json_table(tracker.tracker_statuses,'$[*]' COLUMNS (id bigint path '$.id', name varchar(200) path '$.name',meaning varchar(200) path '$.meaning.name')) status on (items.status_id = status.id)
-                                 left join sprints sprint on items.sprint_id = sprint.id
                                  left join users u1 on items.create_by = u1.id
                                  left join users u2 on items.last_modified_by = u2.id
                                  left join users u3 on items.assigned_to_id = u3.id
