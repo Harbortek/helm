@@ -58,7 +58,7 @@ public class ParseCommonElemHtml {
     /**
      * Generate slate node children.
      *
-     * @param elem   DOM element
+     * @param elem DOM element
      * @return list of SlateNode
      */
     public static List<SlateNode> genChildren(Node elem) {
@@ -117,11 +117,34 @@ public class ParseCommonElemHtml {
      */
     private static SlateElement defaultParser(Element elem, List<SlateNode> children) {
         SlateText text = new SlateText(elem.text().replaceAll("\\s+", " "));
-        ParagraphSlateElement<SlateText> paragraph = new ParagraphSlateElement<SlateText>();
-        List<SlateText> childrenText = new ArrayList<>();
-        childrenText.add(text);
-        paragraph.setChildren(childrenText);
+        ParagraphSlateElement paragraph = new ParagraphSlateElement();
+//        List<SlateText> childrenText = new ArrayList<>();
+//        childrenText.add(text);
+//        paragraph.setChildren(childrenText);
+        List<SlateNode> newChildren = new ArrayList<>();
+        for (SlateNode slateNode : children) {
+            newChildren.addAll(unwrapperChildren(slateNode));
+        }
+        paragraph.setChildren(newChildren);
         return paragraph;
+    }
+
+    private static List<SlateNode> unwrapperChildren(SlateNode item) {
+        List<SlateNode> newChildren = new ArrayList<>();
+        if (item instanceof SlateText) {
+            newChildren.add(item);
+        } else {
+            SlateElement<SlateNode> childElement = (SlateElement) item;
+            List<SlateNode> childrenElement = childElement.getChildren();
+            if (childrenElement.isEmpty()) {
+                newChildren.add(item);
+            } else {
+                for (SlateNode slateNodeChild : childrenElement) {
+                    newChildren.addAll(unwrapperChildren(slateNodeChild));
+                }
+            }
+        }
+        return newChildren;
     }
 
     /**
@@ -147,7 +170,7 @@ public class ParseCommonElemHtml {
     /**
      * Process common DOM element HTML, non-text elements like span or font.
      *
-     * @param elem   DOM element
+     * @param elem DOM element
      * @return list of Element
      */
     public static SlateElement parseCommonElemHtml(Element elem) {
@@ -159,6 +182,10 @@ public class ParseCommonElemHtml {
             if (children.isEmpty()) {
                 element.setChildren(new ArrayList());
                 element.getChildren().add(new SlateText(elem.html().replaceAll("\\s+", " ")));
+            } else {
+                for (SlateNode child : children) {
+
+                }
             }
 
             // Process style

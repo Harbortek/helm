@@ -20,6 +20,7 @@ import cn.hutool.core.lang.id.NanoId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.style.SlateStyle;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.style.StyleedStyle;
 import com.harbortek.helm.util.IDUtils;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
@@ -34,19 +35,20 @@ import java.util.List;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type"
 )
-@Data
 public abstract class SlateNode implements Serializable {
     protected String type;
 
     private String id;
-    protected List<SlateStyle> styles = new ArrayList();
+    protected List<StyleedStyle> styles = null;
 
     abstract public String toHtml();
 
     public String html() {
         String html = toHtml();
-        for (SlateStyle style : styles) {
-            html = style.styleToHtml(this, html);
+        if (styles != null) {
+            for (SlateStyle style : styles) {
+                html = style.styleToHtml(this, html);
+            }
         }
         return html;
     }
@@ -64,5 +66,21 @@ public abstract class SlateNode implements Serializable {
             this.id = IDUtils.getShortId();
         }
         return id;
+    }
+
+    public List<StyleedStyle> getStyles() {
+        return styles;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setStyles(List<StyleedStyle> styles) {
+        this.styles = styles;
     }
 }

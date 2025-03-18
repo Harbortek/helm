@@ -146,7 +146,6 @@ public class DocumentToHtml {
     }
 
     private List<HtmlNode> convertToHtml(List<DocumentElement> elements, Context context) {
-        System.out.println("convertToHtml: " + elements);
         return eagerFlatMap(
                 elements,
                 element -> convertToHtml(element, context)

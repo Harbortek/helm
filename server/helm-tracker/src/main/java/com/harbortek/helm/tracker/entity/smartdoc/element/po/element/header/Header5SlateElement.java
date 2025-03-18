@@ -24,8 +24,11 @@ import lombok.Data;
 @Data
 @JsonTypeName(SlateElements.HEADER5)
 public class Header5SlateElement<SlateText> extends HeaderSlateElement {
-    private String type =  SlateElements.HEADER5;
 
+    public Header5SlateElement() {
+        super();
+        type = SlateElements.HEADER5;
+    }
 
     @Override
     public String toHtml() {

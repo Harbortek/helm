@@ -24,7 +24,11 @@ import lombok.Data;
 @Data
 @JsonTypeName(SlateElements.PRE)
 public class PreSlateElement<CodeSlateElement> extends SlateElement {
-    private String type = SlateElements.PRE;
+
+    public PreSlateElement() {
+        super();
+        type = SlateElements.PRE;
+    }
 
     @Override
     public String toHtml() {

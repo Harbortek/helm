@@ -43,15 +43,6 @@ public class SlateText extends SlateNode {
     public SlateText() {
     }
 
-    protected List<SlateStyle> styles = new ArrayList<>();
-
-    public List<SlateStyle> getStyles() {
-        return styles;
-    }
-
-    public void setStyles(List<SlateStyle> styles) {
-        this.styles = styles;
-    }
     @Override
     public String toHtml() {
         return this.text;

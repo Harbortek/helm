@@ -27,6 +27,7 @@ import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.header.*;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.list.ListSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph.ParagraphSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.table.TableSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.title.TitleSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
 import com.harbortek.helm.tracker.vo.ProjectVo;
@@ -64,7 +65,7 @@ public class Node2Block {
             docBlock = DocBlock.builder()
                     .type(BlockTypes.TITLE)
                     .data(TitleBlockData.builder().text(
-                            unwrapper(titleSlateElement.toHtml())
+                            unwrapper(titleSlateElement.html())
                     ).build())
                     .build();
         } else if (node instanceof HeaderSlateElement<?>) {
@@ -84,7 +85,7 @@ public class Node2Block {
             docBlock = DocBlock.builder()
                     .type(BlockTypes.HEADING)
                     .data(HeaderBlockData.builder().level(level).text(
-                                    unwrapper(headerSlateElement.toHtml()))
+                                    unwrapper(headerSlateElement.html()))
                             .build())
                     .build();
 
@@ -100,8 +101,8 @@ public class Node2Block {
                 type = trackerItemVo.getTracker().getId().toString();
             }
             List<SlateNode> children = trackerItemSlateElement.getChildren();
-            String name = HtmlUtil.cleanHtmlTag(children.get(0).toHtml());
-            String description = children.get(1).toHtml();
+            String name = HtmlUtil.cleanHtmlTag(children.get(0).html());
+            String description = children.get(1).html();
             Long trackerId = trackerItemVo.getTracker() != null ? trackerItemVo.getTracker().getId() : null;
             docBlock = DocBlock.builder()
                     .type(type)
@@ -114,13 +115,20 @@ public class Node2Block {
             docBlock = DocBlock.builder()
                     .type(BlockTypes.PARAGRAPH)
                     .data(ParagraphBlockData.builder().text(
-                            unwrapper((listSlateElement.toHtml()))).build())
+                            unwrapper((listSlateElement.html()))).build())
+                    .build();
+        } else if (node instanceof TableSlateElement<?>) {
+            TableSlateElement<?> tableSlateElement = (TableSlateElement<?>) node;
+            docBlock = DocBlock.builder()
+                    .type(BlockTypes.PARAGRAPH)
+                    .data(ParagraphBlockData.builder().text(
+                            (tableSlateElement.html())).build())
                     .build();
         } else {
             docBlock = DocBlock.builder()
                     .type(BlockTypes.PARAGRAPH)
                     .data(ParagraphBlockData.builder().text(
-                            unwrapper((node.toHtml()))).build())
+                            unwrapper((node.html()))).build())
                     .build();
         }
         docBlock.setId(node.getId());
@@ -173,6 +181,7 @@ public class Node2Block {
         Optional.ofNullable(trackerItemVo.getSeverity())
                 .ifPresent(value -> trackerItemVo2.setSeverityId(value.getId()));
 
+        trackerItemVo2.setPriorityId(trackerItemVo.getPriority().getId());
         trackerItemVo2.setProgress(trackerItemVo.getProgress());
         trackerItemVo2.setCloseDate(trackerItemVo.getCloseDate());
         trackerItemVo2.setEstimateWorkingHours(trackerItemVo.getEstimateWorkingHours());

@@ -41,7 +41,7 @@ public class DefaultParserStyleHtmlFn implements ParseStyleHtmlFn {
         SlateText text = new SlateText();
         text.setText(((SlateText) textNode).getText());
         // bold
-        StyleedStyle style = StyleedStyle.builder().build();
+        StyleedStyle style = new StyleedStyle();
         boolean styleChanged = false;
         if (isMatch(elem, "b,strong")) {
             style.setBold(true);

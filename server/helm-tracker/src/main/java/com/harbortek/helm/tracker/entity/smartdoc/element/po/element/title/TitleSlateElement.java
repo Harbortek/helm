@@ -25,7 +25,10 @@ import lombok.Data;
 @Data
 @JsonTypeName(SlateElements.TITLE)
 public class TitleSlateElement<SlateText> extends SlateElement {
-    private String type = SlateElements.TITLE;
+    public TitleSlateElement() {
+        super();
+        type = SlateElements.TITLE;
+    }
 
     @Override
     public String toHtml() {

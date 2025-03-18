@@ -25,8 +25,12 @@ import lombok.Data;
 @Data
 @JsonTypeName(SlateElements.TABLE)
 public class TableSlateElement<TableRowSlateElement> extends SlateElement {
-    private String type = SlateElements.TABLE;
     private String width = "auto";
+
+    public TableSlateElement() {
+        super();
+        type = SlateElements.TABLE;
+    }
 
     @Override
     public String toHtml() {

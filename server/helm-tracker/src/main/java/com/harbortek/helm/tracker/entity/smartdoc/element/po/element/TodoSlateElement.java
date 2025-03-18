@@ -25,7 +25,12 @@ import lombok.Data;
 @Data
 @JsonTypeName(SlateElements.TODO)
 public class TodoSlateElement<SlateText> extends SlateElement {
-    private String type = SlateElements.TODO;
+
+    public TodoSlateElement() {
+        super();
+        type = SlateElements.TODO;
+    }
+
     @NotEmpty
     private Boolean checked = false;
 

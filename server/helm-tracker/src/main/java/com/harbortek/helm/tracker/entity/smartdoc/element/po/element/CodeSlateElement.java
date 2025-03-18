@@ -24,9 +24,12 @@ import lombok.Data;
 @Data
 @JsonTypeName(SlateElements.CODE)
 public class CodeSlateElement<PureSlateText> extends SlateElement {
-    private String type = SlateElements.CODE;
     private String language;
 
+    public CodeSlateElement() {
+        super();
+        type = SlateElements.CODE;
+    }
 
     @Override
     public String toHtml() {

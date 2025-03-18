@@ -27,10 +27,14 @@ import org.apache.commons.lang3.StringUtils;
 @Data
 @JsonTypeName(SlateElements.LIST)
 public class ListSlateElement<T extends SlateNode> extends SlateElement {
-    private String type = SlateElements.LIST;
+
+    public ListSlateElement() {
+        super();
+        type = SlateElements.LIST;
+    }
 
     private Boolean ordered; // 有序/无序
-    private Long level; // 层级：0 1 2 ...
+    private Long level = 1L; // 层级：0 1 2 ...
 
     @Override
     public String toHtml() {

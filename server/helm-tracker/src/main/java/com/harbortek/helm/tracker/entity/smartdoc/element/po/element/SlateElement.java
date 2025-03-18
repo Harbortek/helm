@@ -19,8 +19,8 @@ package com.harbortek.helm.tracker.entity.smartdoc.element.po.element;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.style.SlateStyle;
+import org.springframework.data.annotation.Transient;
 
-import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +28,9 @@ public abstract class SlateElement<T extends SlateNode> extends SlateNode {
     protected String type;
     private List<T> children = new ArrayList<>();
 
+    public SlateElement() {
+        super();
+    }
 
     public List<T> getChildren() {
         return children;
@@ -45,23 +48,14 @@ public abstract class SlateElement<T extends SlateNode> extends SlateNode {
         return type;
     }
 
-    protected List<SlateStyle> styles = new ArrayList<>();
-
-    public List<SlateStyle> getStyles() {
-        return styles;
-    }
-
-    public void setStyles(List<SlateStyle> styles) {
-        this.styles = styles;
-    }
-
     @JsonIgnore
+    @Transient
     private String childrenHtml;
 
     public String getChildrenHtml() {
         StringBuilder sb = new StringBuilder();
         for (SlateNode child : children) {
-            sb.append(child.toHtml());
+            sb.append(child.html());
         }
         return sb.toString();
     }

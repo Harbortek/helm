@@ -48,7 +48,6 @@ public class HtmlParser {
                 return ParseTextElemHtml.parseTextElemHtml(elem);
             }
         }
-
         // Special handling for <code>
         if (tagName.equals("code")) {
             String parentTagName = ((Element) elem).parent().tagName().toLowerCase();

@@ -16,9 +16,14 @@
 
 package com.harbortek.helm.smartdoc.api;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
 import com.harbortek.helm.smartdoc.config.SmartDocMessages;
 import com.harbortek.helm.smartdoc.service.WordImportJobService;
 import com.harbortek.helm.smartdoc.vo.WordImportJobVo;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.PoUtils;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +34,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/smart-doc/{pageId}/import/word/job")
@@ -41,48 +50,66 @@ public class WordImportJobApi {
     SmartDocMessages smartDocMessages;
 
 
-    @Parameter(name="查找历史导入")
+    @Parameter(name = "查找历史导入")
     @RequestMapping(value = "", method = RequestMethod.GET)
-    ResponseEntity<WordImportJobVo> findJob(@PathVariable Long pageId,Long projectId) throws IOException {
-        WordImportJobVo job=  wordImportJobService.findExistedJob(projectId,pageId);
+    ResponseEntity<WordImportJobVo> findJob(@PathVariable Long pageId, Long projectId) throws IOException {
+        WordImportJobVo job = wordImportJobService.findExistedJob(projectId, pageId);
+        if (job != null) {
+            job.setBlocksJSON(PoUtils.toMap(new JSONArray(job.getBlocksJSON())).toString());
+        }
+        //样式转换
         return ResponseEntity.ok(job);
     }
 
-
-    @Parameter(name="初始导入")
+    @Parameter(name = "初始导入")
     @RequestMapping(value = "", method = RequestMethod.POST)
     ResponseEntity<WordImportJobVo> createJob(@PathVariable Long pageId, @RequestBody WordImportJobVo job) {
         job.setPageId(pageId);
         job = wordImportJobService.createJob(job);
+        if (job != null) {
+            job.setBlocksJSON(PoUtils.toMap(new JSONArray(job.getBlocksJSON())).toString());
+        }
         return ResponseEntity.ok(job);
     }
 
 
-    @Parameter(name="执行导入规则")
+    @Parameter(name = "执行导入规则")
     @RequestMapping(value = "", method = RequestMethod.PUT)
-    ResponseEntity<WordImportJobVo> updateJob(@PathVariable Long pageId, @RequestBody WordImportJobVo job) throws IOException {
+    ResponseEntity<WordImportJobVo> updateJob(@PathVariable Long pageId, @RequestBody WordImportJobVo job) throws
+            IOException {
         job = wordImportJobService.updateJob(job);
+        if (job != null) {
+            job.setBlocksJSON(PoUtils.toMap(new JSONArray(job.getBlocksJSON())).toString());
+        }
         return ResponseEntity.ok(job);
     }
 
-    @Parameter(name="完成导入")
+    @Parameter(name = "完成导入")
     @RequestMapping(value = "/complete", method = RequestMethod.POST)
-    ResponseEntity<Void> completeJob(@PathVariable Long pageId, @RequestBody WordImportJobVo job) throws IOException {
+    ResponseEntity<Void> completeJob(@PathVariable Long pageId, @RequestBody WordImportJobVo job) throws
+            IOException {
         wordImportJobService.completeJob(job);
+        if (job != null) {
+            job.setBlocksJSON(PoUtils.toMap(new JSONArray(job.getBlocksJSON())).toString());
+        }
         return ResponseEntity.ok().build();
     }
 
-    @Parameter(name="取消导入")
+    @Parameter(name = "取消导入")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    ResponseEntity<Void> deleteJob(@PathVariable Long pageId,@PathVariable Long id) {
+    ResponseEntity<Void> deleteJob(@PathVariable Long pageId, @PathVariable Long id) {
         wordImportJobService.deleteJob(id);
         return ResponseEntity.ok().build();
     }
 
-    @Parameter(name="返回上一次保存的数据")
+    @Parameter(name = "返回上一次保存的数据")
     @RequestMapping(value = "/{id}/withdraw", method = RequestMethod.GET)
-    ResponseEntity<WordImportJobVo> withdrawJob(@PathVariable Long pageId,@PathVariable Long id) throws IOException {
+    ResponseEntity<WordImportJobVo> withdrawJob(@PathVariable Long pageId, @PathVariable Long id) throws
+            IOException {
         WordImportJobVo job = wordImportJobService.withdrawJob(id);
+        if (job != null) {
+            job.setBlocksJSON(PoUtils.toMap(new JSONArray(job.getBlocksJSON())).toString());
+        }
         return ResponseEntity.ok(job);
     }
 }
