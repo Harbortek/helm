@@ -16,6 +16,7 @@
 
 package com.harbortek.helm.smartdoc.service.impl;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HtmlUtil;
 import com.harbortek.helm.common.exception.ServiceException;
@@ -41,7 +42,9 @@ import com.harbortek.helm.tracker.entity.block.*;
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.Block2Node;
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.Node2Block;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.style.SlateStyle;
 import com.harbortek.helm.tracker.service.*;
 import com.harbortek.helm.tracker.vo.ProjectVo;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
@@ -190,6 +193,8 @@ public class WordImportJobServiceImpl implements WordImportJobService {
                         ParagraphBlockData data = new ParagraphBlockData();
                         if (element.is("ul,ol")) {
                             data.setText(element.outerHtml());
+                        } else if (element.is("table")) {
+                            data.setText(element.outerHtml());
                         } else {
                             data.setText(element.html());
                         }
@@ -319,10 +324,25 @@ public class WordImportJobServiceImpl implements WordImportJobService {
                 }
             }
         }
+//        toBlock(blocks);
         docService.saveBlocksAndTrackerItems(projectId, pageId, blocks);
 
         wordImportJobDao.deleteJob(job.getId());
     }
+
+//    private void toBlock(List<SlateNode> nodes) {
+//        for (SlateNode node : nodes) {
+//            if (node.getStyles() != null) {
+//                for (SlateStyle style : node.getStyles()) {
+//                    System.out.println(style.getClass().getName());
+//                }
+//            }
+//            if (node instanceof SlateElement<?>) {
+//                SlateElement elem = (SlateElement) node;
+//                toBlock(elem.getChildren());
+//            }
+//        }
+//    }
 
     @Override
     public void deleteJob(Long id) {

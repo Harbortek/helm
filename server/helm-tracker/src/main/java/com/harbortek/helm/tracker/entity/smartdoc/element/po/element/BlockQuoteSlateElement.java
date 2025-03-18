@@ -24,7 +24,11 @@ import lombok.Data;
 @Data
 @JsonTypeName(SlateElements.BLOCKQUOTE)
 public class BlockQuoteSlateElement<StateText> extends SlateElement {
-    private String type = SlateElements.BLOCKQUOTE;
+
+    public BlockQuoteSlateElement() {
+        super();
+        type = SlateElements.BLOCKQUOTE;
+    }
 
     @Override
     public String toHtml() {

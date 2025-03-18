@@ -25,7 +25,12 @@ import lombok.Data;
 @Data
 @JsonTypeName(SlateElements.LINK)
 public class LinkSlateElement<SlateText> extends SlateElement {
-    private String type = SlateElements.LINK;
+
+    public LinkSlateElement() {
+        super();
+        type = SlateElements.LINK;
+    }
+
     @NotEmpty
     private String url;
     private String target;

@@ -27,7 +27,11 @@ import org.apache.commons.lang3.StringUtils;
 @Data
 @JsonTypeName(SlateElements.PARAGRAPH)
 public class ParagraphSlateElement<T extends SlateNode> extends SlateElement {
-    private String type = SlateElements.PARAGRAPH;
+
+    public ParagraphSlateElement() {
+        super();
+        type = SlateElements.PARAGRAPH;
+    }
 
     @Override
     public String toHtml() {

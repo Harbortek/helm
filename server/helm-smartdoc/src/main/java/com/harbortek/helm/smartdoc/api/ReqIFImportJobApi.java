@@ -16,9 +16,11 @@
 
 package com.harbortek.helm.smartdoc.api;
 
+import cn.hutool.json.JSONArray;
 import com.harbortek.helm.smartdoc.config.SmartDocMessages;
 import com.harbortek.helm.smartdoc.service.ReqIFImportJobService;
 import com.harbortek.helm.smartdoc.vo.ReqIFImportJobVo;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.PoUtils;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -39,48 +41,63 @@ public class ReqIFImportJobApi {
     SmartDocMessages smartDocMessages;
 
 
-    @Parameter(name="查找历史导入")
+    @Parameter(name = "查找历史导入")
     @RequestMapping(value = "", method = RequestMethod.GET)
-    ResponseEntity<ReqIFImportJobVo> findJob(@PathVariable Long pageId,Long projectId) {
-        ReqIFImportJobVo job=  reqIFImportJobService.findExistedJob(projectId, pageId);
+    ResponseEntity<ReqIFImportJobVo> findJob(@PathVariable Long pageId, Long projectId) {
+        ReqIFImportJobVo job = reqIFImportJobService.findExistedJob(projectId, pageId);
+        if (job != null) {
+            job.setBlocksJSON(PoUtils.toMap(new JSONArray(job.getBlocksJSON())).toString());
+        }
         return ResponseEntity.ok(job);
     }
 
 
-    @Parameter(name="初始导入")
+    @Parameter(name = "初始导入")
     @RequestMapping(value = "", method = RequestMethod.POST)
     ResponseEntity<ReqIFImportJobVo> createJob(@PathVariable Long pageId, @RequestBody ReqIFImportJobVo job) {
         job.setPageId(pageId);
         job = reqIFImportJobService.createJob(job);
+        if (job != null) {
+            job.setBlocksJSON(PoUtils.toMap(new JSONArray(job.getBlocksJSON())).toString());
+        }
         return ResponseEntity.ok(job);
     }
 
 
-    @Parameter(name="执行导入规则")
+    @Parameter(name = "执行导入规则")
     @RequestMapping(value = "", method = RequestMethod.PUT)
     ResponseEntity<ReqIFImportJobVo> updateJob(@PathVariable Long pageId, @RequestBody ReqIFImportJobVo job) {
         job = reqIFImportJobService.updateJob(job);
+        if (job != null) {
+            job.setBlocksJSON(PoUtils.toMap(new JSONArray(job.getBlocksJSON())).toString());
+        }
         return ResponseEntity.ok(job);
     }
 
-    @Parameter(name="完成导入")
+    @Parameter(name = "完成导入")
     @RequestMapping(value = "/complete", method = RequestMethod.POST)
     ResponseEntity<Void> completeJob(@PathVariable Long pageId, @RequestBody ReqIFImportJobVo job) {
         reqIFImportJobService.completeJob(job);
+        if (job != null) {
+            job.setBlocksJSON(PoUtils.toMap(new JSONArray(job.getBlocksJSON())).toString());
+        }
         return ResponseEntity.ok().build();
     }
 
-    @Parameter(name="取消导入")
+    @Parameter(name = "取消导入")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    ResponseEntity<Void> deleteJob(@PathVariable Long pageId,@PathVariable Long id) {
+    ResponseEntity<Void> deleteJob(@PathVariable Long pageId, @PathVariable Long id) {
         reqIFImportJobService.deleteJob(id);
         return ResponseEntity.ok().build();
     }
 
-    @Parameter(name="返回上一次保存的数据")
+    @Parameter(name = "返回上一次保存的数据")
     @RequestMapping(value = "/{id}/withdraw", method = RequestMethod.GET)
-    ResponseEntity<ReqIFImportJobVo> withdrawJob(@PathVariable Long pageId,@PathVariable Long id) {
+    ResponseEntity<ReqIFImportJobVo> withdrawJob(@PathVariable Long pageId, @PathVariable Long id) {
         ReqIFImportJobVo job = reqIFImportJobService.withdrawJob(id);
+        if (job != null) {
+            job.setBlocksJSON(PoUtils.toMap(new JSONArray(job.getBlocksJSON())).toString());
+        }
         return ResponseEntity.ok(job);
     }
 }

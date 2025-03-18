@@ -24,7 +24,10 @@ import lombok.Data;
 @Data
 @JsonTypeName(SlateElements.ATTACHMENT)
 public class AttachmentSlateElement<SlateText> extends SlateElement {
-    private String type = SlateElements.ATTACHMENT;
+    public AttachmentSlateElement() {
+        super();
+        this.type = SlateElements.ATTACHMENT;
+    }
 
     private String fileName;
 

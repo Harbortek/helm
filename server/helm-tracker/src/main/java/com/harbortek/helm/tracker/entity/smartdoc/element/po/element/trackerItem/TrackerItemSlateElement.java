@@ -27,7 +27,12 @@ import org.springframework.data.annotation.Transient;
 @Data
 @JsonTypeName(SlateElements.TRACKER_ITEM)
 public class TrackerItemSlateElement<SlateText> extends SlateElement {
-    private String type = SlateElements.TRACKER_ITEM;
+
+    public TrackerItemSlateElement() {
+        super();
+        type = SlateElements.TRACKER_ITEM;
+    }
+
     private String ref;
     @Transient
     private TrackerItemVo trackerItem;
@@ -35,8 +40,8 @@ public class TrackerItemSlateElement<SlateText> extends SlateElement {
     @Override
     public String toHtml() {
         return StrUtil.format("""
-                    <p data-x-ref={}>{}</p>
-                    """, ref, getChildrenHtml());
+                <p data-x-ref={}>{}</p>
+                """, ref, getChildrenHtml());
     }
 
     @Data

@@ -23,8 +23,11 @@ import lombok.Data;
 @Data
 @JsonTypeName(SlateElements.DIVIDER)
 public class DividerSlateElement<EmptySlateText> extends SlateElement {
-    private String type =  SlateElements.DIVIDER;
 
+    public DividerSlateElement() {
+        super();
+        type = SlateElements.DIVIDER;
+    }
     @Override
     public String toHtml() {
         return "<hr/>";

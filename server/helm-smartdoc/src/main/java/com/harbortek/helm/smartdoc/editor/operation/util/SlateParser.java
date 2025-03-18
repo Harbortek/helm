@@ -27,6 +27,7 @@ import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.*;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.header.*;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.image.ImageSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.list.ListSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph.ParagraphSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.table.TableSlateElement;
@@ -37,7 +38,6 @@ import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
 import com.harbortek.helm.util.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -70,7 +70,7 @@ public class SlateParser {
 
     public static SlateNode parseOne(JSONObject obj) throws IOException {
         String type = obj.getStr("type");
-        List<SlateStyle> styles = parseStyles(obj);
+        List<StyleedStyle> styles = parseStyles(obj);
         SlateNode node = null;
         if (SlateElements.ATTACHMENT.equals(type)) {
             node = new AttachmentSlateElement();
@@ -125,7 +125,7 @@ public class SlateParser {
                 "styles"
         ));
         if (SlateElements.TRACKER_ITEM.equals(type)) {
-            TrackerItemSlateElement item = (TrackerItemSlateElement)node;
+            TrackerItemSlateElement item = (TrackerItemSlateElement) node;
             item.setTrackerItem(JsonUtils.toObject(obj.getStr("trackerItem"), TrackerItemVo.class));
         }
         node.setStyles(styles);
@@ -136,38 +136,41 @@ public class SlateParser {
                 ((SlateElement) node).setChildren(parseedChildren);
             }
         }
+        if (node.getStyles() == null || node.getStyles().isEmpty()) {
+            node.setStyles(null);
+        }
         return node;
     }
 
-    private static List<SlateStyle> parseStyles(JSONObject item) throws IOException {
+    private static List<StyleedStyle> parseStyles(JSONObject item) throws IOException {
 
         String textAlign = item.getStr("textAlign");
 
-        List<SlateStyle> styles = new ArrayList<>();
+        List<StyleedStyle> styles = new ArrayList<>();
         //justify包装
-        if (StringUtils.isNotEmpty(textAlign)) {
-            JustifyStyle justifyStyle = JustifyStyle.builder().textAlign(textAlign).build();
-            styles.add(justifyStyle);
-        }
-        //indent包装
-        String indent = item.getStr("indent");
-        if (StringUtils.isNotEmpty(indent)) {
-            IndentStyle indentStyle = IndentStyle.builder().indent(indent).build();
-            styles.add(indentStyle);
-        }
-        //lineHeight包装
-        String lineHeight = item.getStr("lineHeight");
-        if (StringUtils.isNotEmpty(lineHeight)) {
-            LineHeightStyle lineHeightElement = LineHeightStyle.builder().lineHeight(lineHeight).build();
-            styles.add(lineHeightElement);
-        }
+//        if (StringUtils.isNotEmpty(textAlign)) {
+//            JustifyStyle justifyStyle = JustifyStyle.builder().textAlign(textAlign).build();
+//            styles.add(justifyStyle);
+//        }
+//        //indent包装
+//        String indent = item.getStr("indent");
+//        if (StringUtils.isNotEmpty(indent)) {
+//            IndentStyle indentStyle = IndentStyle.builder().indent(indent).build();
+//            styles.add(indentStyle);
+//        }
+//        //lineHeight包装
+//        String lineHeight = item.getStr("lineHeight");
+//        if (StringUtils.isNotEmpty(lineHeight)) {
+//            LineHeightStyle lineHeightElement = LineHeightStyle.builder().lineHeight(lineHeight).build();
+//            styles.add(lineHeightElement);
+//        }
         //color包装
-        String color = item.getStr("color");
-        String bgColor = item.getStr("bgColor");
-        if (StringUtils.isNotEmpty(color) || StringUtils.isNotEmpty(bgColor)) {
-            ColorStyle colorStyle = ColorStyle.builder().color(color).bgColor(bgColor).build();
-            styles.add(colorStyle);
-        }
+//        String color = item.getStr("color");
+//        String bgColor = item.getStr("bgColor");
+//        if (StringUtils.isNotEmpty(color) || StringUtils.isNotEmpty(bgColor)) {
+//            ColorStyle colorStyle = ColorStyle.builder().color(color).bgColor(bgColor).build();
+//            styles.add(colorStyle);
+//        }
         //style包装
         Boolean bold = item.getBool("bold");
         Boolean code = item.getBool("code");
@@ -180,25 +183,26 @@ public class SlateParser {
                 Boolean.TRUE.equals(italic) || Boolean.TRUE.equals(through)
                 || Boolean.TRUE.equals(underline) || Boolean.TRUE.equals(sup) ||
                 Boolean.TRUE.equals(sub)) {
-            StyleedStyle styleedStyle = StyleedStyle.builder()
-                    .bold(bold)
-                    .code(code)
-                    .italic(italic)
-                    .through(through)
-                    .underline(underline)
-                    .sup(sup)
-                    .sub(sub).build();
+            StyleedStyle styleedStyle = new StyleedStyle();
+            styleedStyle.setBold(bold);
+            styleedStyle.setCode(code);
+            styleedStyle.setItalic(italic);
+            styleedStyle.setThrough(through);
+            styleedStyle.setUnderline(underline);
+            styleedStyle.setSub(sup);
+            styleedStyle.setSub(sub);
+
             styles.add(styleedStyle);
         }
         //fontSizeAndFamily包装
-        String fontSize = item.getStr("fontSize");
-        String fontFamily = item.getStr("fontFamily");
-        if (StringUtils.isNotEmpty(fontSize) || StringUtils.isNotEmpty(fontFamily)) {
-            FontSizeAndFamilyStyle fontSizeAndFamilyStyle = FontSizeAndFamilyStyle.builder()
-                    .fontSize(fontSize)
-                    .fontFamily(fontFamily).build();
-            styles.add(fontSizeAndFamilyStyle);
-        }
+//        String fontSize = item.getStr("fontSize");
+//        String fontFamily = item.getStr("fontFamily");
+//        if (StringUtils.isNotEmpty(fontSize) || StringUtils.isNotEmpty(fontFamily)) {
+//            FontSizeAndFamilyStyle fontSizeAndFamilyStyle = FontSizeAndFamilyStyle.builder()
+//                    .fontSize(fontSize)
+//                    .fontFamily(fontFamily).build();
+//            styles.add(fontSizeAndFamilyStyle);
+//        }
         return styles;
     }
 }

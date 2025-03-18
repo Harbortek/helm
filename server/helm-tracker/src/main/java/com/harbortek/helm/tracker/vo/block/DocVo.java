@@ -16,6 +16,10 @@
 
 package com.harbortek.helm.tracker.vo.block;
 
+import cn.hutool.json.JSONArray;
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.harbortek.helm.common.vo.BaseVo;
 import com.harbortek.helm.tracker.entity.block.DocBlock;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
@@ -24,6 +28,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
 import lombok.experimental.SuperBuilder;
+import org.json.JSONPropertyName;
+import org.springframework.data.annotation.Transient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +41,15 @@ import java.util.List;
 @FieldNameConstants
 public class DocVo extends BaseVo {
 
-//    private Long pageId;
+    //    private Long pageId;
     private Long version;
     private List<DocBlock> blocks = new ArrayList<>();
+    @JsonIgnore
     private List<SlateNode> elements = new ArrayList<>();
+
+    //前台格式转换用，不做存储，实际使用elements
+    @JsonProperty("elements")
+    @Transient
+    private JSONArray rawElements = new JSONArray();
 
 }

@@ -16,6 +16,7 @@
 
 package com.harbortek.helm.tracker.entity.smartdoc.element.parser.block;
 
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.http.HtmlUtil;
 import com.harbortek.helm.common.vo.IdNameReference;
 import com.harbortek.helm.system.vo.EnumItemVo;
@@ -24,9 +25,12 @@ import com.harbortek.helm.tracker.entity.block.*;
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.html2po.HtmlParser;
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.html2po.ParserRegister;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.image.ImageHtmlParserConf;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.list.ListHtmlParserConf;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.list.ListSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph.ParagraphHtmlParserConf;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.table.TableHtmlParserConf;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.table.TableSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.header.*;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph.ParagraphSlateElement;
@@ -40,6 +44,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
+import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +55,8 @@ public class Block2Node {
         ParserRegister.registerParseStyleHtmlHandler(new DefaultParserStyleHtmlFn());
         ParserRegister.registerParseElemHtmlConf(new ParagraphHtmlParserConf());
         ParserRegister.registerParseElemHtmlConf(new ListHtmlParserConf());
+        ParserRegister.registerParseElemHtmlConf(new ImageHtmlParserConf());
+        ParserRegister.registerParseElemHtmlConf(new TableHtmlParserConf());
     }
 
     public static SlateNode parse(DocBlock docBlock) {
@@ -76,32 +83,76 @@ public class Block2Node {
                 paragraphSlateElement.getChildren().add(slateText);
                 return paragraphSlateElement;
             }
-            //ul,ol 特殊处理
-            if (all.get(0) instanceof Element && ((Element) all.get(0)).is("ul,ol")) {
-                Element firstChild = (Element) all.get(0);
-                ListSlateElement listSlateElement = new ListSlateElement<>();
-                for (Node node : firstChild.childNodes()) {
-                    Element element = wrapperText(node);
-                    SlateNode parseElemHtml = HtmlParser.parseElemHtml(element);
-                    children.add(parseElemHtml);
+            if (all.get(0) instanceof Element) {
+                //ul,ol 特殊处理
+                if (((Element) all.get(0)).is("ul,ol")) {
+                    Element firstChild = (Element) all.get(0);
+                    String tagName = firstChild.tagName();
+                    ParagraphSlateElement paragraphSlateElement = new ParagraphSlateElement();
+                    for (Node node : firstChild.childNodes()) {
+                        Element element = wrapperText(node);
+                        if (StringUtils.isEmpty(StringUtils.trimToEmpty(element.html()))) {
+                            continue;
+                        }
+                        SlateNode parseElemHtml = HtmlParser.parseElemHtml(element);
+                        ListSlateElement listSlateElement = new ListSlateElement<>();
+                        listSlateElement.setLevel(1L);
+                        listSlateElement.setOrdered(tagName.equals("ol"));
+                        listSlateElement.getChildren().add(parseElemHtml);
+                        children.add(listSlateElement);
+                    }
+                    paragraphSlateElement.setChildren(children);
+                    paragraphSlateElement.setId(docBlock.getId());
+                    return paragraphSlateElement;
                 }
-                listSlateElement.setOrdered(firstChild.tagName().equals("ol"));
-                listSlateElement.setChildren(children);
-                listSlateElement.setId(docBlock.getId());
-                return listSlateElement;
-            } else {
-                ParagraphSlateElement<SlateNode> paragraphSlateElement = new ParagraphSlateElement<>();
-                String html = HtmlUtil.removeHtmlTag(paragraphBlockData.getText(), "p");
-                for (Node node : Jsoup.parse(html).body().childNodes()) {
-                    Element element = wrapperText(node);
+                //table 特殊处理
+                if (((Element) all.get(0)).is("table,tbody")) {
+                    Element firstChild = (Element) all.get(0);
+                    final List<Element> trElements = new ArrayList<>();
+                    firstChild.getElementsByTag("tr").forEach(e -> trElements.add(e));
+                    TableSlateElement tableSlateElement = new TableSlateElement<>();
+                    for (Element tr : trElements) {
+                        boolean isHeader = tr.tagName().equals("th");
+                        TableSlateElement.TableRowSlateElement tableRowSlateElement = new TableSlateElement.TableRowSlateElement();
+                        List<Element> tdElements = new ArrayList<>();
+                        for (Element td : tr.getElementsByTag("td")) {
+                            tdElements.add(td);
+                        }
+                        for (Element td : tr.getElementsByTag("th")) {
+                            tdElements.add(td);
+                        }
+                        for (Element td : tdElements) {
+                            String colSpan = td.attr("colspan");
+                            String rowspan = td.attr("rowspan");
+                            TableSlateElement.TableCellSlateElement tableCellSlateElement = new TableSlateElement.TableCellSlateElement();
+                            tableCellSlateElement.setIsHeader(isHeader);
+                            if (NumberUtil.isNumber(colSpan)) {
+                                tableCellSlateElement.setColSpan(Integer.parseInt(colSpan));
 
-                    SlateNode parseElemHtml = HtmlParser.parseElemHtml(element);
-                    children.add(parseElemHtml);
+                            }
+                            if (NumberUtil.isNumber(rowspan)) {
+                                tableCellSlateElement.setRowSpan(Integer.parseInt(rowspan));
+                            }
+                            SlateNode childrenTd = HtmlParser.parseElemHtml(td);
+                            tableCellSlateElement.getChildren().add(childrenTd);
+                            tableRowSlateElement.getChildren().add(tableCellSlateElement);
+                        }
+                        tableSlateElement.getChildren().add(tableRowSlateElement);
+                    }
+                    tableSlateElement.setWidth("100%");
+                    return tableSlateElement;
                 }
-                paragraphSlateElement.setChildren(children);
-                paragraphSlateElement.setId(docBlock.getId());
-                return paragraphSlateElement;
             }
+            ParagraphSlateElement<SlateNode> paragraphSlateElement = new ParagraphSlateElement<>();
+            String html = HtmlUtil.removeHtmlTag(paragraphBlockData.getText(), "p");
+            for (Node node : Jsoup.parse(html).body().childNodes()) {
+                Element element = wrapperText(node);
+                SlateNode parseElemHtml = HtmlParser.parseElemHtml(element);
+                children.add(parseElemHtml);
+            }
+            paragraphSlateElement.setChildren(children);
+            paragraphSlateElement.setId(docBlock.getId());
+            return paragraphSlateElement;
         } else if (blockData instanceof TrackerItemBlockData) {
             TrackerItemBlockData trackerItemBlockData = (TrackerItemBlockData) blockData;
             TrackerItemSlateElement<SlateNode> trackerItemSlateElement = new TrackerItemSlateElement<>();
@@ -196,7 +247,7 @@ public class Block2Node {
     }
 
     private static TrackerItemVo fillTrackerItemVo(TrackerItemBlockData.InnerTrackerItemVo trackerItemVo) {
-        if(trackerItemVo == null){
+        if (trackerItemVo == null) {
             trackerItemVo = new TrackerItemBlockData.InnerTrackerItemVo();
         }
         TrackerItemVo trackerItemVo2 = new TrackerItemVo();
@@ -214,6 +265,7 @@ public class Block2Node {
         trackerItemVo2.setItemNo(trackerItemVo.getItemNo());
         trackerItemVo2.setAssignedDate(trackerItemVo.getAssignedDate());
 
+        trackerItemVo2.setPriority(EnumItemVo.builder().id(trackerItemVo.getPriorityId()).build());
         trackerItemVo2.setProgress(trackerItemVo.getProgress());
         trackerItemVo2.setCloseDate(trackerItemVo.getCloseDate());
         trackerItemVo2.setEstimateWorkingHours(trackerItemVo.getEstimateWorkingHours());

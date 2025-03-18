@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.tracker.entity.smartdoc.element.po.element;
+package com.harbortek.helm.tracker.entity.smartdoc.element.po.element.image;
 
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
@@ -27,7 +28,12 @@ import java.io.Serializable;
 @Data
 @JsonTypeName(SlateElements.IMAGE)
 public class ImageSlateElement<EmptySlateText> extends SlateElement {
-    private String type = SlateElements.IMAGE;
+
+    public ImageSlateElement() {
+        super();
+        type = SlateElements.IMAGE;
+    }
+
     @NotEmpty
     private String src;
     private String alt;
@@ -35,20 +41,23 @@ public class ImageSlateElement<EmptySlateText> extends SlateElement {
     private ImageStyle style;
 
     @Data
-    public class ImageStyle implements Serializable {
+    public static class ImageStyle implements Serializable {
         private String width;
         private String height;
 
         public String toHtml() {
             return StrUtil.format("""
-                    width:{width};
-                    height:{height};
+                    width:{};
+                    height:{};
                     """, width, height);
         }
     }
 
     @Override
     public String toHtml() {
+        if (style == null) {
+            style = new ImageStyle();
+        }
         return StrUtil.format("""
                 <img src="{}" alt="{}" data-href="{}" style="{}"/>
                 """, src, alt, href, style.toHtml());

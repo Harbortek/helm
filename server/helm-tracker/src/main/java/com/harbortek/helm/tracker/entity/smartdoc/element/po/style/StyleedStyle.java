@@ -28,7 +28,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 @Data
-@Builder
 @JsonTypeName(SlateElements.StyleSlateText)
 public class StyleedStyle extends SlateStyle {
 
@@ -39,6 +38,18 @@ public class StyleedStyle extends SlateStyle {
     private Boolean through;
     private Boolean sub;
     private Boolean sup;
+
+    public StyleedStyle() {
+        this.type = SlateElements.StyleSlateText;
+
+        this.bold = false;
+        this.code = false;
+        this.italic = false;
+        this.underline = false;
+        this.through = false;
+        this.sub = false;
+        this.sup = false;
+    }
 
     public String styleToHtml(SlateNode textNode, String html) {
         if (!(textNode instanceof SlateText)) {
