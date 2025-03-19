@@ -28,6 +28,9 @@ public class SlateNodeFinder {
         SlateNode currentNode = null;
         for (Integer index : path) {
             if (currentNode == null) {
+                if (index >= nodes.size()) {
+                    return null;
+                }
                 currentNode = nodes.get(index);
             } else {
                 if (currentNode instanceof SlateElement<?>) {
@@ -38,7 +41,8 @@ public class SlateNodeFinder {
         }
         return currentNode;
     }
-    public static void removeByPath(List<SlateNode> nodes, List<Integer> path){
+
+    public static void removeByPath(List<SlateNode> nodes, List<Integer> path) {
         if (path == null || path.isEmpty()) {
             return;
         }
@@ -51,6 +55,7 @@ public class SlateNodeFinder {
             }
         }
     }
+
     public static List<Integer> previousPath(List<Integer> path) {
         List<Integer> prevPath = new ArrayList<>(path);
         int lastIndex = prevPath.size() - 1;

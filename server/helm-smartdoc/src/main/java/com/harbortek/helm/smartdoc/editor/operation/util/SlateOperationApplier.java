@@ -213,25 +213,27 @@ public class SlateOperationApplier {
             SlateNodeFinder.removeByPath(nodes, path);
 
         } else {
-            SlateNodeFinder.removeByPath(nodes, path);
-            if (previousNode != null && previousNode instanceof SlateElement) {
-                SlateElement previousElem = (SlateElement) previousNode;
+            if (currentNode != null) {
+                SlateNodeFinder.removeByPath(nodes, path);
+                if (previousNode != null && previousNode instanceof SlateElement) {
+                    SlateElement previousElem = (SlateElement) previousNode;
 //                int index = previousElem.getChildren().size() - 1 + position;
-                int index = position;
-                SlateElement<SlateText> currentElem = (SlateElement) currentNode;
-                String originalText = "";
-                for (SlateText child : currentElem.getChildren()) {
-                    originalText += child.getText();
-                }
-                SlateText newTextNode = new SlateText();
-                newTextNode.setText(originalText);
-                int diff = position - previousElem.getChildren().size();
-                int initLen = previousElem.getChildren().size();
-                for (int i = 0; i < diff; i++) {
-                    previousElem.getChildren().add(initLen + i, new SlateText());
+                    int index = position;
+                    SlateElement<SlateText> currentElem = (SlateElement) currentNode;
+                    String originalText = "";
+                    for (SlateText child : currentElem.getChildren()) {
+                        originalText += child.getText();
+                    }
+                    SlateText newTextNode = new SlateText();
+                    newTextNode.setText(originalText);
+                    int diff = position - previousElem.getChildren().size();
+                    int initLen = previousElem.getChildren().size();
+                    for (int i = 0; i < diff; i++) {
+                        previousElem.getChildren().add(initLen + i, new SlateText());
 
+                    }
+                    previousElem.getChildren().add(index, newTextNode);
                 }
-                previousElem.getChildren().add(index, newTextNode);
             }
         }
         tryAndApplyTrackerItem(nodes, previousPath.subList(0, 1), operation.getType());

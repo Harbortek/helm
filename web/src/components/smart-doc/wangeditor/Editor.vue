@@ -109,6 +109,13 @@ export default Vue.extend({
         }
       }
       SlateTransforms.insertNodes(editor, content, { at: [0] });
+      if (content.length != editor.children.length) {
+        const len = editor.children.length - content.length;
+        for (let i = 1; i <= len; i++) {
+          SlateTransforms.removeNodes(editor, { at: [editor.children.length - i] });
+        }
+      }
+      console.log(content, editor.children);
       this.preValue = _.cloneDeep(editor.children);
       editor.history.undos = [];
       editor.history.redos = [];
