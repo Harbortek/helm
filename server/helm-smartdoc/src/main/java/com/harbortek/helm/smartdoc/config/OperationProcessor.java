@@ -65,8 +65,7 @@ public class OperationProcessor {
         operationExecutorService.submit(() -> {
             while (true) {
                 try {
-                    List<Operation> operations = operationQueue.takeOperation();
-                    Long docId = null;
+                    List<Operation> operations = operationQueue.takeOperation();Long docId = null;
                     for (Operation operation : operations) {
                         docId = operation.getDocId();
                         processOperation(operation);
@@ -76,7 +75,6 @@ public class OperationProcessor {
                     }
                 } catch (Exception e) {
                     log.severe(e.getMessage());
-                    throw new ServiceException(e.getMessage());
 //                    Thread.currentThread().interrupt();
 //                    break;
                 }
