@@ -47,9 +47,12 @@ public class TrackerItemSlateElement<SlateText> extends SlateElement {
     @Data
     @JsonTypeName(SlateElements.TRACKER_ITEM_TITLE)
     public static class TrackerItemTitleSlateElement extends SlateElement {
-        private String type = SlateElements.TRACKER_ITEM_TITLE;
         private String ref;
 
+        public TrackerItemTitleSlateElement() {
+            super();
+            type = SlateElements.TRACKER_ITEM_TITLE;
+        }
         @Override
         public String toHtml() {
             return StrUtil.format("""
@@ -61,8 +64,12 @@ public class TrackerItemSlateElement<SlateText> extends SlateElement {
     @Data
     @JsonTypeName(SlateElements.TRACKER_ITEM_DESCRIPTION)
     public static class TrackerItemDescriptionSlateElement extends SlateElement {
-        private String type = SlateElements.TRACKER_ITEM_DESCRIPTION;
         private String ref;
+
+        public TrackerItemDescriptionSlateElement() {
+            super();
+            type = SlateElements.TRACKER_ITEM_DESCRIPTION;
+        }
 
         @Override
         public String toHtml() {
@@ -75,8 +82,12 @@ public class TrackerItemSlateElement<SlateText> extends SlateElement {
     @Data
     @JsonTypeName(SlateElements.TRACKER_ITEM_EXTRA)
     public static class TrackerItemExtraSlateElement extends SlateElement {
-        private String type = SlateElements.TRACKER_ITEM_EXTRA;
         private String ref;
+
+        public TrackerItemExtraSlateElement() {
+            super();
+            type = SlateElements.TRACKER_ITEM_EXTRA;
+        }
 
         @Override
         public String toHtml() {

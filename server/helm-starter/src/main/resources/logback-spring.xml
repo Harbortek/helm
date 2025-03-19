@@ -13,10 +13,12 @@
     </appender>
 
     <root level="INFO">
-        <appender-ref ref="Console" />
+        <appender-ref ref="Console"/>
     </root>
     <logger name="com.harbortek.helm" level="INFO" additivity="false">
-        <appender-ref ref="Console" />
+        <appender-ref ref="Console"/>
     </logger>
-
+    <logger name="druid.sql.Statement" level="debug" additivity="false">
+        <appender-ref ref="Console"/>
+    </logger>
 </configuration>
