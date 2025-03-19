@@ -346,6 +346,7 @@ export default {
         if (this.queuedData.length > 0) {
           console.log('300ms debounce', this.queuedData);
           this.saving = true;
+          console.log(this.queuedData,' is saving...');
           this.$hws.send(`/smart-doc/modified/${this.initValue.id}`, this.queuedData);
           this.queuedData = []; // 清空队列
         }
