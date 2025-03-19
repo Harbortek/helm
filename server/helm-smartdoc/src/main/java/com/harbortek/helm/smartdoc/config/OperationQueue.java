@@ -18,17 +18,18 @@ package com.harbortek.helm.smartdoc.config;
 
 import com.harbortek.helm.smartdoc.editor.operation.Operation;
 
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class OperationQueue {
-    private BlockingQueue<Operation> queue = new LinkedBlockingQueue<>();
+    private BlockingQueue<List<Operation>> queue = new LinkedBlockingQueue<>();
 
-    public void addOperation(Operation operation) {
-        queue.add(operation);
+    public void addOperation(List<Operation> operations) {
+        queue.add(operations);
     }
 
-    public Operation takeOperation() throws InterruptedException {
+    public List<Operation> takeOperation() throws InterruptedException {
         return queue.take();
     }
 }

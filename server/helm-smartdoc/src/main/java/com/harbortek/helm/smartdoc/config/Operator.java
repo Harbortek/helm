@@ -64,6 +64,9 @@ public class Operator {
             DocEntity docEntity = docService.findOneDoc(docId);
             docEntity.setBlocks(new ArrayList<>(docEntity.getBlocks()));
             docVo = DataUtils.toVo(docEntity, DocVo.class);
+            List<SlateNode> newElements = new ArrayList<>();
+            docVo.getElements().forEach(slateNode -> newElements.add(slateNode));
+            docVo.setElements(newElements);
             //element 不存在时，从Block中解析
             if (docVo.getElements() == null || docVo.getElements().isEmpty()) {
                 docVo.setElements(new ArrayList<SlateNode>());
@@ -127,11 +130,26 @@ public class Operator {
         docVoStatusMap.put(docId, status);
     }
 
+    public void tryToSave(Long k) {
+        DocVo v = docVoMap.get(k);
+        if (v != null) {
+            DocEntity newDocEntity = DataUtils.toEntity(v, DocEntity.class);
+            docService.saveDoc(newDocEntity);
+
+            docVoMap.remove(k);
+
+            log.info(() -> {
+                return "save doc " + v.getId() + " successed";
+            });
+        }
+    }
+
     public void tryToSave() {
         docVoMap.forEach((k, v) -> {
             if (docVoStatusMap.get(k) == null || DocVoStatus.UNUSED.equals(docVoStatusMap.get(k))) {
                 DocEntity newDocEntity = DataUtils.toEntity(v, DocEntity.class);
                 docService.saveDoc(newDocEntity);
+                docVoMap.put(k, null);
                 DocVo newDocVo = new DocVo();
                 BeanUtil.copyProperties(v, newDocVo, true);
                 log.info(() -> {

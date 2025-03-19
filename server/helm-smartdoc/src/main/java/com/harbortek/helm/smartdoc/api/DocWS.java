@@ -68,8 +68,8 @@ public class DocWS {
             operation.setDocId(docId);
             operation.setUserId(userId);
             operation.setProjectId(Long.parseLong(projectId));
-            operationProcessor.addOperation(operation);
         });
+        operationProcessor.addOperation(operations);
         WsMessage msg = new WsMessage<>(principal.getName(), "IN");
         this.broadcast(TOPIC_SMART_DOC_NOTICE_PREFIX + docId, msg);
     }

@@ -17,6 +17,7 @@
 package com.harbortek.helm.smartdoc.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.harbortek.helm.common.exception.ServiceException;
 import com.harbortek.helm.smartdoc.editor.operation.Operation;
 import com.harbortek.helm.smartdoc.editor.operation.util.SlateOperationApplier;
 import com.harbortek.helm.system.vo.UserVo;
@@ -32,6 +33,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -55,35 +57,43 @@ public class OperationProcessor {
         startProcessing();
     }
 
-    public void addOperation(Operation operation) {
-        operationQueue.addOperation(operation);
+    public void addOperation(List<Operation> operations) {
+        operationQueue.addOperation(operations);
     }
 
     private void startProcessing() {
         operationExecutorService.submit(() -> {
             while (true) {
                 try {
-                    Operation operation = operationQueue.takeOperation();
-                    processOperation(operation);
+                    List<Operation> operations = operationQueue.takeOperation();
+                    Long docId = null;
+                    for (Operation operation : operations) {
+                        docId = operation.getDocId();
+                        processOperation(operation);
+                    }
+                    if (operator != null && docId != null) {
+                        operator.tryToSave(docId);
+                    }
                 } catch (Exception e) {
                     log.severe(e.getMessage());
+                    throw new ServiceException(e.getMessage());
 //                    Thread.currentThread().interrupt();
 //                    break;
                 }
             }
         });
-        operatorExecutorService.submit(() -> {
-            while (true)
-                try {
-                    if (operator != null) {
-
-                        operator.tryToSave();
-                    }
-                    Thread.sleep(5 * 1000);
-                } catch (Exception e) {
-                    log.severe(e.getMessage());
-                }
-        });
+//        operatorExecutorService.submit(() -> {
+//            while (true)
+//                try {
+//                    if (operator != null) {
+//
+//                        operator.tryToSave();
+//                    }
+//                    Thread.sleep(5 * 1000);
+//                } catch (Exception e) {
+//                    log.severe(e.getMessage());
+//                }
+//        });
     }
 
     private void processOperation(Operation operation) throws IOException {
