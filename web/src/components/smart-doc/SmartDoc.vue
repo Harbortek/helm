@@ -197,6 +197,7 @@ export default {
         elements: [],
         version: 0,
         lastModifiedDate: "",
+        isReady: false
       },
       currentDoc: {
         elements: [],
@@ -293,7 +294,6 @@ export default {
           elements: this.previewDoc.elements || [],
           lastModifiedDate: this.previewDoc.lastModifiedDate
         }
-        console.log(newDoc);
         return Promise.resolve(newDoc);
       } else {
         return findByPageId(this.projectId, this.pageId).then((doc) => {
@@ -342,6 +342,10 @@ export default {
                 trackerItems.push(block.data.trackerItem);
               }
             });
+            setTimeout(() => {
+              console.log(`doc is ready!`);
+              this.doc.isReady = true;
+            }, 0);
             trackerItemApi.set(this.doc.id, trackerItems);
 
             const { version, blocks, lastModifiedDate } = newDoc;

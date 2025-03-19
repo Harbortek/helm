@@ -333,7 +333,7 @@ export default {
 
     },
     doSave(data) {
-      if (this.isReadonly) {
+      if (!this.initValue.isReady || this.isReadonly) {
         return;
       }
       if (this.isWsReady) {
@@ -404,6 +404,9 @@ export default {
     },
     onChange(data, editor, isChanged) {
       this.$emit("change", data, editor);
+      if (!this.initValue.isReady) {
+        return;
+      }
       if (!isChanged) {
         return
       }
