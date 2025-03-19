@@ -83,7 +83,7 @@ public class ParseCommonElemHtml {
                 if (child.nodeName().equals("BR")) {
                     boolean inserted = tryInsertTextToChildrenLastItem(children, "\n");
                     if (!inserted) {
-                        children.add(new SlateText("\n"));
+                        children.add(new SlateText("<br/>"));
                     }
                     continue;
                 }

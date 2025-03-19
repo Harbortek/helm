@@ -2,13 +2,18 @@ package com.harbortek.helm.tracker.entity.smartdoc.element.po;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.style.SlateStyle;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.style.StyleedStyle;
+import com.harbortek.helm.util.JsonUtils;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.List;
+import java.util.Map;
 
 public class PoUtils {
     public static boolean isPlainText(String text) {
@@ -33,8 +38,7 @@ public class PoUtils {
     public static JSONArray toMap(List<SlateNode> nodes) {
         JSONArray roots = new JSONArray();
         for (SlateNode node : nodes) {
-            JSONObject root = new JSONObject();
-            BeanUtil.copyProperties(node, root, CopyOptions.create().ignoreNullValue());
+            JSONObject root = new JSONObject(JsonUtils.toJSONString(node));
             List<StyleedStyle> styles = node.getStyles();
             if ((styles != null && !styles.isEmpty())) {
                 for (Object styleObj : styles) {
@@ -60,8 +64,7 @@ public class PoUtils {
         JSONArray roots = new JSONArray();
         for (Object obj : nodes) {
             JSONObject node = (JSONObject) obj;
-            JSONObject root = new JSONObject();
-            BeanUtil.copyProperties(node, root, CopyOptions.create().ignoreNullValue());
+            JSONObject root = new JSONObject(JsonUtils.toJSONString(node));
             JSONArray styles = node.getJSONArray("styles");
             if ((styles != null && !styles.isEmpty())) {
                 for (Object styleObj : styles) {
