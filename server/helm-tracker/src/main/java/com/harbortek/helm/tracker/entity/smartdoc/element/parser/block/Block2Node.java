@@ -175,21 +175,12 @@ public class Block2Node {
             trackerItemDescriptionSlateElement.setChildren(subChildren);
             trackerItemDescriptionSlateElement.setRef(refId);
 
-            Element container = new Element("span");
-            String txt = StringUtils.isEmpty(trackerItemBlockData.getText()) ? "" : trackerItemBlockData.getText();
+            String txt = StringUtils.isEmpty(trackerItemBlockData.getText()) ? "<p><span></span></p>" : trackerItemBlockData.getText();
             for (Node node : Jsoup.parse(txt).body().childNodes()) {
                 Element element = wrapperText(node);
-                container.appendChild(element);
+                SlateNode parseElemHtml = HtmlParser.parseElemHtml(element);
+                subChildren.add(parseElemHtml);
             }
-            SlateNode parseElemHtml = HtmlParser.parseElemHtml(container);
-//            if (parseElemHtml instanceof SlateText) {
-//                ParagraphSlateElement pItem = new ParagraphSlateElement<>();
-//                pItem.getChildren().add(parseElemHtml);
-//                subChildren.add(pItem);
-//            } else {
-//                subChildren.add(parseElemHtml);
-//            }
-            subChildren.add(parseElemHtml);
             trackerItemSlateElement.setChildren(children);
 
 

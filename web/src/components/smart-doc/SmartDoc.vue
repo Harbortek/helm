@@ -331,6 +331,7 @@ export default {
       const that = this;
       this.docLoading = true;
       this.converters = [];
+      this.doc.isReady = false;
       if (that.pageId) {
         Promise.all([this.initCurrentPage(), this.initEditorJSBlocks(), this.initTrackers()])
           .then(([page, newDoc, trackers]) => {
@@ -345,7 +346,7 @@ export default {
             setTimeout(() => {
               console.log(`doc is ready!`);
               this.doc.isReady = true;
-            }, 0);
+            }, 200);
             trackerItemApi.set(this.doc.id, trackerItems);
 
             const { version, blocks, lastModifiedDate } = newDoc;
