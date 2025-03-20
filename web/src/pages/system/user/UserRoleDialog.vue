@@ -42,7 +42,6 @@ export default {
         that.$message.success(that.$t('system.user.remind.user-role.success'));
         that.user.roleIds = rs;
         that.close();
-        return res;
       })
     },
     close() {
@@ -54,7 +53,7 @@ export default {
     loadData(user) {
       const that = this;
       this.loading = true;
-      return getRolesNoPage().then(res => {
+      return getRolesNoPage({scope: 'SCOPE_GLOBAL'}).then(res => {
         console.log('getRoles', res);
         that.roleData = res.map(item=>{
           return {value: item.id, label: item.name}

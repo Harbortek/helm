@@ -405,7 +405,7 @@ export default {
                     description: '描述',
                     values: {},
                     owner: this.user,
-                    priority: '3',
+                    priority: '',
                     relatedWorkItems: [],
                     watchers: []
                 }

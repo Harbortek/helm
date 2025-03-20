@@ -383,15 +383,16 @@ export default {
                 this.editorInEditMode = false
                 findOneTrackerItem(this.itemId).then(resp => {
                     this.trackerItem = resp;
-                    console.log("loadData", resp)
-                }).catch(e=>{
-                    this.onClose();
-                }).finally(() => {
+
                     this.prepareFormData()
                     this.initFieldsData("DETAIL");
                     if (!isFirst) {
                         this.loadComment();
                     }
+                }).catch(e=>{
+                    this.onClose();
+                }).finally(() => {
+                    
                 })
             }
 
@@ -477,7 +478,7 @@ export default {
             }
         },
         prepareFormData() {
-            console.log("values", this.trackerItem.values)
+            console.log("values", this.trackerItem?.values)
             this.formData = {
                 id: this.trackerItem.id,
                 projectId: this.projectId,
@@ -610,8 +611,8 @@ export default {
 
         },
         onClose() {
-            this.formData.description = undefined
-            this.formData.sprintId = undefined;
+            // this.formData.description = undefined
+            // this.formData.sprintId = undefined;
             this.trackerItem = null
             this.formData = null
             this.currentTab = 'DETAIL'

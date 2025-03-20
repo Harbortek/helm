@@ -184,7 +184,6 @@ public class TrackerItemDao extends BaseJdbcDao {
                 .and("tracker_item_has_permission(id," + userId + ",'ITEM_VIEW') ")
                 .orderBy(sortFields);
         String sql=objects.getSQL(ParamType.INLINED);
-        log.info("aaaaaaasql:{}",sql);
         if(!pageable.isUnpaged()){
             sql =  objects.limit(pageable.getOffset(), pageable.getPageSize()).getSQL(ParamType.INLINED);
         }

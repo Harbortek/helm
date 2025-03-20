@@ -25,6 +25,7 @@ import com.harbortek.helm.system.vo.SystemVo;
 import com.harbortek.helm.util.DataUtils;
 import com.harbortek.helm.util.IDUtils;
 import com.harbortek.helm.util.LogUtils;
+import com.harbortek.helm.util.ObjectUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -51,10 +52,17 @@ public class SystemServiceImpl implements SystemService {
 
 	
 	public SystemVo updateSystem(SystemVo system) {
-		SystemEntity oldSystem = systemDao.findById(system.getId());
-		BeanUtil.copyProperties(system, oldSystem,
-				CopyOptions.create().ignoreNullValue());
-		SystemEntity entity = systemDao.update(oldSystem);
+		SystemEntity systemEntity=DataUtils.toEntity(system, SystemEntity.class);
+		if(ObjectUtils.isEmpty(system.getId())){
+			systemEntity.setId(IDUtils.getId());
+		}else{
+			systemEntity=systemDao.findById(system.getId());
+			systemEntity.setName(system.getName());
+			systemEntity.setLogo(system.getLogo());
+			systemEntity.setLoginLogo(system.getLoginLogo());
+		}
+
+		SystemEntity entity = systemDao.update(systemEntity);
 		LogUtils.log("系统管理", "系统设置", "系统 {0} 更新成功",system.getName());
 		return DataUtils.toVo(entity,SystemVo.class);
 	}

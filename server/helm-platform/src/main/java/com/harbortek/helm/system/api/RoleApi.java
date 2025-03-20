@@ -26,6 +26,7 @@ import com.harbortek.helm.system.vo.PermissionVo;
 import com.harbortek.helm.system.vo.RoleVo;
 import com.harbortek.helm.util.IDUtils;
 import com.harbortek.helm.util.ObjectUtils;
+import com.harbortek.helm.util.PermissionCacheUtils;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,6 +131,8 @@ public class RoleApi {
 		});
 
 		permissionService.grant(permissionVos);
+		PermissionCacheUtils.evictGrantedPermissions(null);
+		PermissionCacheUtils.evictPermissions(null);
 		return ResponseEntity.ok().build();
 	}
 }

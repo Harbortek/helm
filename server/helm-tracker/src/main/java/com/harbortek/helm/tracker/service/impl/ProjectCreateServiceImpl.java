@@ -220,7 +220,6 @@ public class ProjectCreateServiceImpl implements ProjectCreateService {
         //3.1 创建tracker
         Collection<TrackerVo> trackers = templateVo.getTrackers();
         List<ViewEntity> views = new ArrayList<>();
-        List<PermissionVo> permissions=new ArrayList<>();
         trackers.forEach(tracker -> {
             tracker.setProjectId(project.getId());
             tracker.getTrackerFields().forEach(trackerField -> {
@@ -231,18 +230,6 @@ public class ProjectCreateServiceImpl implements ProjectCreateService {
                 }
             });
             tracker.setId(Optional.ofNullable(tracker.getId()).orElse(IDUtils.getId()));
-            tracker.getTrackerPermissions().forEach(permission -> {
-                permission.getGranted().forEach(identity -> {
-                    permissions.add(
-                            PermissionVo.builder()
-                                    .id(IDUtils.getId())
-                                    .resourceId(tracker.getId())
-                                    .identity(identity)
-                                    .name(permission.getPermissionName())
-                                    .build()
-                    );
-                });
-            });
             //3.2 保存tracker视图
             ViewEntity viewAll = ViewEntity.builder().id(IDUtils.getId()).name("全部 " + tracker.getName())
                     .objectId(tracker.getId()).viewType("PUBLIC").display(true).system(true)
@@ -257,7 +244,7 @@ public class ProjectCreateServiceImpl implements ProjectCreateService {
         });
         trackerService.createTrackers(trackers);
         viewDao.createViews(views);
-        permissionService.grant(permissions);
+//        permissionService.grant(permissions);
 
         HashMap<String,Long> fieldMap=new HashMap<>();
         trackers.forEach(tracker -> {

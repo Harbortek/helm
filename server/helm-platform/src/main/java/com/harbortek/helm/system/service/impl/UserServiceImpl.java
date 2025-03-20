@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @CacheEvict(value = CacheConstants.OBJECT_CACHE_NAME, key = "'objects_UserVo_'+#user.userId")
+    @CacheEvict(value = CacheConstants.OBJECT_CACHE_NAME, key = "'objects_UserVo_'+#user.id")
     public UserVo updateUser(UserVo user) {
         UserEntity userEntity = DataUtils.toEntity(user, UserEntity.class);
         UserEntity entity = userDao.updateUser(userEntity);
@@ -97,7 +97,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Cacheable(value = CacheConstants.OBJECT_CACHE_NAME, key = "'objects_UserVo_'+#userId")
     public UserVo findOneUser(Long userId) {
-        return DataUtils.toVo(userDao.findOneUser(userId), UserVo.class);
+        UserVo userVo = DataUtils.toVo(userDao.findOneUser(userId), UserVo.class);
+        userVo.setRoles(this.findGlobalRolesByUserId(userId));
+        return userVo;
     }
 
     @Override
@@ -145,7 +147,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    @CacheEvict(key = "USER-#userId")
+    @CacheEvict(value = CacheConstants.OBJECT_CACHE_NAME, key = "'objects_UserVo_'+#userId")
     public void updateRoles(Long userId, List<Long> roleIds) {
         roleMemberService.deleteRoleMembers(SpecialRole.SCOPE_GLOBAL, null, List.of(userId), null);
         if (roleIds != null && !roleIds.isEmpty()) {

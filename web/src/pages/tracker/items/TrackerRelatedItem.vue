@@ -357,7 +357,7 @@ export default {
                 deleteTrackerLink(this.itemId, link).then(resp => {
                     this.$delete(this.relatedWorkItems, this.relatedWorkItems.indexOf(row))
                     VXETable.modal.message({ content: '删除成功', status: 'success' })
-                }).cat.finally(()=>{
+                }).finally(()=>{
                     this.refresh();
                 })
             }

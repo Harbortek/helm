@@ -256,13 +256,13 @@ export default {
     },
     handleBatchDel() {
       const that = this;
-      this.$confirm({
+      VXETable.modal.confirm({
         title: this.$t('system.user.remind.title'),
         content: this.$t('system.user.remind.delete.content'),
-        okText: this.$t('ok'),
-        okType: 'danger',
-        cancelText: this.$t('cancel'),
-        onOk() {
+        confirmButtonText: this.$t('ok'),
+        concelButtonText: this.$t('cancel')
+      }).then(type => {
+        if (type === 'confirm') {
           console.log('batchDeleteUser', that.selectedRowKeys);
           batchDeleteUser(that.selectedRowKeys).then(res => {
             that.loading = false;
@@ -270,8 +270,6 @@ export default {
             that.$message.success(that.$t('system.user.remind.delete.success'));
             that.refresh();
           })
-        },
-        onCancel() {
         }
       })
     }

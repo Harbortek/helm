@@ -525,6 +525,8 @@ public class TrackerServiceImpl implements TrackerService {
     @Override
     public void createTrackers(Collection<TrackerVo> trackers) {
         List<TrackerEntity> trackerEntities = new ArrayList<>();
+        List<PermissionVo> permissions=new ArrayList<>();
+
         trackers.forEach(tracker -> {
             TrackerEntity trackerEntity = TrackerEntity.builder()
                                                        .id(tracker.getId())
@@ -547,13 +549,21 @@ public class TrackerServiceImpl implements TrackerService {
             }
             trackerEntities.add(trackerEntity);
 
-            tracker.getTrackerPermissions().forEach(trackerPermission -> {
-                permissionService.grant(trackerPermission.getPermissionName(),trackerPermission.getGranted(),
-                                        tracker.getId());
+            tracker.getTrackerPermissions().forEach(permission -> {
+                permission.getGranted().forEach(identity -> {
+                    permissions.add(
+                            PermissionVo.builder()
+                                    .id(IDUtils.getId())
+                                    .resourceId(tracker.getId())
+                                    .identity(identity)
+                                    .name(permission.getPermissionName())
+                                    .build()
+                    );
+                });
             });
-
         });
         trackerDao.createTrackers(trackerEntities);
+        permissionService.grant(permissions);
 
 
     }

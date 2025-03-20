@@ -113,6 +113,7 @@ import UserSelectModal from '@/components/dialog/UserSelectModal';
 import { findProjectRoleMembers, updateProjectRoleMember, deleteProjectRoleMember } from "@/services/tracker/ProjectRoleMemberService";
 import { createProjectRole, updateProjectRole, deleteProjectRole } from "@/services/tracker/ProjectRoleService";
 import { batchUpdatePagePermission, findPagePermissionPerm } from "@/services/tracker/PagePermissionService";
+import VXETable from "vxe-table";
 
 export default {
     name: "ProjectRoleConfigPage",
@@ -181,7 +182,8 @@ export default {
                 this.$message.success('保存成功！');
                 this.hasChange = false;
             }).finally(() => {
-                // window.location.reload();
+                this.$store.dispatch('account/getInfo');
+                window.location.reload();
             })
         },
         onCancelSave() {
@@ -225,20 +227,18 @@ export default {
         },
         onDeleteProjectRole(id) {
             const that = this;
-            this.$confirm({
+            VXETable.modal.confirm({
                 title: this.$t('system.role.remind.delete.title'),//提示
                 content: this.$t('system.enum.remind.delete.content'),//确定删除吗？
-                okText: this.$t('ok'),
-                okType: 'danger',
-                cancelText: this.$t('cancel'),
-                onOk() {
-                    deleteProjectRole(id).then(res => {
+                confirmButtonText: this.$t('ok'),
+                cancelButtonText: this.$t('cancel')
+            }).then(type => {
+                if (type === 'confirm') {
+                    deleteProjectRole(this.projectId,id).then(res => {
                         that.loading = false;
-                        that.$message.success(that.$t('system.enum.remind.delete.success')); //删除成功！
+                        that.$message.success(this.$t('system.enum.remind.delete.success'));
                         that.loadData();
                     })
-                },
-                onCancel() {
                 }
             })
         },
@@ -268,13 +268,13 @@ export default {
                 if (valid) {
                     if ("create" === editMode) {
                         formData.projectId = this.projectId
-                        createProjectRole(formData).then((resp) => {
+                        createProjectRole(this.projectId,formData).then((resp) => {
                             this.$message.success("添加成功")
                             this.loadData();
                         });
                     } else {
                         formData.projectId = this.projectId
-                        updateProjectRole(formData).then((resp) => {
+                        updateProjectRole(this.projectId,formData).then((resp) => {
                             this.$message.success("添加成功")
                             this.loadData();
                         });
@@ -310,15 +310,17 @@ export default {
         },
         onDeleteUsers() {
             const that = this
-            this.$confirm({
+            VXETable.modal.confirm({
                 title: '提示',
                 content: '确认删除所有已选用户？',
-                okType: 'danger',
-                onOk() {
+                confirmButtonText: this.$t('ok'),
+                cancelButtonText: this.$t('cancel')
+            }).then(type => {
+                if (type === 'confirm') {
                     that.selectedRole.members = []
                     that.deleteProjectRoleMember(that.selectedRole.members.map(_ => _.id));
-                },
-            });
+                }
+            })
         },
         deleteProjectRoleMember(ids) {
             let memberRoles = []

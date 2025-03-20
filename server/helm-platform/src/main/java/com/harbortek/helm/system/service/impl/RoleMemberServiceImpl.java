@@ -22,10 +22,7 @@ import com.harbortek.helm.system.dao.RoleMemberDao;
 import com.harbortek.helm.system.entity.RoleMemberEntity;
 import com.harbortek.helm.system.service.RoleMemberService;
 import com.harbortek.helm.system.vo.RoleMemberVo;
-import com.harbortek.helm.util.DataUtils;
-import com.harbortek.helm.util.IDUtils;
-import com.harbortek.helm.util.ObjectUtils;
-import com.harbortek.helm.util.PermissionCacheUtils;
+import com.harbortek.helm.util.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,6 +72,7 @@ public class RoleMemberServiceImpl implements RoleMemberService {
 
         List<Long> resourceIds = roleMembers.stream().map(RoleMemberVo::getOwnerResourceId).distinct().toList();
         resourceIds.forEach(PermissionCacheUtils::evictRoleMembers);
+        PermissionCacheUtils.evictGrantedPermissions((Long) SecurityUtils.get(SecurityUtils.PROJECT_ID));
     }
 
 
@@ -93,6 +91,7 @@ public class RoleMemberServiceImpl implements RoleMemberService {
     public void deleteRoleMembers(String scope, Long ownerResourceId, List<Long> userIds, List<Long> roleIds) {
         roleMemberDao.deleteRoleMembers(scope, ownerResourceId, userIds, roleIds);
         PermissionCacheUtils.evictRoleMembers(ownerResourceId);
+        PermissionCacheUtils.evictGrantedPermissions(ownerResourceId);
     }
 
     @Override

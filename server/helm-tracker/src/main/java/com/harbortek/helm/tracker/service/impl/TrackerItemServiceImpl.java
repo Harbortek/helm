@@ -1648,8 +1648,8 @@ public class TrackerItemServiceImpl implements TrackerItemService {
 
         if(ObjectUtils.isNotEmpty(permissionNames)){
             if(!trackerPermissionService.hasTrackerPermission(permissionNames,trackerId,itemId)){
-                    ServiceException.throwException(message);
-                }
+                ServiceException.throwException(message);
+            }
         }else{
             if(SystemFields.STATUS.equals(systemProperty)){
                 if(!trackerPermissionService.hasTrackerPermission(
@@ -1663,6 +1663,9 @@ public class TrackerItemServiceImpl implements TrackerItemService {
                         trackerId,itemId)){
                     ServiceException.throwException("没有管理预估工时权限");
                 }
+            }else if(!trackerPermissionService.hasTrackerPermission(List.of(TrackerPermissions.ITEM_EDIT),
+                    trackerId,itemId)){
+                ServiceException.throwException("没有修改工作项权限");
             }
         }
         return true;

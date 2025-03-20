@@ -46,6 +46,7 @@
 <script>
 import { saveRole, updateRole, getRole, isExistsByName, isExistsByCode } from '@/services/system/RoleService'
 import ATextarea from 'ant-design-vue/es/input/TextArea'
+import { debounce } from 'lodash';
 export default {
   name: "RoleDialog",
   components: {
@@ -80,18 +81,20 @@ export default {
         callback(this.$t('system.role.modal.role-name.message') + '');//请输入角色名称！
         return;
       }
-      return isExistsByName(value).then((res) => {
+      this.validateRoleName(callback,value);
+    },
+    validateRoleName:debounce(function(callback,value){//debounce防抖
+      isExistsByName(value).then((res) => {
         if (res && this.roleName != this.form.getFieldsValue()["name"]) {
           const err = this.$t('system.role.modal.role-name.message-error');//角色名称不能重复!
           callback(err);
         }
         callback();
-      })
-      .catch(e=>{
+      }).catch(e=>{
         console.log("eeaafa",e)
         callback('未知错误');
       })
-    },
+    },300),
     codeValidator: function (rule, value, callback) {
       if (!!!value) {
         callback(this.$t('system.role.modal.role-code.message') + '！');//请输入角色编码！

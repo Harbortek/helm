@@ -180,6 +180,7 @@ import AdminLayout from '../../../layouts/AdminLayout.vue';
 import Sortable from "sortablejs"
 import TrackerLayoutKeyFieldsDialog from './TrackerLayoutKeyFieldsDialog';
 import TrackerLayoutEditNew from './TrackerLayoutEditNew.vue'
+import VXETable from "vxe-table";
 
 export default {
     name: "TrackerLayoutEditNewPage",
@@ -316,16 +317,16 @@ export default {
         },
         onClickCancel() {
             let that = this
-            this.$confirm({
+            VXETable.modal.confirm({
                 title: "你有未发布的变更",
-                content: '取消修改会导致未发布的变更丢失,是否取消修改？',
-                okText: '取消修改',
-                cancelText: '继续编辑',
-                onOk() {
+                message: '取消修改会导致未发布的变更丢失,是否取消修改？',
+                confirmButtonText: '取消修改',
+                cancelButtonText: '继续编辑',
+            }).then(type => {
+                if (type === 'confirm') {
                     that.$router.push("trackerLayoutConfig")
-                },
-                onCancel() { },
-            });
+                }
+            })
         },
         hasSections(value) {
             for (let item of this.sections) {
@@ -491,7 +492,7 @@ export default {
                 description: '描述',
                 values: {},
                 owner: this.user,
-                priority: '3',
+                priority: '',
                 relatedWorkItems: [],
                 watchers: []
             }

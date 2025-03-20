@@ -320,7 +320,7 @@ export default {
                 // description: '',
                 values: {},
                 owner: this.user,
-                priority: '3',
+                priority: '',
                 relatedWorkItems: [],
                 watchers: []
             }

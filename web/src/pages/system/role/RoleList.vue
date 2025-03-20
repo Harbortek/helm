@@ -5,14 +5,14 @@
       <a-col :span="6"> 
         <a-card :title="$t('system.role.search.label.role-name')" :loading="roleLoading" style="min-height:600px">
           <template #extra>
-            <a-button type="link" :title="$t('system.role.a-card-button-refresh')" icon="reload"
+            <a-button :loading="loading" type="link" :title="$t('system.role.a-card-button-refresh')" icon="reload"
               @click="handleRoleReload()" />
-            <a-button type="link" :title="$t('system.role.a-card-button-save')" icon="plus" @click="handleAdd()"
+            <a-button :loading="loading" type="link" :title="$t('system.role.a-card-button-save')" icon="plus" @click="handleAdd()"
               v-action="'SYSTEM_ROLE'" />
           </template>
           <a-menu :selectable="!permLoading" mode="vertical" style="border: 0;"
             :defaultSelectedKeys="defaultSelectedKeys">
-            <a-menu-item @click="loadPerms(item.id, item.name)" v-for="(item, i) in roles" :key="item.id">
+            <a-menu-item @click="loadPerms(item.id, item.name)" v-for="(item) in roles" :key="item.id">
               {{ item.name }}
               <a-dropdown>
                 <a-icon style="position: absolute;top: 30%;right: 0px;width: 10px;" type="more" />
@@ -35,8 +35,8 @@
       <a-col :span="18">
         <a-card :title="roleName" :loading="permLoading" style="min-height:600px">
           <template #extra>
-            <a-button type="link" icon="reload" @click="loadPerms()">{{$t('system.role.a-card-button-refresh')}}</a-button>
-            <a-button v-action="'SYSTEM_ROLE'" type="link" icon="save" @click="savePerms()">{{$t('system.role.a-card-button-save')}}</a-button>
+            <a-button type="link" icon="reload" :loading="permLoading" @click="loadPerms()">{{$t('system.role.a-card-button-refresh')}}</a-button>
+            <a-button v-action="'SYSTEM_ROLE'" :loading="permLoading" type="link" icon="save" @click="savePerms()">{{$t('system.role.a-card-button-save')}}</a-button>
           </template>
           <a-descriptions bordered :column="1">
             <a-descriptions-item v-for="(val, key, i) in perms" :key="i" bordered>
@@ -57,6 +57,7 @@ import RoleDialog from './RoleDialog.vue'
 import { getRole, getRolesNoPage, batchDeleteRole, deleteRole, findRolePerms, saveRolePerms } from '@/services/system/RoleService'
 import { getPerms } from '@/services/system/PermissionService'
 import ConfigPage from '@/components/config-page/ConfigPage'
+import VXETable from "vxe-table";
 
 
 export default {
@@ -91,20 +92,18 @@ export default {
     },
     handleDelete(id) {
       const that = this
-      this.$confirm({
+      VXETable.modal.confirm({
         title: this.$t('system.role.remind.delete.title'),//提示
-        content: this.$t('system.role.remind.delete.content'),//确定删除吗？
-        okText: this.$t('ok'),
-        okType: 'danger',
-        cancelText: this.$t('cancel'),
-        onOk() {
+        message: this.$t('system.role.remind.delete.content'),//确定删除吗？
+        confirmButtonText: this.$t('ok'),
+        cancelButtonText: this.$t('cancel'),
+      }).then(type => {
+        if(type === 'confirm'){
           deleteRole(id).then(res => {
             that.loading = false
             that.$message.success(that.$t('system.role.remind.delete.success'))//删除成功！
             that.handleRoleReload()
           })
-        },
-        onCancel() {
         }
       })
     },
@@ -115,11 +114,13 @@ export default {
       })
     },
     savePerms() {
+      this.permLoading=true
       const that = this
       saveRolePerms(this.id, this.checklist).then(res => {
         that.$message.success(that.$t('system.role.remind.save.success'))
         location.reload()
-        return res
+        // this.$store.dispatch('account/getInfo');
+        // this.permLoading=false
       })
     },
     handlePermChange(e, item) {

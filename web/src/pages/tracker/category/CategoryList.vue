@@ -43,6 +43,7 @@ import {
   updateProjectCategory,
   deleteProjectCategory,
 } from "@/services/tracker/ProjectCategoryService";
+import VXETable from "vxe-table";
 
 export default {
   name: "CategoryList",
@@ -121,18 +122,17 @@ export default {
     async onDeleteEvent(row) {
       const { id } = row;
       const that = this;
-      this.$confirm({
-        title: "您确定要删除该数据?",
-        okText: this.$t("ok"),
-        okType: "danger",
-        cancelText: this.$t("cancel"),
-        onOk() {
+      VXETable.modal.confirm({
+        message: '您确定要删除该数据?',
+        confirmButtonText: this.$t("ok"),
+        cancelButtonText: this.$t("cancel"),
+      }).then(type => {
+        if(type === 'confirm'){
           deleteProjectCategory(id).then((resp) => {
             that.loadData();
           });
-        },
-        onCancel() { },
-      });
+        }
+      })
     },
 
     onOK() {
