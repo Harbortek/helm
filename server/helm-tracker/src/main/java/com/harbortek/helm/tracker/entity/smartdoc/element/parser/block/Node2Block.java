@@ -113,9 +113,11 @@ public class Node2Block {
         } else if (node instanceof ListSlateElement<?>) {
             ListSlateElement<?> listSlateElement = (ListSlateElement<?>) node;
             docBlock = DocBlock.builder()
-                    .type(BlockTypes.PARAGRAPH)
-                    .data(ParagraphBlockData.builder().text(
-                            unwrapper((listSlateElement.html()))).build())
+                    .type(BlockTypes.LIST_ITEM)
+                    .data(ListItemBlockData.builder()
+                            .ordered(listSlateElement.getOrdered())
+                            .level(listSlateElement.getLevel()).text(
+                                    unwrapper((listSlateElement.html()))).build())
                     .build();
         } else if (node instanceof TableSlateElement<?>) {
             TableSlateElement<?> tableSlateElement = (TableSlateElement<?>) node;

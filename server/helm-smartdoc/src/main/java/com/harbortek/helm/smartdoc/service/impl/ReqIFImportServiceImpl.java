@@ -220,9 +220,11 @@ public class ReqIFImportServiceImpl implements ReqIFImportJobService {
                 }
             }
         }
-
-        job.setBlocksJSON(JsonUtils.toJSONString(
-                newBlocks.stream().map(block -> Block2Node.parse(block)).toList()));
+        List<SlateNode> allElements = new ArrayList<>();
+        for (DocBlock block : newBlocks) {
+            allElements.addAll(Block2Node.parse(block));
+        }
+        job.setBlocksJSON(JsonUtils.toJSONString(allElements));
         ReqIFImportJobEntity jobEntity = DataUtils.toEntity(job, ReqIFImportJobEntity.class);
         reqIFImportJobDao.updateJob(jobEntity);
 
@@ -421,10 +423,10 @@ public class ReqIFImportServiceImpl implements ReqIFImportJobService {
                             code).build());
         });
 
-
-        List<SlateNode> elements = blocks.stream().map(block -> {
-            return Block2Node.parse(block);
-        }).toList();
+        List<SlateNode> elements = new ArrayList<>();
+        blocks.forEach(block -> {
+            elements.addAll(Block2Node.parse(block));
+        });
         for (SlateNode node : elements) {
             if (node instanceof TrackerItemSlateElement<?>) {
                 TrackerItemSlateElement ele = (TrackerItemSlateElement) node;

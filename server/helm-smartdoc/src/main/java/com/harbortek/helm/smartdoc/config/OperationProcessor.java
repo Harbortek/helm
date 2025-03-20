@@ -65,7 +65,8 @@ public class OperationProcessor {
         operationExecutorService.submit(() -> {
             while (true) {
                 try {
-                    List<Operation> operations = operationQueue.takeOperation();Long docId = null;
+                    List<Operation> operations = operationQueue.takeOperation();
+                    Long docId = null;
                     for (Operation operation : operations) {
                         docId = operation.getDocId();
                         processOperation(operation);

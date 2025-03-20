@@ -34,13 +34,13 @@ public class ListSlateElement<T extends SlateNode> extends SlateElement {
     }
 
     private Boolean ordered; // 有序/无序
-    private Long level = 1L; // 层级：0 1 2 ...
+    private Long level = 0L; // 层级：0 1 2 ...
 
     @Override
     public String toHtml() {
         StringBuilder sb = new StringBuilder();
-        String tagName = ordered ? "ol" : "ul";
-        sb.append("<" + tagName + ">");
+//        String tagName = ordered ? "ol" : "ul";
+//        sb.append("<" + tagName + ">");
         for (Object obj : getChildren()) {
             SlateNode child = (SlateNode) obj;
             if (StringUtils.isEmpty(child.toHtml())) {
@@ -48,7 +48,7 @@ public class ListSlateElement<T extends SlateNode> extends SlateElement {
             }
             sb.append("<li>" + child.toHtml() + "</li>");
         }
-        sb.append("</" + tagName + ">");
+//        sb.append("</" + tagName + ">");
         return sb.toString();
     }
 }

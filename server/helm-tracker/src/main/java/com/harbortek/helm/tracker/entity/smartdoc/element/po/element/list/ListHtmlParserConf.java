@@ -27,14 +27,13 @@ import org.jsoup.nodes.Element;
 import java.util.List;
 
 public class ListHtmlParserConf extends ParseElemHtmlConf {
-    private static final String SELECTOR = "ul,ol";
+    private static final String SELECTOR = "li:not([data-w-e-type])";
 
     public ListHtmlParserConf() {
         super(SELECTOR, new ListHtmlParserFn());
     }
 
     private static class ListHtmlParserFn implements ParseElemHtmlFn {
-        public static String SELECTOR = "ul,ol";
 
         @Override
         public SlateElement apply(Element elem, List<SlateNode> children) {
@@ -53,11 +52,26 @@ public class ListHtmlParserConf extends ParseElemHtmlConf {
             ListSlateElement listSlateElement = new ListSlateElement<>();
             listSlateElement.setOrdered(tagName.equals("ol"));
             listSlateElement.setChildren(children);
+            listSlateElement.setLevel(getLevel(elem));
 //        return  new SlateElement[]{paragraphSlateElement};
             return listSlateElement;
         }
 
-    }
+        private Long getLevel(Element element) {
+            Long level = 0L;
 
+            Element cur = element.parent();
+            String tagName = cur.tagName();
+
+            while ("ul".equals(tagName) || "ol".equals(tagName)) {
+                cur = cur.parent();
+                tagName = cur.tagName();
+                level++;
+            }
+
+            return level;
+        }
+
+    }
 
 }

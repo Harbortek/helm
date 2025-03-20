@@ -70,6 +70,7 @@ export default {
         this.rawValue = curVal?.elements || [];
         this.editorConfig.docId = this.initValue.id
         if (curVal?.id) {
+          this.closeSocket();
           this.initWebsocket();
           this.initEvents();
         }
