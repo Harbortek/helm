@@ -63,6 +63,7 @@
 </template>
 
 <script>
+import VXETable from "vxe-table";
 import ConfigPage from '../../../components/config-page/ConfigPage.vue'
 import OrganizationImport from '@/pages/system/org/OrganizationImport'
 import {
@@ -209,23 +210,22 @@ export default {
     },
     onDelete() {
       const orgId = this.selectedOrg.orgId
-      this.$confirm({
-        title: this.$t('ok'),
-        content: this.$t('system.org.remind.delete.content'),
-        okText: this.$t('ok'),
-        okType: 'danger',
-        cancelText: this.$t('cancel'),
-        onOk: () => {
-          deleteOrganization(orgId).then((res) => {
-            if (res) {
-              this.$message.success(this.$t('system.org.remind.delete.success'),)
-              this.loadData()
-            } else {
-              this.$message.error(this.$t('system.org.remind.delete.fail'))
-            }
-
-          })
-        }
+      VXETable.modal.confirm({
+          title: this.$t('system.param.remind.delete.title'),
+          content: this.$t('system.org.remind.delete.content'),
+          confirmButtonText: this.$t('ok'),
+          cancelButtonText: this.$t('cancel'),
+      }).then(type => {
+          if (type === 'confirm') {
+            deleteOrganization(orgId).then((res) => {
+              if (res) {
+                this.$message.success(this.$t('system.org.remind.delete.success'),)
+                this.loadData()
+              } else {
+                this.$message.error(this.$t('system.org.remind.delete.fail'))
+              }
+            })
+          }
       })
     },
     onDialogClose() {

@@ -126,6 +126,7 @@ import {setting} from '@/config/default'
 import sysConfig from '@/config/config'
 import fastEqual from 'fast-deep-equal'
 import deepMerge from 'deepmerge'
+import VXETable from "vxe-table";
 
 const ColorCheckboxGroup = ColorCheckbox.Group
 const ImgCheckboxGroup = ImgCheckbox.Group
@@ -178,12 +179,14 @@ export default {
       setTimeout(closeMessage, 800)
     },
     resetSetting() {
-      this.$confirm({
-        title: '重置主题会刷新页面，当前页面内容不会保留，确认重置？',
-        onOk() {
-          localStorage.removeItem(process.env.VUE_APP_SETTING_KEY)
-          window.location.reload()
-        }
+      VXETable.modal.confirm({
+          title: '重置',
+          content: '重置主题会刷新页面，当前页面内容不会保留，确认重置？'
+      }).then(type => {
+          if (type === 'confirm') {
+            localStorage.removeItem(process.env.VUE_APP_SETTING_KEY)
+            window.location.reload()
+          }
       })
     },
     //提取配置

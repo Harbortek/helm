@@ -115,6 +115,8 @@ import {
 import {
     findTrackers,
 } from "@/services/tracker/TrackerService";
+import VXETable from "vxe-table";
+
 export default {
     name: "ProjectOperationConfigPage",
     components: { ConfigPage,ProjectCopyTool, HAvatar },
@@ -286,41 +288,35 @@ export default {
         },
         handleDelete() {
             const that = this;
-            this.$confirm({
+            VXETable.modal.confirm({
                 title: '提示',
-                content: '确定要删除此项目吗？',
-                okText: that.$t('ok'), //确认
-                okType: 'danger',
-                cancelText: that.$t('cancel'), //取消
-                onOk() {
-                    deleteProject(that.projectId).then(res => {
-                        that.$message.success("删除成功");
-                        that.setCurrentProjectId(null);
-                        // that.$router.push("/welcome");
-                        that.$router.push({
+                message: '确定要删除此项目吗？',
+                confirmButtonText: this.$t('ok'),
+                cancelButtonText: this.$t('cancel'),
+            }).then(type => {
+                if (type === 'confirm') {
+                    deleteProject(this.projectId).then(res => {
+                        this.$message.success("删除成功");
+                        this.setCurrentProjectId(null);
+                        this.$router.push({
                             name: 'projectList'
                         })
-
                     })
-                },
-                onCancel() {
                 }
             })
         },
         handleItemDelete(){
             const that = this;
-            this.$confirm({
+            VXETable.modal.confirm({
                 title: '提示',
-                content: '确定清除所有工作项数据吗？',
-                okText: that.$t('ok'), //确认
-                okType: 'danger',
-                cancelText: that.$t('cancel'), //取消
-                onOk() {
-                    clearTrackerItemData(that.projectId).then(res => {
-                        that.$message.success("清除成功");
+                message: '确定清除所有工作项数据吗？',
+                confirmButtonText: this.$t('ok'),
+                cancelButtonText: this.$t('cancel'),
+            }).then(type => {
+                if (type === 'confirm') {
+                    clearTrackerItemData(this.projectId).then(res => {
+                        this.$message.success("清除成功");
                     })
-                },
-                onCancel() {
                 }
             })
         },

@@ -68,6 +68,7 @@
 import { getParams, deleteParam, batchDeleteParam } from '@/services/system/ParamService'
 import ParamDialog from './ParamDialog'
 import ConfigPage from '@/components/config-page/ConfigPage'
+import VXETable from "vxe-table";
 
 export default {
   name: 'ParamList',
@@ -154,41 +155,37 @@ export default {
     },
     handleDelete(id) {
       const that = this;
-      this.$confirm({
-        title: this.$t('system.param.remind.delete.title'), //提示
-        content: this.$t('system.param.remind.delete.content'), //确定删除吗？
-        okText: this.$t('ok'), //确认
-        okType: 'danger',
-        cancelText: this.$t('cancel'), //取消
-        onOk() {
-          deleteParam(id).then(res => {
-            that.loading = false;
-            that.$message.success(that.$t('system.param.remind.delete.success')); //删除成功！
-            that.refresh();
-          })
-        },
-        onCancel() {
-        }
+      VXETable.modal.confirm({
+          title: this.$t('system.param.remind.delete.title'),
+          content: this.$t('system.param.remind.delete.content'),
+          confirmButtonText: this.$t('ok'),
+          cancelButtonText: this.$t('cancel'), 
+      }).then(type => {
+          if (type === 'confirm') {
+            deleteParam(id).then(res => {
+              that.loading = false;
+              that.$message.success(that.$t('system.param.remind.delete.success')); //删除成功！
+              that.refresh();
+            })
+          }
       })
     },
     handleBatchDel() {
       const that = this;
-      this.$confirm({
-        title: this.$t('system.param.remind.delete.title'), //提示
-        content: this.$t('system.param.remind.delete.content'), //确定删除吗？
-        okText: this.$t('ok'), //确认
-        okType: 'danger',
-        cancelText: this.$t('cancel'), //取消
-        onOk() {
-          console.log('batchDeleteParam', that.selectedRowKeys);
-          batchDeleteParam(that.selectedRowKeys).then(res => {
-            that.loading = false;
-            that.selectedRows = [];
-            that.$message.success(that.$t('system.param.remind.delete.success')); //删除成功！
-            that.refresh();
-          })
-        },
-        onCancel() {
+      VXETable.modal.confirm({
+        title: this.$t('system.param.remind.delete.title'),
+        content: this.$t('system.param.remind.delete.content'),
+        confirmButtonText: this.$t('ok'),
+        cancelButtonText: this.$t('cancel'),
+      }).then(type => {
+        if (type === 'confirm') {
+            console.log('batchDeleteParam', that.selectedRowKeys);
+            batchDeleteParam(that.selectedRowKeys).then(res => {
+                that.loading = false;
+                that.selectedRows = [];
+                that.$message.success(that.$t('system.param.remind.delete.success')); 
+                that.refresh();
+            })
         }
       })
     }

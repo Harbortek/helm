@@ -237,7 +237,7 @@ export default {
                                 changeProjectPageOrder(this.tableData).then(resp => {
                                     this.loadData()
                                 })
-                                location.reload()
+                                // location.reload()
                             }
                         }
                     );
@@ -252,7 +252,7 @@ export default {
                 if (type === 'confirm') {
                     deleteProjectPage(row).then(resp => {
                         this.loadData()
-                        location.reload()
+                        // location.reload()
                     })
                 }
             })
@@ -283,13 +283,13 @@ export default {
                 createProjectPage(row).then(resp => {
                     this.loadData()
                     this.showDialog = false
-                    location.reload()
+                    // location.reload()
                 })
             } else {
                 updateProjectPageInfo(row).then(resp => {
                     this.loadData()
                     this.showDialog = false
-                    location.reload()
+                    // location.reload()
                 })
             }
         },

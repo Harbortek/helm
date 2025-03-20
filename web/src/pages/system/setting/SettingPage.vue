@@ -110,7 +110,10 @@ export default {
         if (!err) {
           const _this = this
           const formData = new FormData()
-          formData.append("id", this.$store.getters['account/user'].systemId)
+          let systemId=this.$store.getters['account/user'].systemId
+          if(systemId){
+            formData.append("id", systemId)
+          }
           formData.append("name", this.form.getFieldsValue()["name"])
           if (this.imgData) {
             formData.append("file", this.imgData, this.fileName)
@@ -121,8 +124,8 @@ export default {
           updateSystem(formData).then(function (res) {
             _this.setSystemName(res.name);
             _this.setSystemLogo(iconUrl(res.logo));
-            console.log("a")
             localStorage.setItem("loginLogo", _this.loginLogoImg)
+            _this.$store.getters['account/user'].systemId = res.id;
             _this.$message.success(_this.$t('system.system.form.update-success')); //头像更新成功！
           }).catch((error) => {
             console.log(error)

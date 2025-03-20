@@ -33,6 +33,7 @@ public interface SystemService {
   SystemVo findOneSystem(Long id);
 
   Page<SystemVo> findSystems(Pageable pageable);
+
   List<SystemVo> findAllSystems(String keyword);
 
   Boolean checkExistsByName(String name);

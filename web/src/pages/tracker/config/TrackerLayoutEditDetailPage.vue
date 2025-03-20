@@ -180,7 +180,7 @@ import TrackerComment from '../items/TrackerComment.vue';
 import TrackerAttachment from '../items/TrackerAttachment.vue';
 import TrackerItemKeyFields from '@/components/select/TrackerItemKeyFields.vue';
 import TrackerLayoutEditDetail from './TrackerLayoutEditDetail.vue';
-
+import VXETable from "vxe-table";
 
 
 export default {
@@ -339,21 +339,21 @@ export default {
         },
         onCLickCancel() {
             let that = this
-            this.$confirm({
+            VXETable.modal.confirm({
                 title: "你有未发布的变更",
-                content: '取消修改会导致未发布的变更丢失,是否取消修改？',
-                okText: '取消修改',
-                cancelText: '继续编辑',
-                onOk() {
-                    that.$router.push({
+                message: '取消修改会导致未发布的变更丢失,是否取消修改？',
+                confirmButtonText: '取消修改',
+                cancelButtonText: '继续编辑',
+            }).then(type => {
+                if (type === 'confirm') {
+                    this.$router.push({
                         name: "trackerLayoutConfig",
                         params: {
                             selectTab: 'DETAIL'
                         }
                     })
-                },
-                onCancel() { },
-            });
+                }
+            })
         },
         cancelDescription() {
             this.editorInEditMode = false
@@ -559,7 +559,7 @@ export default {
                 description: '描述',
                 values: {},
                 owner: this.user,
-                priority: '3',
+                priority: '',
                 relatedWorkItems: [],
                 watchers: []
             }

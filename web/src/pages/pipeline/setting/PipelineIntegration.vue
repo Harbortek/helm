@@ -10,7 +10,7 @@
             <vxe-column type="seq" :title="$t('config.pipline.table.id')" width="50px" header-align="center" align="center">
             </vxe-column>
             <vxe-column field="type" :title="$t('config.pipline.table.type')" width="100" header-align="center" align="center">
-                <template #default="{ row }">
+                <template #default="{ }">
                     <div style="display: inline-flex;">
                         Jenkins
                     </div>

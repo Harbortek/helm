@@ -12,7 +12,7 @@
           </template>
           <a-menu :selectable="!permLoading" mode="vertical" style="border: 0;"
             :defaultSelectedKeys="defaultSelectedKeys">
-            <a-menu-item @click="loadPerms(item.id, item.name)" v-for="(item, i) in roles" :key="item.id">
+            <a-menu-item @click="loadPerms(item.id, item.name)" v-for="(item) in roles" :key="item.id">
               {{ item.name }}
               <a-dropdown>
                 <a-icon style="position: absolute;top: 30%;right: 0px;width: 10px;" type="more" />
@@ -57,6 +57,7 @@ import RoleDialog from './RoleDialog.vue'
 import { getRole, getRolesNoPage, batchDeleteRole, deleteRole, findRolePerms, saveRolePerms } from '@/services/system/RoleService'
 import { getPerms } from '@/services/system/PermissionService'
 import ConfigPage from '@/components/config-page/ConfigPage'
+import VXETable from "vxe-table";
 
 
 export default {
@@ -91,20 +92,18 @@ export default {
     },
     handleDelete(id) {
       const that = this
-      this.$confirm({
+      VXETable.modal.confirm({
         title: this.$t('system.role.remind.delete.title'),//提示
-        content: this.$t('system.role.remind.delete.content'),//确定删除吗？
-        okText: this.$t('ok'),
-        okType: 'danger',
-        cancelText: this.$t('cancel'),
-        onOk() {
+        message: this.$t('system.role.remind.delete.content'),//确定删除吗？
+        confirmButtonText: this.$t('ok'),
+        cancelButtonText: this.$t('cancel'),
+      }).then(type => {
+        if(type === 'confirm'){
           deleteRole(id).then(res => {
             that.loading = false
             that.$message.success(that.$t('system.role.remind.delete.success'))//删除成功！
             that.handleRoleReload()
           })
-        },
-        onCancel() {
         }
       })
     },
