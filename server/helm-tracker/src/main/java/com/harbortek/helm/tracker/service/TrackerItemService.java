@@ -132,4 +132,6 @@ public interface TrackerItemService {
 
 
      void setFieldValue(TrackerItemVo trackerItem, Long fieldId, Object value);
+
+    void deleteTrackerItemsByPageId(Long pageId);
 }

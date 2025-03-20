@@ -63,7 +63,7 @@ public class EmailServiceImpl implements EmailService {
             //发送
             mailSender.send(message);
             //日志信息
-        } catch (Exception e) {
+        } catch (Throwable e) {
             logger.error("发送邮件时发生异常！", e);
         }
     }

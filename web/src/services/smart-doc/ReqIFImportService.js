@@ -56,7 +56,7 @@ export function findReqIFImportConfigs(projectId, keyword) {
 
 export function createReqIFImportConfig(parameter) {
   return request({
-    url: `/smart-doc/import/reqIf/config/`,
+    url: `/smart-doc/import/reqIf/config`,
     method: METHOD.POST,
     data: parameter,
   });
@@ -64,7 +64,7 @@ export function createReqIFImportConfig(parameter) {
 
 export function updateReqIFImportConfig(parameter) {
   return request({
-    url: `/smart-doc/import/reqIf/config/`,
+    url: `/smart-doc/import/reqIf/config`,
     method: METHOD.PUT,
     data: parameter,
   });

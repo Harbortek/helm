@@ -493,4 +493,11 @@ public class TrackerItemDao extends BaseJdbcDao {
                 .and(getField(TrackerItemEntity.Fields.statusId).eq(oldTrackerStatus.getId()))
                 .execute();
     }
+
+    public void deleteTrackerItemsByPageId(Long pageId) {
+        getDslContext().update(getTable(TrackerItemEntity.class))
+                .set(getField(BaseEntity.Fields.deleted),true)
+                .where(getField(TrackerItemEntity.Fields.relatedWikis).contains(pageId))
+                .execute();
+    }
 }

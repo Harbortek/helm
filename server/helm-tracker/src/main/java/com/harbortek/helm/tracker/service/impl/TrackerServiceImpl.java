@@ -354,7 +354,6 @@ public class TrackerServiceImpl implements TrackerService {
     public List<TrackerVo> findByProject(Long projectId, boolean showInternal) {
         List<TrackerVo> trackerVos = new ArrayList<>();
         if (showInternal) {
-            trackerVos.add(InternalTrackers.TITLE);
             trackerVos.add(InternalTrackers.HEADING);
             trackerVos.add(InternalTrackers.PARAGRAPH);
         }

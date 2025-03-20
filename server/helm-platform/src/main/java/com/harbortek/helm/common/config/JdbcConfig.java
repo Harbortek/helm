@@ -32,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jooq.ExecuteContext;
 import org.jooq.ExecuteListener;
 import org.jooq.ExecuteType;
+import org.jooq.SQLDialect;
 import org.jooq.impl.DataSourceConnectionProvider;
 import org.jooq.impl.DefaultConfiguration;
 import org.jooq.impl.DefaultDSLContext;
@@ -91,6 +92,7 @@ public class JdbcConfig extends AbstractJdbcConfiguration {
 
     public DefaultConfiguration configuration() {
         DefaultConfiguration jooqConfiguration = new DefaultConfiguration();
+        jooqConfiguration.set(SQLDialect.MYSQL);
         jooqConfiguration.set(connectionProvider());
         jooqConfiguration.set(new DefaultExecuteListenerProvider(ExceptionTranslatorExecuteListener.DEFAULT),
                               new DefaultExecuteListenerProvider(new ExecuteListener() {

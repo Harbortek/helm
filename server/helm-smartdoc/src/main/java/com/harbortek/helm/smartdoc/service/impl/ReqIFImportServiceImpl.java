@@ -470,24 +470,30 @@ public class ReqIFImportServiceImpl implements ReqIFImportJobService {
         } else if (SystemFields.DESCRIPTION.equals(fieldName)) {
             trackerItem.setDescription(value);
         } else if (SystemFields.OWNER.equals(fieldName)) {
-            UserVo user = userService.findOneUserByLoginName(value);
-            if (user != null) {
-                trackerItem.setOwner(new IdNameReference<>(user));
+            if (StringUtils.isNotEmpty(value)) {
+                UserVo user = userService.findOneUserByLoginName(value);
+                if (user != null) {
+                    trackerItem.setOwner(new IdNameReference<>(user));
+                }
             }
 //        } else if (SystemFields.SPRINT.equals(fieldName)) {
 //            trackerItem.setSprint(new IdNameReference<>(SprintVo.builder().id(Long.valueOf(value)).build()));
         } else if (SystemFields.CREATE_BY.equals(fieldName)) {
-            UserVo user = userService.findOneUserByLoginName(value);
-            if (user != null) {
-                trackerItem.setCreateBy(new IdNameReference<>(user));
+            if (StringUtils.isNotEmpty(value)) {
+                UserVo user = userService.findOneUserByLoginName(value);
+                if (user != null) {
+                    trackerItem.setCreateBy(new IdNameReference<>(user));
+                }
             }
         } else if (SystemFields.CREATE_DATE.equals(fieldName)) {
             trackerItem.setCreateDate(DateUtils.strToDate(value));
         } else if (SystemFields.LAST_MODIFIED_BY.equals(fieldName)) {
-            UserVo user = userService.findOneUserByLoginName(value);
-            if (user != null) {
-                trackerItem.setLastModifiedBy(
-                        new IdNameReference<>(user));
+            if (StringUtils.isNotEmpty(value)) {
+                UserVo user = userService.findOneUserByLoginName(value);
+                if (user != null) {
+                    trackerItem.setLastModifiedBy(
+                            new IdNameReference<>(user));
+                }
             }
         } else if (SystemFields.LAST_MODIFIED_DATE.equals(fieldName)) {
             trackerItem.setLastModifiedDate(DateUtils.strToDate(value));
@@ -500,9 +506,11 @@ public class ReqIFImportServiceImpl implements ReqIFImportJobService {
                 }
             }
         } else if (SystemFields.ASSIGNED_TO.equals(fieldName)) {
-            UserVo user = userService.findOneUserByLoginName(value);
-            if (user != null) {
-                trackerItem.setAssignedTo(new IdNameReference<>(user));
+            if (StringUtils.isNotEmpty(value)) {
+                UserVo user = userService.findOneUserByLoginName(value);
+                if (user != null) {
+                    trackerItem.setAssignedTo(new IdNameReference<>(user));
+                }
             }
         } else if (SystemFields.ASSIGNED_DATE.equals(fieldName)) {
             trackerItem.setAssignedDate(DateUtils.strToDate(value));

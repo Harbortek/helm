@@ -23,6 +23,7 @@ export default {
         return {
             visiable: false,
             formData: {
+                id: '',
             },
             configs: [],
         }
