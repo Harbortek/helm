@@ -87,9 +87,9 @@ public class DocApi {
         if (docVo.getElements() == null || docVo.getElements().isEmpty()) {
             docVo.setElements(new ArrayList<SlateNode>());
             for (DocBlock docBlock : docVo.getBlocks()) {
-                SlateNode node = Block2Node.parse(docBlock);
+                List<SlateNode> node = Block2Node.parse(docBlock);
                 if (node != null) {
-                    docVo.getElements().add(node);
+                    docVo.getElements().addAll(node);
                 }
             }
         }

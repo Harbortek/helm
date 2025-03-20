@@ -71,7 +71,7 @@ public class Operator {
             if (docVo.getElements() == null || docVo.getElements().isEmpty()) {
                 docVo.setElements(new ArrayList<SlateNode>());
                 for (DocBlock docBlock : docVo.getBlocks()) {
-                    docVo.getElements().add(Block2Node.parse(docBlock));
+                    docVo.getElements().addAll(Block2Node.parse(docBlock));
                 }
             } else {
                 List<Long> itemIds = docVo.getElements().stream()

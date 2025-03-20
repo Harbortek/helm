@@ -25,6 +25,7 @@ import com.harbortek.helm.tracker.entity.block.*;
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.html2po.HtmlParser;
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.html2po.ParserRegister;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.image.ImageHtmlParserConf;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.list.ListHtmlParserConf;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.list.ListSlateElement;
@@ -59,7 +60,7 @@ public class Block2Node {
         ParserRegister.registerParseElemHtmlConf(new TableHtmlParserConf());
     }
 
-    public static SlateNode parse(DocBlock docBlock) {
+    public static List<SlateNode> parse(DocBlock docBlock) {
         DocBlockData blockData = docBlock.getData();
         if (blockData instanceof TitleBlockData) {
             TitleSlateElement<SlateNode> titleSlateElement = new TitleSlateElement<>();
@@ -72,38 +73,25 @@ public class Block2Node {
             }
             titleSlateElement.setChildren(children);
             titleSlateElement.setId(docBlock.getId());
-            return titleSlateElement;
+            return List.of(titleSlateElement);
         } else if (blockData instanceof ParagraphBlockData) {
             ParagraphBlockData paragraphBlockData = (ParagraphBlockData) blockData;
-            List<SlateNode> children = new ArrayList<>();
+
             List<Node> all = Jsoup.parse(paragraphBlockData.getText()).body().childNodes();
             if (all.isEmpty()) {
                 ParagraphSlateElement<SlateNode> paragraphSlateElement = new ParagraphSlateElement<>();
                 SlateText slateText = new SlateText();
                 paragraphSlateElement.getChildren().add(slateText);
-                return paragraphSlateElement;
+                return List.of(paragraphSlateElement);
             }
             if (all.get(0) instanceof Element) {
                 //ul,ol 特殊处理
                 if (((Element) all.get(0)).is("ul,ol")) {
-                    Element firstChild = (Element) all.get(0);
-                    String tagName = firstChild.tagName();
-                    ParagraphSlateElement paragraphSlateElement = new ParagraphSlateElement();
-                    for (Node node : firstChild.childNodes()) {
-                        Element element = wrapperText(node);
-                        if (StringUtils.isEmpty(StringUtils.trimToEmpty(element.html()))) {
-                            continue;
-                        }
-                        SlateNode parseElemHtml = HtmlParser.parseElemHtml(element);
-                        ListSlateElement listSlateElement = new ListSlateElement<>();
-                        listSlateElement.setLevel(1L);
-                        listSlateElement.setOrdered(tagName.equals("ol"));
-                        listSlateElement.getChildren().add(parseElemHtml);
-                        children.add(listSlateElement);
-                    }
-                    paragraphSlateElement.setChildren(children);
-                    paragraphSlateElement.setId(docBlock.getId());
-                    return paragraphSlateElement;
+                    Element itemEle = (Element) all.get(0);
+                    List<SlateNode> listItems = new ArrayList<>();
+                    listAllListItems(listItems, 0L, itemEle);
+
+                    return listItems;
                 }
                 //table 特殊处理
                 if (((Element) all.get(0)).is("table,tbody")) {
@@ -140,10 +128,11 @@ public class Block2Node {
                         tableSlateElement.getChildren().add(tableRowSlateElement);
                     }
                     tableSlateElement.setWidth("100%");
-                    return tableSlateElement;
+                    return List.of(tableSlateElement);
                 }
             }
             ParagraphSlateElement<SlateNode> paragraphSlateElement = new ParagraphSlateElement<>();
+            List<SlateNode> children = new ArrayList<>();
             String html = HtmlUtil.removeHtmlTag(paragraphBlockData.getText(), "p");
             for (Node node : Jsoup.parse(html).body().childNodes()) {
                 Element element = wrapperText(node);
@@ -152,7 +141,21 @@ public class Block2Node {
             }
             paragraphSlateElement.setChildren(children);
             paragraphSlateElement.setId(docBlock.getId());
-            return paragraphSlateElement;
+            return List.of(paragraphSlateElement);
+        } else if (blockData instanceof ListItemBlockData) {
+            ListItemBlockData listItemBlockData = (ListItemBlockData) blockData;
+            ListSlateElement listSlateElement = new ListSlateElement();
+            listSlateElement.setLevel(listItemBlockData.getLevel());
+            listSlateElement.setOrdered(listItemBlockData.getOrdered());
+
+            List<SlateNode> children = new ArrayList<>();
+            for (Node node : Jsoup.parse(blockData.getText()).body().childNodes()) {
+                Element element = wrapperText(node);
+                SlateNode parseElemHtml = HtmlParser.parseElemHtml(element);
+                children.add(parseElemHtml);
+            }
+            listSlateElement.setChildren(children);
+            return List.of(listSlateElement);
         } else if (blockData instanceof TrackerItemBlockData) {
             TrackerItemBlockData trackerItemBlockData = (TrackerItemBlockData) blockData;
             TrackerItemSlateElement<SlateNode> trackerItemSlateElement = new TrackerItemSlateElement<>();
@@ -172,14 +175,20 @@ public class Block2Node {
             TrackerItemSlateElement.TrackerItemDescriptionSlateElement trackerItemDescriptionSlateElement = new TrackerItemSlateElement.TrackerItemDescriptionSlateElement();
             children.add(trackerItemDescriptionSlateElement);
             List<SlateNode> subChildren = new ArrayList<>();
-            trackerItemDescriptionSlateElement.setChildren(subChildren);
+            ParagraphSlateElement paragraphSlateElement = new ParagraphSlateElement<>();
+            paragraphSlateElement.setChildren(subChildren);
+            trackerItemDescriptionSlateElement.setChildren(List.of(paragraphSlateElement));
             trackerItemDescriptionSlateElement.setRef(refId);
 
             String txt = StringUtils.isEmpty(trackerItemBlockData.getText()) ? "<p><span></span></p>" : trackerItemBlockData.getText();
             for (Node node : Jsoup.parse(txt).body().childNodes()) {
                 Element element = wrapperText(node);
                 SlateNode parseElemHtml = HtmlParser.parseElemHtml(element);
-                subChildren.add(parseElemHtml);
+                if (parseElemHtml instanceof SlateElement<?>) {
+                    subChildren.addAll(((SlateElement<?>) parseElemHtml).getChildren());
+                } else {
+                    subChildren.add(parseElemHtml);
+                }
             }
             trackerItemSlateElement.setChildren(children);
 
@@ -196,7 +205,7 @@ public class Block2Node {
             trackerItemExtraSlateElement.setRef(refId);
             trackerItemSlateElement.setTrackerItem(fillTrackerItemVo(trackerItemBlockData.getTrackerItem()));
             trackerItemSlateElement.setId(docBlock.getId());
-            return trackerItemSlateElement;
+            return List.of(trackerItemSlateElement);
         } else if (blockData instanceof HeaderBlockData) {
             HeaderBlockData headerBlockData = (HeaderBlockData) blockData;
             HeaderSlateElement headerSlateElement = null;
@@ -221,7 +230,7 @@ public class Block2Node {
             }
             headerSlateElement.setChildren(children);
             headerSlateElement.setId(docBlock.getId());
-            return headerSlateElement;
+            return List.of(headerSlateElement);
         } else {
             return null;
         }
@@ -268,5 +277,69 @@ public class Block2Node {
         trackerItemVo2.setStatusId(trackerItemVo.getStatusId());
         trackerItemVo2.setValues(trackerItemVo.getValues());
         return trackerItemVo2;
+    }
+
+    private static void listAllListItems(List<SlateNode> items, Long level, Element container) {
+        String tagName = container.tagName().toLowerCase();
+        if ("ul".equals(tagName) || "ol".equals(tagName)) {
+            container.childNodes().stream()
+                    .filter(node -> {
+                        String subTagName = node.nodeName().toLowerCase();
+                        return "li".equals(subTagName) || "ul".equals(subTagName) || "ol".equals(subTagName);
+                    })
+                    .forEach(node -> {
+                        String subTagName = node.nodeName().toLowerCase();
+                        if ("li".equals(subTagName)) {
+                            boolean hasulols = node.childNodes().stream().filter(subNode -> {
+                                String tmp = subNode.nodeName().toLowerCase();
+                                return "ol".equals(tmp) || "ul".equals(tmp);
+                            }).toList().size() > 0;
+                            if (hasulols) {
+                                Element wrapper = new Element("span");
+                                for (Node subNode : node.childNodes()) {
+                                    String tmp = subNode.nodeName().toLowerCase();
+                                    if ("ol".equals(tmp) || "ul".equals(tmp)) {
+                                        if (wrapper.childNodes().size() > 0) {
+                                            ListSlateElement listSlateElement = new ListSlateElement();
+                                            listSlateElement.setLevel(level);
+                                            listSlateElement.setOrdered(tagName.equals("ol"));
+                                            SlateNode parseElemHtml = HtmlParser.parseElemHtml(wrapper);
+                                            listSlateElement.getChildren().add(parseElemHtml);
+                                            items.add(listSlateElement);
+                                            wrapper = new Element("span");
+                                        }
+                                        listAllListItems(items, level + 1, (Element) subNode);
+                                    } else {
+                                        if (StringUtils.isNotEmpty(HtmlUtil.cleanHtmlTag(subNode.outerHtml()))) {
+                                            wrapper.appendChild(subNode);
+                                        }
+                                    }
+                                }
+                                if (wrapper.childNodes().size() > 0) {
+                                    ListSlateElement listSlateElement = new ListSlateElement();
+                                    listSlateElement.setLevel(level);
+                                    listSlateElement.setOrdered(tagName.equals("ol"));
+                                    SlateNode parseElemHtml = HtmlParser.parseElemHtml(wrapper);
+                                    listSlateElement.getChildren().add(parseElemHtml);
+                                    items.add(listSlateElement);
+                                }
+                            } else {
+                                ListSlateElement listSlateElement = new ListSlateElement();
+                                listSlateElement.setLevel(level);
+                                listSlateElement.setOrdered(tagName.equals("ol"));
+                                Element element = wrapperText(node);
+                                SlateNode parseElemHtml = HtmlParser.parseElemHtml(element);
+                                listSlateElement.getChildren().add(parseElemHtml);
+                                items.add(listSlateElement);
+                            }
+
+                        }
+                        if ("ul".equals(subTagName) || "ol".equals(subTagName)) {
+                            listAllListItems(items, level + 1, (Element) node);
+                        }
+
+                    });
+
+        }
     }
 }

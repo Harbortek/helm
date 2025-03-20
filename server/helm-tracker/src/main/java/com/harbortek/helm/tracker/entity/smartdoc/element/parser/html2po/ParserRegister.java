@@ -36,9 +36,11 @@ public class ParserRegister {
     public static void registerPreParseHtmlConf(PreParseHtmlConf conf) {
         PRE_PARSE_HTML_CONF_LIST.add(conf);
     }
+
     public static void registerParseStyleHtmlHandler(ParseStyleHtmlFn fn) {
         PARSE_STYLE_HTML_FN_LIST.add(fn);
     }
+
     public static void registerParseElemHtmlConf(ParseElemHtmlConf conf) {
         PARSE_ELEM_HTML_CONF.put(conf.getSelector(), conf.getParseElemHtml());
     }
@@ -53,9 +55,10 @@ public class ParserRegister {
             return false;
         }
     }
+
     // Common text tags
     public static final String[] TEXT_TAGS = {
-            "span", "b", "strong", "i", "em", "s", "strike", "u", "font", "sub", "sup","li"
+            "span", "b", "strong", "i", "em", "s", "strike", "u", "font", "sub", "sup", "li"
     };
 
     public static boolean isVoid(SlateNode node) {

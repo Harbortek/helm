@@ -157,7 +157,7 @@ export default Vue.extend({
       let counters = [0, 0, 0, 0, 0, 0]; // 对应h1, h2, h3, h4, h5
 
       // 获取所有标题元素
-      const headers = Array.from(doc.querySelectorAll('h1, h2, h3, h4, h5'));
+      const headers = doc  ? Array.from(doc.querySelectorAll('h1, h2, h3, h4, h5')) : [];
       // 从1开始编号
       numberElements(headers, counters);
       this.$emit("onOutliners");

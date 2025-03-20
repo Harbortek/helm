@@ -21,7 +21,7 @@ import java.util.List;
 
 public interface BlockTypes {
     String TITLE = "title";
-
+    String LIST_ITEM = "list-item";
     String HEADING = "header";
     String PARAGRAPH = "paragraph";
 

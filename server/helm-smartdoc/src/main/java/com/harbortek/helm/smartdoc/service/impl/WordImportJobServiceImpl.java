@@ -210,11 +210,11 @@ public class WordImportJobServiceImpl implements WordImportJobService {
             List<SlateNode> elements = new ArrayList<>();
             for (DocBlock block : blocks) {
 
-                SlateNode node = Block2Node.parse(block);
+                List<SlateNode> node = Block2Node.parse(block);
                 if (node == null) {
                     continue;
                 }
-                elements.add(node);
+                elements.addAll(node);
             }
             jobEntity.setBlocksJSON(JsonUtils.toJSONString(elements));
 
@@ -292,8 +292,11 @@ public class WordImportJobServiceImpl implements WordImportJobService {
             }
         }
 
-        job.setBlocksJSON(JsonUtils.toJSONString(
-                newBlocks.stream().map(block -> Block2Node.parse(block)).toList()));
+        List<SlateNode> allElements = new ArrayList<>();
+        for (DocBlock block : newBlocks) {
+            allElements.addAll(Block2Node.parse(block));
+        }
+        job.setBlocksJSON(JsonUtils.toJSONString(allElements));
         WordImportJobEntity jobEntity = DataUtils.toEntity(job, WordImportJobEntity.class);
         wordImportJobDao.updateJob(jobEntity);
 
