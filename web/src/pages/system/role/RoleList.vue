@@ -5,9 +5,9 @@
       <a-col :span="6"> 
         <a-card :title="$t('system.role.search.label.role-name')" :loading="roleLoading" style="min-height:600px">
           <template #extra>
-            <a-button type="link" :title="$t('system.role.a-card-button-refresh')" icon="reload"
+            <a-button :loading="loading" type="link" :title="$t('system.role.a-card-button-refresh')" icon="reload"
               @click="handleRoleReload()" />
-            <a-button type="link" :title="$t('system.role.a-card-button-save')" icon="plus" @click="handleAdd()"
+            <a-button :loading="loading" type="link" :title="$t('system.role.a-card-button-save')" icon="plus" @click="handleAdd()"
               v-action="'SYSTEM_ROLE'" />
           </template>
           <a-menu :selectable="!permLoading" mode="vertical" style="border: 0;"
@@ -35,8 +35,8 @@
       <a-col :span="18">
         <a-card :title="roleName" :loading="permLoading" style="min-height:600px">
           <template #extra>
-            <a-button type="link" icon="reload" @click="loadPerms()">{{$t('system.role.a-card-button-refresh')}}</a-button>
-            <a-button v-action="'SYSTEM_ROLE'" type="link" icon="save" @click="savePerms()">{{$t('system.role.a-card-button-save')}}</a-button>
+            <a-button type="link" icon="reload" :loading="permLoading" @click="loadPerms()">{{$t('system.role.a-card-button-refresh')}}</a-button>
+            <a-button v-action="'SYSTEM_ROLE'" :loading="permLoading" type="link" icon="save" @click="savePerms()">{{$t('system.role.a-card-button-save')}}</a-button>
           </template>
           <a-descriptions bordered :column="1">
             <a-descriptions-item v-for="(val, key, i) in perms" :key="i" bordered>
@@ -114,11 +114,13 @@ export default {
       })
     },
     savePerms() {
+      this.permLoading=true
       const that = this
       saveRolePerms(this.id, this.checklist).then(res => {
         that.$message.success(that.$t('system.role.remind.save.success'))
         location.reload()
-        return res
+        // this.$store.dispatch('account/getInfo');
+        // this.permLoading=false
       })
     },
     handlePermChange(e, item) {

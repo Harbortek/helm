@@ -27,8 +27,8 @@
               <i class="ant-menu-submenu-arrow"></i>
             </div>
           </li>
-          <a-menu slot="overlay" class="project-list-dropdown" :selectable="true" :selectedKeys="[recentProjects.length > 0 ? recentProjects[0].project?.id : '0']"
-            style="padding-left: 10px;padding-right: 10px;padding-top: 10px; " @select="onProjectClick">
+          <a-menu slot="overlay" class="project-list-dropdown" :selectable="true" :selectedKeys="getSelectKeys()"
+            style="padding-left: 10px;padding-right: 10px;padding-top: 10px; " @click="onProjectClick">
             <a-input-search placeholder="项目名称" style="width: 200px" @search="onSearch" v-model="projectSearch" />
 
             <a-menu-item-group title="最近访问的项目">
@@ -326,6 +326,13 @@ export default {
         this.recentProjects = resp.recentProjects;
         this.totalCount = resp.totalCount;
       })
+    },
+    getSelectKeys(){
+      if(!this.currentProject?.name){
+        return ['0'];
+      }else{
+        return [this.recentProjects.length > 0 ? this.recentProjects[0].project?.id : '0']
+      }
     },
     getComponentPagePath(page, projectId) {
       const comp_page = PAGE_COMPONENTS.filter(item => item.id === page.componentType)[0]

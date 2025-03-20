@@ -67,13 +67,13 @@
             </a-tooltip>
           </span>
           <a-radio-group :disabled="isView" v-decorator="[
-            'status',
-            { initialValue: '1', rules: [{ required: true }] },
+            'disabled',
+            { initialValue: false, rules: [{ required: true }] },
           ]">
-            <a-radio value="1">
+            <a-radio :value="false">
               {{ $t('system.user.search.label.on') }}
             </a-radio>
-            <a-radio value="2">
+            <a-radio :value="true">
               {{ $t('system.user.search.label.off') }}
             </a-radio>
           </a-radio-group>
@@ -185,7 +185,7 @@ export default {
         this.loading = false;
         console.log('getUser', res);
         this.checkedList = res.roles?.map((item) => item.id);
-        this.form.setFieldsValue({ id: res.id, loginName: res.loginName, name: res.name, status: res.status,
+        this.form.setFieldsValue({ id: res.id, loginName: res.loginName, name: res.name, disabled: res.disabled,
              mobilePhone: res.mobilePhone, email: res.email, password: res.password, orgId: res.orgId,roles:this.checkedList });
         return res
       })
@@ -251,7 +251,7 @@ export default {
     getRoleloadData() {
       const that = this;
       this.loading = true;
-        return getRolesNoPage().then(res => {
+        return getRolesNoPage({scope: 'SCOPE_GLOBAL'}).then(res => {
           console.log('getRoles', res);
           that.roleData = res.map(item=>{
             return {value: item.id, label: item.name}

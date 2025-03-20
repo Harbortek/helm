@@ -182,7 +182,8 @@ export default {
                 this.$message.success('保存成功！');
                 this.hasChange = false;
             }).finally(() => {
-                // window.location.reload();
+                this.$store.dispatch('account/getInfo');
+                window.location.reload();
             })
         },
         onCancelSave() {
@@ -233,7 +234,7 @@ export default {
                 cancelButtonText: this.$t('cancel')
             }).then(type => {
                 if (type === 'confirm') {
-                    deleteProjectRole(id).then(res => {
+                    deleteProjectRole(this.projectId,id).then(res => {
                         that.loading = false;
                         that.$message.success(this.$t('system.enum.remind.delete.success'));
                         that.loadData();
@@ -267,13 +268,13 @@ export default {
                 if (valid) {
                     if ("create" === editMode) {
                         formData.projectId = this.projectId
-                        createProjectRole(formData).then((resp) => {
+                        createProjectRole(this.projectId,formData).then((resp) => {
                             this.$message.success("添加成功")
                             this.loadData();
                         });
                     } else {
                         formData.projectId = this.projectId
-                        updateProjectRole(formData).then((resp) => {
+                        updateProjectRole(this.projectId,formData).then((resp) => {
                             this.$message.success("添加成功")
                             this.loadData();
                         });

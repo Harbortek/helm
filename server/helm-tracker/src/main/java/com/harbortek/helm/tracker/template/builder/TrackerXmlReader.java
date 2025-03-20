@@ -343,6 +343,8 @@ public class TrackerXmlReader {
                 columns.forEach(column -> {
                     column.setId(IDUtils.getId());
                 });
+            }else if(FieldTypes.SPRINT.equals(type)){
+                trackerField = SprintField.builder().build();
             }
 
             if(ObjectUtils.isNotEmpty(node.valueOf("@system"))){

@@ -92,7 +92,7 @@ const authorityGuard = (to, from, next, options) => {
     noPerm=true
   }
   if(noPerm){
-    message.warning(`对不起，您无权访问页面: ${to.fullPath}，请联系管理员`)
+    message.warning(`对不起，您无权访问页面: ${to.name}，请联系管理员`)
     // next('/login')
     // next(-1)
     return;

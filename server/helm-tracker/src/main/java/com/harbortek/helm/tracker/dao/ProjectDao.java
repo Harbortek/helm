@@ -186,7 +186,9 @@ public class ProjectDao extends BaseJdbcDao {
     }
 
     public long countUnFinishedProjects(Long userId, List<Long> projectIds, Collection<Long> statusIds) {
-
+        if(ObjectUtils.isEmpty(projectIds)||ObjectUtils.isEmpty(statusIds)){
+            return 0;
+        }
         Integer count = getDslContext().selectCount().from(getTable(ProjectEntity.class))
                 .where(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
                 .and(getField(ProjectEntity.Fields.statusId).in(statusIds))
@@ -229,6 +231,7 @@ public class ProjectDao extends BaseJdbcDao {
 
         SelectLimitPercentStep<?> sql = getDslContext().selectFrom(getTable(RecentProjectEntity.class))
                 .where(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
+                .and(getField(RecentProjectEntity.Fields.userId).eq(userId))
                 .and("project_has_permission(project_id," + userId + ",'" + ProjectPermissions.PROJECT_VIEW + "') ")
                 .orderBy(getField(RecentProjectEntity.Fields.lastAccessDate).desc()).limit(limit);
         return find(sql.getSQL(ParamType.INLINED), null, RecentProjectEntity.class);
