@@ -585,11 +585,23 @@ public class DatasetServiceImpl implements DatasetService {
                 if (!trackerField.isSystem()) {
                     if (Objects.equals(trackerField.getInputType(), FieldTypes.SINGLE_OPTIONS) || Objects.equals(trackerField.getInputType(), FieldTypes.MULTI_OPTIONS)) {
                         sb.append(",\n");
-                        List<OptionsField.OptionItem> optionItems = new ArrayList<>();
+                        final List<OptionsField.OptionItem> optionItems = new ArrayList<>();
                         if (trackerField instanceof OptionsField) {
-                            optionItems = ((OptionsField) trackerField).getItems();
+                            if (ObjectUtils.isNotEmpty(((OptionsField) trackerField).getItems())) {
+                                ((OptionsField) trackerField).getItems().forEach(item -> {
+                                    if (ObjectUtils.isNotEmpty(item.getName())) {
+                                        optionItems.add(item);
+                                    }
+                                });
+                            }
                         } else {
-                            optionItems = ((MultiOptionsField) trackerField).getItems();
+                            if (ObjectUtils.isNotEmpty(((MultiOptionsField) trackerField).getItems())) {
+                                ((MultiOptionsField) trackerField).getItems().forEach(item -> {
+                                    if (ObjectUtils.isNotEmpty(item.getName())) {
+                                        optionItems.add(item);
+                                    }
+                                });
+                            }
                         }
                         JSONArray jsonArray = new JSONArray();
                         for (OptionsField.OptionItem item : optionItems) {

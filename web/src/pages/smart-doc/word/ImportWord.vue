@@ -49,7 +49,7 @@ export default {
         return {
             previewContent: '',
             loading: false,
-            autoNumber: false,
+            autoNumber: true,
             rules: [],
             content: {
                 pageId: this.pageId,
