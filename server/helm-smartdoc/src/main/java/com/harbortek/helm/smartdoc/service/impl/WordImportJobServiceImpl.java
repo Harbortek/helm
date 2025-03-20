@@ -492,6 +492,7 @@ public class WordImportJobServiceImpl implements WordImportJobService {
 
         if (pRule.isFirstParagraphAsTitle()) {
             trackerItem.setName(paragraphs.get(0).text());
+            paragraphs.remove(0);
         }
 
         StringBuilder sb = new StringBuilder();
