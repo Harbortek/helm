@@ -292,6 +292,7 @@ export default {
 
             if (this.itemId) {
                 createTrackerLink(this.itemId, items).then(resp => {
+                    // this.relatedWorkItems.push(...items)
                     this.refresh()
                 })
             } else {

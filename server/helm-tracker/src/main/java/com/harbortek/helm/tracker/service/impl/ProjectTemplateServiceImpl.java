@@ -217,8 +217,8 @@ public class ProjectTemplateServiceImpl implements ProjectTemplateService, Appli
 		List<ProjectPageVo> pageVos = projectPageService.findByProjectId(projectId);
 		List<Long> docIds = pageVos.stream().map(ProjectPageVo::getSmartDocId)
 				.distinct().filter(Objects::nonNull).toList();
-//		List<DocVo> docVos = docService.findDocByIds(docIds);
-//		templateVo.setDocs(docVos);
+		List<DocVo> docVos = docService.findDocByIds(docIds);
+		templateVo.setDocs(docVos);
 
 		List<Long> smartPageIds = pageVos.stream().map(ProjectPageVo::getSmartPageId)
 				.distinct().filter(Objects::nonNull).toList();

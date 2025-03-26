@@ -436,14 +436,41 @@ export default {
             this.loadDataTestCase();
         },
         onClickReportDetail(row) {
-            const routeData = this.$router.resolve({
-                path: `/tracker/project/${this.projectId}/testReport/testReportDetail/${row.id}`
-            });
-            window.open(routeData.href, '_blank');
-            // this.$router.push({
-            //     name: 'testReportDetail', 
-            //     params: { reportId:row.id }
-            // })
+            let testReportMenu=this.findTestReportPath();
+            if(testReportMenu&&testReportMenu.path){
+                const routeData = this.$router.resolve({
+                    path: testReportMenu.path+`/testReportDetail/${row.id}`
+                });
+                window.open(routeData.href, '_blank');
+            }else{
+                // 提示用户配置测试报告页面
+                this.$message.warning("请先在系统中配置测试报告页面。")
+            }
+        },
+        findTestReportPath() {
+            // 递归查找包含testReport的菜单项
+            let sideMenu=this.$store.getters['account/sideMenu']
+            const findTestReportMenu = (menu) => {
+                if (menu.path && menu.path.includes('testReport')) {
+                    return menu;
+                }
+                if (menu.children) {
+                    for (const child of menu.children) {
+                        const found = findTestReportMenu(child);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            }
+
+            // 遍历菜单数组查找testReport
+            for (const menu of sideMenu) {
+                const testReportMenu = findTestReportMenu(menu);
+                if (testReportMenu) {
+                    return testReportMenu;
+                }
+            }
+            return null;
         },
         onTestRunDialogOK(item) {
             this.showTestRunDialog = false
