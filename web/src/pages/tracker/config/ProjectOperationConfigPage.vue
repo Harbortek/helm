@@ -80,7 +80,7 @@
                 <a-form-model-item ref="keyName" label="新项目缩写" prop="keyName">
                     <a-row>
                         <a-col :span="24">
-                            <a-input v-model="formData.keyName" placeholder="请输入新项目缩写" @blur="() => {
+                            <a-input v-model="formData.keyName" placeholder="请输入新项目缩写"  @input="handleInput" @blur="() => {
                                 $refs.keyName.onFieldBlur();
                             }
                                 " />
@@ -223,6 +223,9 @@ export default {
                 .catch(err => {
                     callback(new Error("项目缩写已存在"));
                 });
+        },
+        handleInput(event) {
+            this.formData.keyName = event.target.value.toUpperCase();
         },
         onClickCopy() {
             this.formData = {

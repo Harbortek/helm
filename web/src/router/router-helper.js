@@ -173,12 +173,17 @@ function loadGuards(guards, options) {
     if (guard && typeof guard === "function") {
       router.beforeEach((to, from, next) => guard(to, from, next, options));
     }
+    if(guard && guard.name == "authorityGuard"){
+      router.beforeResolve((to, from, next) => {
+        guard(to, from, next, options)
+      });
+    }
   });
   afterEach.forEach((guard) => {
     if (guard && typeof guard === "function") {
       router.afterEach((to, from) => guard(to, from, options));
     }
-  });
+  });  
 }
 
 export {

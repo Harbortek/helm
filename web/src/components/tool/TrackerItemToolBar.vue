@@ -257,6 +257,15 @@ export default {
         TrackerCycleProgress,TrackerTestCases,TrackerRelatedTest,TrackerItemFields,
         TrackerItemFieldsShow,
     },
+    props: {
+        itemId: {
+            required: true
+        },
+        trackerItem:{
+            required: true
+        },
+        readOnly: Boolean,
+    },
     data() {
         return {
             loading: false,
@@ -317,15 +326,6 @@ export default {
         };
 
     },
-    props: {
-        itemId: {
-            required: true
-        },
-        trackerItem:{
-            required: true
-        },
-        readOnly: Boolean,
-    },
     computed: {
         ...mapGetters("account", ["user"]),
         ...mapGetters("project", ["currentProjectKeyName"]),
@@ -356,7 +356,6 @@ export default {
                 if (newVal) {
                     this.loading=true
                     this.initItemPerm();
-                    this.prepareFormData()
                     this.loadData();
                 }
             }
@@ -373,11 +372,12 @@ export default {
                 }
             }
         },
-        // trackerItem:{
-        //     handler: function(newVal){
-        //         this.initItemPerm();
-        //     }
-        // },
+        trackerItem:{
+            handler: function(newVal){
+                this.prepareFormData()
+                // this.initItemPerm();
+            }
+        },
         // itemId:{
         //     handler: function(newVal,oldVal){
         //         this.loading=true;

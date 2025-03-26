@@ -396,6 +396,7 @@ public class ProjectPageServiceImpl implements ProjectPageService {
 
         //删除项目成员对该页面的访问权限
         permissionService.unGrantByResourceId(page.getId());
+        PermissionCacheUtils.evictGrantedPermissions(page.getProjectId());
     }
 
     @Override

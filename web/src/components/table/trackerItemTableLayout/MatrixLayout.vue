@@ -13,7 +13,7 @@
                     <vxe-radio-button type="text" label="1">
                         <a-icon style="font-size: 18px;transform: rotate(-90deg) scaleX(-1);" type="enter"/>
                     </vxe-radio-button>
-                    <vxe-radio-button type="text" label="2"> 
+                    <vxe-radio-button type="text" label="2">
                         <a-icon style="font-size: 18px;" type="enter"/>
                     </vxe-radio-button>
                 </vxe-radio-group>
@@ -22,31 +22,38 @@
         <div style="height:calc(100% - 42px);">
             <vxe-grid border :loading="loading" height="auto" :columns="tableColumn" :data="itemDataRow" row-id="id"
                 :column-config="{resizable: true}" :row-config="{isHover: true,resizable: true,height: 38}" @scroll="onScroll"
-                :header-cell-style="{'height': '150px'}" show-overflow onselectstart="return false">
+                :header-cell-style="{'height': '150px'}" show-overflow show-header-overflow onselectstart="return false">
                 <template #first_default="{ row }">
-                    <div @click="onEditTrackerItem(row)" style="white-space: nowrap;overflow: hidden;cursor:pointer;"> 
-                            <a-icon v-if="tracker.icon" :component="tracker.icon" /> 
+                    <a-tooltip placement="top" :mouseEnterDelay="0.2">
+                            <template slot="title">
+                                <div style="font-size:8px;">
+                                    {{ currentProjectKeyName + '-' + row.itemNo }} - {{ row.name }}
+                                </div>
+                            </template>
+                        <div @click="onEditTrackerItem(row)" style="white-space: nowrap;overflow: hidden;cursor:pointer;">
+                            <a-icon v-if="tracker.icon" :component="tracker.icon" />
                             {{ currentProjectKeyName + '-' + row.itemNo }} - {{ row.name }}</div>
+                    </a-tooltip>
                 </template>
                 
-                <template #name_header="{ column }">
-                    <div style="height: 150px;cursor:pointer;" @click="onEditTrackerItem(column)">
-                        <div class="table-header-rotate">
-                            <a-icon v-if="tracker.icon" :component="tracker.icon" /> 
-                            {{ currentProjectKeyName + '-' + column?.itemNo }} - {{column?.name}}</div>
-                    </div>
-                </template>
                 <template #default="{ row,columnIndex }">
-                    {{ void(trackerLink=getTrackerLinkDirection(row.id,itemDataCol[columnIndex-1].id)) }}
-                    <div style="cursor:pointer;font-size: 18px;" :title="currentProjectKeyName + '-' + row.itemNo +' <-> '+ currentProjectKeyName+ '-' + itemDataCol[columnIndex-1].itemNo">
-                        <a-icon v-if="trackerLink=='one'" style="transform: rotate(-90deg) scaleX(-1);" type="enter" @click="onClickRemoveLink(row,row.id,itemDataCol[columnIndex-1].id)"/>
-                        <a-icon v-else-if="trackerLink=='two'" style="" type="enter"  @click="onClickRemoveLink(row,itemDataCol[columnIndex-1].id,row.id)" />
-                        <a-icon v-else-if="trackerLink=='newOne'" style="color: #36c81d;transform: rotate(-90deg) scaleX(-1);" type="enter" @click="onClickRemoveLink(row,row.id,itemDataCol[columnIndex-1].id,)"/>
-                        <a-icon v-else-if="trackerLink=='newTwo'" style="color: #36c81d;" type="enter"  @click="onClickRemoveLink(row,itemDataCol[columnIndex-1].id,row.id)" />
-                        <a-icon v-else-if="trackerLink=='delOne'" style="color: #d75454;transform: rotate(-90deg) scaleX(-1);" type="enter" @click="onClickRemoveLink(row,row.id,itemDataCol[columnIndex-1].id,)"/>
-                        <a-icon v-else-if="trackerLink=='delTwo'" style="color: #d75454;" type="enter"  @click="onClickRemoveLink(row,itemDataCol[columnIndex-1].id,row.id)" />
-                        <div v-else style="width: 38px;height: 38px;margin-left: -10px;" @click="onClickSelect(row,row.id,itemDataCol[columnIndex-1].id)"></div>   
-                    </div>
+                    {{ void(trackerLink=getTrackerLinkDirection(row.id,itemDataCol[columnIndex].id)) }}
+                    <a-tooltip placement="top" :mouseEnterDelay="0.2">
+                        <template slot="title">
+                            <div style="font-size:8px;">
+                                {{currentProjectKeyName + '-' + row.itemNo +' <-> '+ currentProjectKeyName+ '-' + itemDataCol[columnIndex].itemNo}}
+                            </div>
+                        </template>
+                        <div style="cursor:pointer;font-size: 18px;width: 38px;height: 38px;line-height:38px;" >
+                            <a-icon v-if="trackerLink=='one'" style="transform: rotate(-90deg) scaleX(-1);" type="enter" @click="onClickRemoveLink(row,row.id,itemDataCol[columnIndex].id)"/>
+                            <a-icon v-else-if="trackerLink=='two'" style="" type="enter"  @click="onClickRemoveLink(row,itemDataCol[columnIndex].id,row.id)" />
+                            <a-icon v-else-if="trackerLink=='newOne'" style="color: #36c81d;transform: rotate(-90deg) scaleX(-1);" type="enter" @click="onClickRemoveLink(row,row.id,itemDataCol[columnIndex].id,)"/>
+                            <a-icon v-else-if="trackerLink=='newTwo'" style="color: #36c81d;" type="enter"  @click="onClickRemoveLink(row,itemDataCol[columnIndex].id,row.id)" />
+                            <a-icon v-else-if="trackerLink=='delOne'" style="color: #d75454;transform: rotate(-90deg) scaleX(-1);" type="enter" @click="onClickRemoveLink(row,row.id,itemDataCol[columnIndex].id,)"/>
+                            <a-icon v-else-if="trackerLink=='delTwo'" style="color: #d75454;" type="enter"  @click="onClickRemoveLink(row,itemDataCol[columnIndex].id,row.id)" />
+                            <div v-else style="margin-left: -10px;width: 38px;height: 38px;" @click="onClickSelect(row,row.id,itemDataCol[columnIndex].id)"></div>   
+                        </div>
+                    </a-tooltip>
                 </template>
             </vxe-grid>
         </div>
@@ -376,10 +383,18 @@ export default {
                     header: ()=>{
                         return [
                         <div style="height: 150px;cursor:pointer;" onClick={ ()=> this.onEditTrackerItem(item)}>
-                                <div class="table-header-rotate">
-                                    <a-icon {...{props:{component:this.tracker.icon}}}/>  
+                            <a-tooltip placement="top" mouseEnterDelay={0.2}>
+                                    <template slot="title">
+                                        <div style="font-size:8px;">
+                                            {' '+this.currentProjectKeyName + '-' + item.itemNo + ' - '+ (item.name||'')}
+                                        </div>
+                                    </template>
+                                    <div class="table-header-rotate">
+                                    <a-icon {...{props:{component:this.tracker.icon}}}/>
                                     {' '+this.currentProjectKeyName + '-' + item.itemNo + ' - '+ (item.name||'')}</div>
-                            </div>
+                            </a-tooltip>
+                                
+                        </div>
                         ]
                     }
                 }
