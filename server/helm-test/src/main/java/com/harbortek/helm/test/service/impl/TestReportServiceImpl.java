@@ -83,6 +83,11 @@ public class TestReportServiceImpl implements TestReportService {
     }
 
     @Override
+    public List<TestReportVo> findTestReportList(Long projectId) {
+        return DataUtils.toVo(testReportDao.findByProjectId(projectId), TestReportVo.class);
+    }
+
+    @Override
     public TestReportVo findOneTestReport(Long reportId) {
         TestReportEntity testReportEntity = testReportDao.findById(reportId);
         TestReportVo testReportVo = DataUtils.toVo(testReportEntity,TestReportVo.class);

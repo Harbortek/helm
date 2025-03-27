@@ -175,13 +175,14 @@ export default {
                     "value": [
                         statusId
                     ],
-                    "operator": "INCL"
+                    "operator": "INCL",
+                    system: field.system,
                 }) 
             })
             return conditionGroups
         },
         loadData(){
-            let field={id:11,field:"status"}
+            let field={id:11,field:"status",system:true}
             this.kanbanData={}
             this.tracker.trackerStatuses.forEach(status=>{
                 this.$set(this.scrollDebounce,status.id,undefined)
@@ -283,7 +284,7 @@ export default {
                                 return
                             }
                         }
-                        let field={id:11,field:"status"}
+                        let field={id:11,field:"status",system:true}
                         let conditionGroups=cloneDeep(that.conditionGroups);
                         conditionGroups=that.mattersMethod(conditionGroups,field,typeId)
                         that.paginations[typeId].current+=1

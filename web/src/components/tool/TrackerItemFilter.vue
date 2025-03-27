@@ -30,7 +30,7 @@
                           </a-select>
 
                           <a-select @change="onChangeConditionOperator(condition)" 
-                              v-if="condition.type=='INTEGER'||condition.type=='DATE'"
+                              v-if="condition.type=='INTEGER'||condition.type=='DATE'||condition.type=='DECIMAL'"
                             v-model="condition.operator" style="width:90px;">
                               <a-select-option value="EQ" >等于</a-select-option>
                               <a-select-option value="NEQ" >不等于</a-select-option>
@@ -49,6 +49,15 @@
                               <a-select-option value="NN">不为空</a-select-option>
                           </a-select>
 
+                          <a-select @change="onChangeConditionOperator(condition)" 
+                              v-if="condition.type=='BOOL'"
+                            v-model="condition.operator" style="width:90px;">
+                              <a-select-option value="EQ">等于</a-select-option>
+                              <a-select-option value="NEQ">不等于</a-select-option>
+                              <a-select-option value="NULL">为空</a-select-option>
+                              <a-select-option value="NN">不为空</a-select-option>
+                          </a-select>
+
                           <a-select @change="onChangeConditionOperator(condition)" v-if="condition.type=='TEXT'||condition.type=='WORK_ITEM_NO'"
                             v-model="condition.operator" style="width:90px;">
                               <a-select-option value="INCL">包含</a-select-option>
@@ -61,12 +70,12 @@
 
                           <div v-if="condition.operator!='NULL'&&condition.operator!='NN'">
                             <div style="display: flex;align-items: center;position: relative;">
-                              <a-input v-if="(condition.type=='INTEGER'&&condition.operator!='BETWEEN')||condition.type=='TEXT'||condition.type=='WORK_ITEM_NO'" placeholder="请输入..." v-model="condition.value" @change="onChangeConditionInput(condition)" style="width:260px;"/>                          
-                              <a-space direction="vertical" v-else-if="condition.type=='INTEGER'&&condition.operator=='BETWEEN'">
+                              <a-input v-if="((condition.type=='INTEGER'||condition.type=='DECIMAL')&&condition.operator!='BETWEEN')||condition.type=='TEXT'||condition.type=='WORK_ITEM_NO'" placeholder="请输入..." v-model="condition.value" @change="onChangeConditionInput(condition)" style="width:260px;"/>                          
+                              <a-space direction="vertical" v-else-if="(condition.type=='INTEGER'||condition.type=='DECIMAL')&&condition.operator=='BETWEEN'">
                                 <a-input placeholder="请输入..." v-model="condition.value1" @change="onChangeConditionInput(condition)" style="width:260px;"/>                          
                                 <a-input placeholder="请输入..." v-model="condition.value2" @change="onChangeConditionInput(condition)" style="width:260px;"/>                          
                               </a-space>
-                              <div v-if="condition.type=='INTEGER'&&condition.operator=='BETWEEN'" class="input-separate"><span class="input-separate-label">至</span></div>
+                              <div v-if="(condition.type=='INTEGER'||condition.type=='DECIMAL')&&condition.operator=='BETWEEN'" class="input-separate"><span class="input-separate-label">至</span></div>
                             </div>
 
                             <a-date-picker v-if="condition.type=='DATE'&&condition.operator!='BETWEEN'" style="width:260px;" v-model="condition.conditionDate" placeholder="请选择日期" @change="onChangeConditionDate(condition)" />
@@ -99,6 +108,18 @@
                                   <h-avatar :name="member.name" :icon="member.icon"></h-avatar>
                                   <span class="domain-list-cell-subtext"> {{ member.description }} </span>
                               </a-select-option>  
+                            </a-select>
+                            <a-select
+                                v-if="condition.type=='BOOL'"
+                                optionFilterProp="label"
+                                style="width:260px;"
+                                v-model="condition.value"
+                                placeholder="请选择..."
+                                @change="onChangeConditionSelect(condition)"
+                            >
+                              <a-select-option value="true">是</a-select-option>
+                              <a-select-option value="false">否</a-select-option>
+
                             </a-select>
                           </div>
                       </a-space>
@@ -146,11 +167,25 @@ export default {
       let fields=this.tracker.trackerFields || []
       this.isChange  //更新computed
       fields = fields.filter(f => {
-        return f.systemProperty&&(f.inputType === 'INTEGER' || f.inputType === 'TEXT' || 
+        return (f.inputType === 'INTEGER' || f.inputType === 'TEXT' || 
             f.inputType === 'STATUS'|| f.inputType === 'DATE' || f.inputType === 'USER'||
             f.inputType === 'OPTIONS'||f.inputType === 'WORK_ITEM_TYPE'||  f.inputType ==='SPRINT' ||
-            f.inputType === 'STATUS_TYPE'||f.inputType === 'WORK_ITEM_NO')
+            f.inputType === 'STATUS_TYPE'||f.inputType === 'WORK_ITEM_NO'||
+            f.inputType === 'DECIMAL' || f.inputType === 'BOOL')
       })
+      fields.forEach(item=>{
+        if(item.system==null||item.system.undefined){
+          item.system=true;
+        }
+        if(item.items){
+          if(item.system&&!this.tracker[item.systemProperty]){
+            this.$set(this.tracker,item.systemProperty,item.items)
+          }else if(!item.system&&!this.tracker[item.id]){
+            this.$set(this.tracker,item.id,item.items)
+          }
+        }
+      })
+      console.log("this.fff",this.tracker,fields)
       return fields;
     },
   },
@@ -201,6 +236,10 @@ export default {
           ids=this.conditionGroups[idx].conditions.map(f=>f.field)
         }
         let result = this.precondFields.filter(f => { return ids.indexOf(f.systemProperty) < 0 })
+          .map(f=>{
+            if(!f.system){f.systemProperty=f.id;}
+            return f;
+          })
         return result || []
     },
     onChangeConditionDate(row){ 
@@ -259,9 +298,10 @@ export default {
     onChangeCondition(row,field){
       row.type=field.inputType;
       // row.field=field.systemProperty;
+      row.system=field.system
 
       row.value=undefined;
-      if(field.inputType==='INTEGER'||field.inputType==='DATE'){
+      if(field.inputType==='INTEGER'||field.inputType==='DATE'||field.inputType=='DECIMAL'||field.inputType=='BOOL'){
         row.operator="EQ";
       }else if(field.inputType==='TEXT'||field.inputType==='WORK_ITEM_NO'||field.inputType==='STATUS'||field.inputType==='USER') {
         row.operator="INCL";
@@ -296,7 +336,7 @@ export default {
       if(fields.length>0){
         let len=this.conditionGroups[idx].conditions.length;
         this.conditionGroups[idx].conditions.push({
-          id:fields[0].id,field:fields[0].systemProperty,type:'',value:'',operator:'',
+          id:fields[0].id,field:fields[0].systemProperty,type:'',value:'',operator:'',system:fields[0].system,
         })
         this.onChangeCondition(this.conditionGroups[idx].conditions[len],fields[0])   
       }
@@ -392,6 +432,7 @@ export default {
     position: relative;
     display: flex;
     align-items: center;
+    margin-left:10px;
 }
 .input-separate::before {
     content: "";

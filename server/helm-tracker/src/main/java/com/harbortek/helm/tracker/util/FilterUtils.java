@@ -215,10 +215,15 @@ public class FilterUtils {
             Condition oneGroup = noCondition();
             boolean flag=false;
             for (FilterCondition filterCondition : group.getConditions()) {
-                Condition  condition =  filterConditionToCondition(filterCondition,sprintIds);
-                if(condition != null){
-                    oneGroup =  oneGroup.and(condition);
-                    flag=true;
+                Condition condition = null;
+                if (ObjectUtils.isNotEmpty(filterCondition.getSystem())&&filterCondition.getSystem()) {
+                    condition = filterConditionToCondition(filterCondition, sprintIds);
+                }else{
+                    condition = filterConditionCustomField(filterCondition);
+                }
+                if (condition != null) {
+                    oneGroup = oneGroup.and(condition);
+                    flag = true;
                 }
             }
             if (flag) {
@@ -388,6 +393,126 @@ public class FilterUtils {
             }else{
                 condition = getField(filterCondition.getField()).ne("").and(getField(filterCondition.getField()).isNotNull());
             }
+        }
+        return condition;
+    }
+
+
+    //自定义属性过滤
+    private static Condition filterConditionCustomField(FilterCondition filterCondition) {
+        String fieldName = "JSON_EXTRACT(`values`, '$.\""+filterCondition.getField()+"\"')";
+        Condition condition = noCondition();
+        if (filterCondition.getField() == null) {
+            return condition;
+        }
+        if (filterCondition.getValue() == null && !filterCondition.getOperator().equals("NN")
+                && !filterCondition.getOperator().equals("NULL")) {
+            return condition;
+        }
+        if (filterCondition.getType().equals("DATE")) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            try {
+                List<String> dateList = new ArrayList<>();
+                if (!filterCondition.getOperator().equals("BETWEEN")) {
+                    Date currentData = sdf.parse(filterCondition.getValue().toString());
+                    if (filterCondition.getOperator().equals("EQ")) {
+                        dateList.add(formatter.format(currentData));
+                        Date endDate = new Date(currentData.getTime() + 24 * 60 * 60 * 1000);
+                        dateList.add(formatter.format(endDate));
+                        filterCondition.setValue(dateList);
+                        filterCondition.setOperator("BETWEEN");
+                        fieldName="DATE_FORMAT("+fieldName+",'%Y-%m-%d %H:%i:%s')";
+                    } else if (filterCondition.getOperator().equals("NEQ")) {
+                        Date endDate = new Date(currentData.getTime() + 24 * 60 * 60 * 1000);
+                        dateList.add(formatter.format(endDate));
+                        dateList.add(formatter.format(currentData));
+                        filterCondition.setValue(dateList);
+                    } else if (filterCondition.getOperator().equals("LEQ")) {
+                        Date endDate = new Date(currentData.getTime() + 24 * 60 * 60 * 1000);
+                        filterCondition.setValue(formatter.format(endDate));
+                    } else {
+                        filterCondition.setValue(formatter.format(sdf.parse(filterCondition.getValue().toString())));
+                    }
+                } else {
+                    Object[] objects = ((ArrayList) filterCondition.getValue()).toArray();
+                    dateList.add(formatter.format(sdf.parse(objects[0].toString())));
+                    Date endDate =
+                            new Date(sdf.parse(objects[1].toString()).getTime() + 24 * 60 * 60 * 1000);
+                    dateList.add(formatter.format(endDate));
+                    filterCondition.setValue(dateList);
+                    fieldName="DATE_FORMAT("+fieldName+",'%Y-%m-%d %H:%i:%s')";
+                }
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        if (filterCondition.getOperator().equals("INCL")) {//包含
+            if (filterCondition.getType().equals("USER") ||
+                    filterCondition.getType().equals("STATUS") || filterCondition.getType().equals("SPRINT") ||
+                    filterCondition.getType().equals("OPTIONS") || filterCondition.getType().equals("WORK_ITEM") ||
+                    filterCondition.getType().equals("WORK_ITEM_TYPE") ||
+                    filterCondition.getType().equals("STATUS_TYPE")) {
+//                List<Long> longs = new ArrayList<>();
+//                ((ArrayList) filterCondition.getValue()).forEach(item -> {
+//                    longs.add(Long.parseLong(item.toString()));
+//                });
+                condition = DSL.field(fieldName).in((filterCondition.getValue()));
+            }else {
+                condition = DSL.field(fieldName).like("%"+ filterCondition.getValue().toString()+"%");
+            }
+        } else if (filterCondition.getOperator().equals("EXCL")) { //不包含
+            if (filterCondition.getType().equals("USER") ||
+                    filterCondition.getType().equals("STATUS") || filterCondition.getType().equals("SPRINT") ||
+                    filterCondition.getType().equals("OPTIONS") || filterCondition.getType().equals("WORK_ITEM") ||
+                    filterCondition.getType().equals("WORK_ITEM_TYPE") ||
+                    filterCondition.getType().equals("STATUS_TYPE")) {
+//                List<Long> longs = new ArrayList<>();
+//                ((ArrayList) filterCondition.getValue()).forEach(item -> {
+//                    longs.add(Long.parseLong(item.toString()));
+//                });
+                condition = DSL.field(fieldName).notIn(filterCondition.getValue())
+                        .or(DSL.field(fieldName).isNull());
+            }else {
+                condition = DSL.field(fieldName)
+                        .notLike("%"+ filterCondition.getValue().toString()+"%")
+                        .or(DSL.field(fieldName).isNull());
+            }
+        } else if (filterCondition.getOperator().equals("EQ")) {
+            condition = DSL.field(fieldName).eq(filterCondition.getValue());
+        } else if (filterCondition.getOperator().equals("NEQ")) {
+            if (filterCondition.getType().equals("DATE")) {
+                Object[] objects = ((ArrayList) filterCondition.getValue()).toArray();
+                condition = DSL.field(fieldName).greaterOrEqual(objects[0])
+                        .or(DSL.field(fieldName).lessOrEqual(objects[1]))
+                        .or(DSL.field(fieldName).isNull());
+            } else {
+                condition = DSL.field(fieldName).ne(filterCondition.getValue())
+                        .or(DSL.field(fieldName).isNull());
+            }
+        } else if (filterCondition.getOperator().equals("GEQ")) {
+            condition = DSL.field(fieldName).greaterOrEqual(filterCondition.getValue());
+        } else if (filterCondition.getOperator().equals("LEQ")) {
+            condition = DSL.field(fieldName).lessOrEqual(filterCondition.getValue());
+        } else if (filterCondition.getOperator().equals("BETWEEN")) {
+            if(filterCondition.getType().equals("INTEGER")){
+                Object[] objects = ((ArrayList) filterCondition.getValue()).toArray();
+                condition = DSL.field(fieldName).between(Integer.parseInt(objects[0].toString()), Integer.parseInt(objects[1].toString()));
+            }else if(filterCondition.getType().equals("DECIMAL")){
+                Object[] objects = ((ArrayList) filterCondition.getValue()).toArray();
+                condition = DSL.field(fieldName).between(Double.parseDouble(objects[0].toString()), Double.parseDouble(objects[1].toString()));
+            }else{
+                Object[] objects = ((ArrayList) filterCondition.getValue()).toArray();
+                condition = DSL.field(fieldName).between(objects[0], objects[1]);
+            }
+
+        } else if (filterCondition.getOperator().equals("NULL")) {
+            condition = DSL.field(fieldName).eq("").or(
+                    DSL.field(fieldName).isNull());
+        } else if (filterCondition.getOperator().equals("NN")) {
+            condition = DSL.field(fieldName).ne("").and(DSL.field(fieldName).isNotNull());
         }
         return condition;
     }

@@ -16,6 +16,7 @@
 
 package com.harbortek.helm.tracker.vo.view;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -36,4 +37,7 @@ public class FilterCondition implements Serializable {
     Object value;
 
     String operator;
+
+    @Builder.Default
+    Boolean system = true;
 }

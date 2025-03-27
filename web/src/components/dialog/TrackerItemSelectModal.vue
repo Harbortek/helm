@@ -240,7 +240,8 @@ export default {
       this.loadData();
     },
     handleSearch() {
-      this.loadTrackerItemsData({});
+      // this.loadTrackerItemsData({});
+      this.refresh();
     },
     selectData() {
       this.selectedRows = Object.assign([], this.initalData);
@@ -319,7 +320,8 @@ export default {
         this.conditionGroups[0].conditions = [];
         let field = this.tracker.trackerFields.find(field => field.systemProperty == 'trackerId')
         this.conditionGroups[0].conditions.push({
-          id: field?.id, field: 'trackerId', type: 'OPTIONS', value: [...((this.trackerIds) || [this.trackerId])], operator: 'INCL'
+          id: field?.id, field: 'trackerId', type: 'OPTIONS', value: [...((this.trackerIds) || [this.trackerId])],
+           operator: 'INCL',system:true
         })
       }
       this.loadTrackerItemsData({ conditionGroups: this.conditionGroups });
