@@ -320,8 +320,12 @@ public class JenkinsApi {
      * @return
      */
     public String findStepLog(String url){
-        String fullUrl = serverUrl+"/"+url;
-        return restTemplate.getForObject(fullUrl, String.class);
+        try {
+            String fullUrl = serverUrl+"/"+url;
+            return restTemplate.getForObject(fullUrl, String.class);
+        }catch (Exception e){
+            return "";
+        }
     }
 
     /**
@@ -331,20 +335,24 @@ public class JenkinsApi {
      * @return
      */
     public String findExecutionFullLog( String fullName, String buildNo) {
-        String pipelineName = fullName.substring(0,fullName.lastIndexOf("/"));
-        String  branchName = org.apache.commons.lang.StringUtils.substringAfter(fullName, "/");
-        if (StringUtils.isNotEmpty(branchName)){
-            String url = MessageFormat.format(
-                    "/blue/rest/organizations/jenkins/pipelines/{0}/branches/{1}/runs" +
-                            "/{2}/log/?start=0",pipelineName,branchName,buildNo);
-            String fullUrl = serverUrl+"/"+url;
-            return restTemplate.getForObject(fullUrl, String.class);
-        }else{
-            String url = MessageFormat.format(
-                    "/blue/rest/organizations/jenkins/pipelines/{0}/runs" +
-                            "/{1}/log/?start=0",pipelineName,buildNo);
-            String fullUrl = serverUrl+"/"+url;
-            return restTemplate.getForObject(fullUrl, String.class);
+        try {
+            String pipelineName = fullName.substring(0, fullName.lastIndexOf("/"));
+            String branchName = org.apache.commons.lang.StringUtils.substringAfter(fullName, "/");
+            if (StringUtils.isNotEmpty(branchName)) {
+                String url = MessageFormat.format(
+                        "/blue/rest/organizations/jenkins/pipelines/{0}/branches/{1}/runs" +
+                                "/{2}/log/?start=0", pipelineName, branchName, buildNo);
+                String fullUrl = serverUrl + "/" + url;
+                return restTemplate.getForObject(fullUrl, String.class);
+            } else {
+                String url = MessageFormat.format(
+                        "/blue/rest/organizations/jenkins/pipelines/{0}/runs" +
+                                "/{1}/log/?start=0", pipelineName, buildNo);
+                String fullUrl = serverUrl + "/" + url;
+                return restTemplate.getForObject(fullUrl, String.class);
+            }
+        }catch (Exception e){
+            return "";
         }
     }
 }

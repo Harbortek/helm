@@ -51,7 +51,7 @@ public class PipelineRepositoryApi {
     }
 
     @Parameter(name="更新流水线仓库")
-    @RequestMapping(value = "", method = RequestMethod.PUT)
+    @RequestMapping(value = "/", method = RequestMethod.PUT)
     ResponseEntity<Void> updatePipelineRepository(@RequestBody PipelineRepositoryVo pipelineVo) {
         pipelineRepositoryService.updatePipelineRepository(pipelineVo);
         return ResponseEntity.ok().build();
