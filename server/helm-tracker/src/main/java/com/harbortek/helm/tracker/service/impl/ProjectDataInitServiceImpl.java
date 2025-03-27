@@ -201,7 +201,7 @@ public class ProjectDataInitServiceImpl implements ProjectDataInitService {
         if (!enumService.existsCategoryCode(EnumCodes.TRACKER_STATUS_MEANING)) {
 
             EnumCategoryVo trackerStatusMeaning =
-                    EnumCategoryVo.builder().id(IDUtils.getId()).name("工作项状态分类")
+                    EnumCategoryVo.builder().id(IDUtils.getId()).name("工作项状态类型")
                                   .code(EnumCodes.TRACKER_STATUS_MEANING).system(true).build();
             enumService.createEnumCategory(trackerStatusMeaning);
 

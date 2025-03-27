@@ -16,22 +16,20 @@
 
 package com.harbortek.helm.pipeline.service.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.harbortek.helm.pipeline.dao.PipelineDao;
 import com.harbortek.helm.pipeline.entity.PipelineEntity;
 import com.harbortek.helm.pipeline.service.PipelineService;
 import com.harbortek.helm.pipeline.vo.PipelineVo;
 import com.harbortek.helm.util.DataUtils;
 import com.harbortek.helm.util.IDUtils;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@Service
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service("pipelineService")
 @Slf4j
 public class PipelineServiceImpl implements PipelineService {
     @Autowired

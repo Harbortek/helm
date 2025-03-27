@@ -53,7 +53,6 @@ public class TrackerUtils {
                 DateField.builder().name("解决日期").systemProperty(SystemFields.RESOLVED_ON).build(),
                 ProjectField.builder().name("所属项目").systemProperty(SystemFields.PROJECT).build(),
                 WorkItemTypeField.builder().name("所属工作项类型").systemProperty(SystemFields.TRACKER).build(),
-//                SprintField.builder().name("所属迭代").systemProperty(SystemFields.SPRINT).build(),
                 DateField.builder().name("计划开始时间").systemProperty(SystemFields.PLAN_START_DATE).build(),
                 DateField.builder().name("计划结束时间").systemProperty(SystemFields.PLAN_END_DATE).build(),
                 DateField.builder().name("实际开始时间").systemProperty(SystemFields.REAL_START_DATE).build(),
@@ -63,8 +62,6 @@ public class TrackerUtils {
                 IntegerField.builder().name("预计花费工时").systemProperty(SystemFields.ESTIMATE_WORKING_HOURS).build(),
                 IntegerField.builder().name("已登记工时").systemProperty(SystemFields.REGISTERED_WORKING_HOURS).build(),
                 IntegerField.builder().name("剩余工时").systemProperty(SystemFields.REMAINING_WORKING_HOURS).build()
-//                OptionsField.builder().name("测试用例类型").systemProperty(SystemFields.TEST_CASE_TYPE).build(),
-//                TextField.builder().name("测试用例前置条件").systemProperty(SystemFields.PRECONDITION).build()
                                                        );
 
         systemFields.forEach(f -> {
@@ -126,7 +123,7 @@ public class TrackerUtils {
                                  .system(Boolean.TRUE)
                                  .parent(Boolean.TRUE).code(Associations.IMPLEMENTS.getId()).build(),
                 //refines
-                TrackerLinkTypeVo.builder().id(IDUtils.getId()).name("完善").oppositeName("被完善").description(
+                TrackerLinkTypeVo.builder().id(IDUtils.getId()).name("完善了").oppositeName("被完善").description(
                                          "将更完善的需求链接到其父需求或变更请求。").ordinary(index++).system(Boolean.TRUE)
                                  .parent(Boolean.TRUE).code(Associations.REFINES.getId()).build(),
                 //depends_on。
