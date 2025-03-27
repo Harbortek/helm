@@ -24,6 +24,9 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
 import lombok.experimental.SuperBuilder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @SuperBuilder
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -32,4 +35,5 @@ import lombok.experimental.SuperBuilder;
 @JsonTypeName(value = FieldTypes.SPRINT)
 public class SprintField extends TrackerField{
 	String nop;
+	List<OptionsField.OptionItem> items = new ArrayList<>();
 }

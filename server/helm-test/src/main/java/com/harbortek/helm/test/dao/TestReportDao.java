@@ -41,6 +41,7 @@ public class TestReportDao extends BaseJdbcDao {
         return save(report);
     }
 
+
     public void updateTestReport(TestReportEntity report){
         save(report);
     }
@@ -49,6 +50,15 @@ public class TestReportDao extends BaseJdbcDao {
        markAsDeleted(id, TestReportEntity.class);
     }
 
+    public List<TestReportEntity> findByProjectId(Long projectId) {
+        Criteria criteria = Criteria.empty();
+
+        criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
+        criteria = criteria.and(Criteria.where(TestReportEntity.Fields.projectId).is(projectId));
+        Query query = Query.query(criteria);
+
+        return find(query,TestReportEntity.class);
+    }
     public Page<TestReportEntity> findTestReports(Long projectId, String keyword, Pageable pageable) {
         Criteria criteria = Criteria.empty();
 

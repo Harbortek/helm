@@ -248,7 +248,7 @@
                     </a-popover>
 
                     <vxe-grid :loading="loading" height="auto" ref="trackerItemTable" :row-config="{ isHover: true }"
-                        :columns="tableColumn" :data="getItemList" row-id="id"
+                        :columns="tableColumn" :data="getItemList" row-id="id" :column-config="{resizable: true}"
                         :edit-config="{trigger: 'click', mode: 'cell',activeMethod: activeCellMethod, beforeEditMethod: beforeEditMethod}"
                         :checkbox-config="{ checkRowKeys: selectedRowKeys,reserve:true, checkField: 'checked', trigger: 'row' }"
                         @checkbox-all="selectChangeEvent" @checkbox-change="selectChangeEvent">
@@ -906,29 +906,29 @@ export default {
                     field: '', type: 'checkbox', width: 60, visible: (this.sprintType || this.isBatchModfigle)
                         && (!this.proejctPageId || hasPermission("PAGE_WRITE",this.proejctPageId)) ? true : false
                 },
-                { field: 'itemNo', title: '编号', minWidth: 100, slots: { default: 'itemNo_default', } },
+                { field: 'itemNo', title: '编号', width:100, slots: { default: 'itemNo_default', } },
                 { field: 'name', title: '标题', editRender: {}, minWidth: 300, slots: { default: 'name_default', edit: 'name_edit' } },
-                { field: 'priority', title: '优先级', editRender: {}, minWidth: 100, slots: { default: 'priority_default', edit: 'priority_edit' } },
-                { field: 'status', title: '状态', minWidth: 100, slots: { default: 'status_default', header: 'status_header' } },
-                { field: 'planEndDate', title: '计划结束时间', editRender: {}, minWidth: 150, showHeaderOverflow: "tooltip", slots: { edit: 'plan_end_time_edit' } },
-                { field: 'createBy', title: '创建者', minWidth: 100, slots: { default: 'createBy_default' } },
-                { field: 'ownerId', title: '负责人', minWidth: 100, slots: { default: 'owner_default', header: 'owner_header' } },
-                { field: 'createDate', title: '创建日期', minWidth: 100 },
+                { field: 'priority', title: '优先级', editRender: {}, width: 100, slots: { default: 'priority_default', edit: 'priority_edit' } },
+                { field: 'status', title: '状态', width: 100, slots: { default: 'status_default', header: 'status_header' } },
+                { field: 'ownerId', title: '负责人', width: 100, slots: { default: 'owner_default', header: 'owner_header' } },
+                { field: 'planEndDate', title: '计划结束时间', editRender: {}, width: 150, showHeaderOverflow: "tooltip", slots: { edit: 'plan_end_time_edit' } },
+                { field: 'createBy', title: '创建者', width: 100, slots: { default: 'createBy_default' } },
+                { field: 'createDate', title: '创建日期', width: 150 },
             ]
         },
         initTableColumnTail() {
             return [
-                { field: 'lastModifiedBy', title: '修改者', minWidth: 100, slots: { default: 'lastModified_default' } },
-                { field: 'estimateWorkingHours', title: '预计花费工时', align: "right", editRender: {}, minWidth: 150, showHeaderOverflow: "tooltip", slots: { edit: 'estimate_working_hours_edit' } },
-                { field: 'registeredWorkingHours', title: '已登记工时', align: "right", minWidth: 150, showHeaderOverflow: "tooltip", slots: { default: 'registered_working_hours_default', header: 'registered_working_hours_header' } },
-                { field: 'remainingWorkingHours', title: '剩余工时', align: "right", editRender: {}, minWidth: 100, slots: { edit: 'remaining_working_hours_edit' } },
-                { field: 'assignedToId', title: '分配给', minWidth: 100, slots: { default: 'assigned_to_default', header: 'assigned_to_header' } },
-                { field: 'assignedDate', title: '分配日期', editRender: {}, minWidth: 100, slots: { edit: 'assigned_date_edit' } },
-                { field: 'planStartDate', title: '计划开始时间', editRender: {}, minWidth: 150, showHeaderOverflow: "tooltip", slots: { edit: 'plan_start_date_edit' } },
-                { field: 'realStartDate', title: '实际开始时间', editRender: {}, minWidth: 150, showHeaderOverflow: "tooltip", slots: { edit: 'real_start_date_edit' } },
-                { field: 'realEndDate', title: '实际结束时间', editRender: {}, minWidth: 150, showHeaderOverflow: "tooltip", slots: { edit: 'real_end_date_edit' } },
-                { field: 'progress', title: '进度', editRender: {}, minWidth: 100, slots: { edit: 'progress_edit' } },
-                { field: 'closeDate', title: '关闭时间', editRender: {}, minWidth: 100, slots: { edit: 'close_date_edit' } },
+                { field: 'lastModifiedBy', title: '修改者', width: 100, slots: { default: 'lastModified_default' } },
+                { field: 'estimateWorkingHours', title: '预计花费工时', align: "right", editRender: {}, width: 150, showHeaderOverflow: "tooltip", slots: { edit: 'estimate_working_hours_edit' } },
+                { field: 'registeredWorkingHours', title: '已登记工时', align: "right", width: 150, showHeaderOverflow: "tooltip", slots: { default: 'registered_working_hours_default', header: 'registered_working_hours_header' } },
+                { field: 'remainingWorkingHours', title: '剩余工时', align: "right", editRender: {}, width: 150, slots: { edit: 'remaining_working_hours_edit' } },
+                { field: 'assignedToId', title: '分配给', width: 100, slots: { default: 'assigned_to_default', header: 'assigned_to_header' } },
+                { field: 'assignedDate', title: '分配日期', editRender: {}, width: 150, slots: { edit: 'assigned_date_edit' } },
+                { field: 'planStartDate', title: '计划开始时间', editRender: {}, width: 150, showHeaderOverflow: "tooltip", slots: { edit: 'plan_start_date_edit' } },
+                { field: 'realStartDate', title: '实际开始时间', editRender: {}, width: 150, showHeaderOverflow: "tooltip", slots: { edit: 'real_start_date_edit' } },
+                { field: 'realEndDate', title: '实际结束时间', editRender: {}, width: 150, showHeaderOverflow: "tooltip", slots: { edit: 'real_end_date_edit' } },
+                { field: 'progress', title: '进度', editRender: {}, width: 100, slots: { edit: 'progress_edit' } },
+                { field: 'closeDate', title: '关闭时间', editRender: {}, width: 150, slots: { edit: 'close_date_edit' } },
             ]
         },
         
@@ -989,8 +989,9 @@ export default {
                     }
                 }
             }
-            if (newTableColumn[newTableColumn.length - 1]) {
-                newTableColumn[newTableColumn.length - 1].minWidth = 180
+            if (newTableColumn[newTableColumn.length-1]) {
+                newTableColumn[newTableColumn.length-1].width = 200
+                newTableColumn[newTableColumn.length-1].align = 'left'
             }
             this.tableColumn = newTableColumn;
             this.customRowCheck=newCustomRowCheck
@@ -1217,7 +1218,8 @@ export default {
                         "value": [
                             this.userId
                         ],
-                        "operator": "INCL"
+                        "operator": "INCL",
+                        system:true,
                     })
                 }
             })
@@ -1228,9 +1230,9 @@ export default {
                 if (view.name == '我负责的') {
                     this.mattersMethod({ id: '6', field: 'ownerId' })
                 } else if (view.name == '我关注的') {
-                    this.mattersMethod({ id: '26', field: 'watchers' })
+                    this.mattersMethod({ id: '26', field: 'watchers',system:true  })
                 } else if (view.name === '分配给我的') {
-                    this.mattersMethod({ id: '13', field: 'assignedToId' })
+                    this.mattersMethod({ id: '13', field: 'assignedToId',system:true  })
                 }
             }
         },
@@ -1248,7 +1250,8 @@ export default {
                         "value": [
                             status.id
                         ],
-                        "operator": "INCL"
+                        "operator": "INCL",
+                        system:true,
                     }
                     this.conditionGroups[0].conditions[0] = condition
                 }
@@ -1693,10 +1696,10 @@ export default {
 }
 
 .transition-status {
-    min-width: 110px;
+    min-width: 40px;
     display: flex;
     align-items: center;
-    margin-right: 20px;
+    // margin-right: 20px;
     white-space: nowrap;
 
     .ui-tag-status {

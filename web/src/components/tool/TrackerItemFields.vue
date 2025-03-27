@@ -45,7 +45,7 @@
         <a-select v-else-if="fields.inputType == 'BOOL'"
             @change="onBlurTextField(fields.id)" :disabled="readOnly"
             v-model="newValue" :placeholder="readOnly?'':fields.name">
-            <a-select-option value="ture">是</a-select-option>
+            <a-select-option value="true">是</a-select-option>
             <a-select-option value="false">否</a-select-option>
         </a-select>
 
@@ -132,7 +132,7 @@
                             v-model="row[column.id]"
                             :placeholder="readOnly?'':fields.name">
                             <a-select-option
-                                value="ture">是</a-select-option>
+                                value="true">是</a-select-option>
                             <a-select-option
                                 value="false">否</a-select-option>
                         </a-select>

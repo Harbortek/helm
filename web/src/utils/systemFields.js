@@ -15,7 +15,7 @@ export const systemFields = [
     { id: '14', name: "分配日期", systemProperty: "assignedDate", inputType: "DATE" },
     { id: '15', name: "所属项目", systemProperty: "projectId", inputType: "PROJECT" },
     { id: '16', name: "所属工作项类型", systemProperty: "trackerId", inputType: "WORK_ITEM_TYPE" },
-    { id: '27', name: "所属迭代", systemProperty: "sprintId", inputType: "SPRINT" },
+    // { id: '27', name: "所属迭代", systemProperty: "sprintId", inputType: "SPRINT" },
     { id: '18', name: "计划开始时间", systemProperty: "planStartDate", inputType: "DATE" },
     { id: '19', name: "计划结束时间", systemProperty: "planEndDate", inputType: "DATE" },
     { id: '20', name: "实际开始时间", systemProperty: "realStartDate", inputType: "DATE" },

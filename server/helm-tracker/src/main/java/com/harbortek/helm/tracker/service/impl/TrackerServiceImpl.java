@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 
 import com.harbortek.helm.tracker.dao.*;
 import com.harbortek.helm.tracker.entity.plan.SprintEntity;
+import com.harbortek.helm.tracker.vo.tracker.fields.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -75,12 +76,6 @@ import com.harbortek.helm.tracker.vo.ProjectRoleMemberVo;
 import com.harbortek.helm.tracker.vo.permission.PermissionGrantVo;
 import com.harbortek.helm.tracker.vo.plan.SprintVo;
 import com.harbortek.helm.tracker.vo.tracker.TrackerVo;
-import com.harbortek.helm.tracker.vo.tracker.fields.MultiOptionsField;
-import com.harbortek.helm.tracker.vo.tracker.fields.OptionsField;
-import com.harbortek.helm.tracker.vo.tracker.fields.StatusField;
-import com.harbortek.helm.tracker.vo.tracker.fields.TableField;
-import com.harbortek.helm.tracker.vo.tracker.fields.TestStepField;
-import com.harbortek.helm.tracker.vo.tracker.fields.TrackerField;
 import com.harbortek.helm.tracker.vo.tracker.layout.TrackerLayout;
 import com.harbortek.helm.tracker.vo.tracker.nofitication.CustomerTrackerNotification;
 import com.harbortek.helm.tracker.vo.tracker.nofitication.SystemTrackerNotification;
@@ -290,15 +285,6 @@ public class TrackerServiceImpl implements TrackerService {
                                                             item.getBackgroundColor())
                                                     .build())
                                             .collect(Collectors.toList());
-                        } else if (SystemFields.SPRINT.equals(systemProperty)) {
-                            List<SprintEntity> sprintVos = sprintDao.findSprints(projectId);
-                            optionItems =
-                                    sprintVos.stream().map(item -> OptionsField.OptionItem.builder().id((item.getId()))
-                                                    .name(item.getName())
-                                                    .description(
-                                                            item.getDescription())
-                                                    .build())
-                                            .collect(Collectors.toList());
                         } else if (SystemFields.STATUS_TYPE.equals(systemProperty)) {
                             List<EnumItemVo> enumVos =
                                     enumService.findEnumItemsByCode(projectId,
@@ -342,6 +328,17 @@ public class TrackerServiceImpl implements TrackerService {
                     } else {
                         ((MultiOptionsField) trackerField).setItems(optionItems);
                     }
+                }else if(trackerField instanceof SprintField){
+                    List<SprintEntity> sprintVos = sprintDao.findSprints(projectId);
+                    List<OptionsField.OptionItem> optionItems =
+                            sprintVos.stream().map(item -> OptionsField.OptionItem.builder().id((item.getId()))
+                                            .name(item.getName())
+                                            .description(
+                                                    item.getDescription())
+                                            .build())
+                                    .collect(Collectors.toList());
+                    ( (SprintField) trackerField).setItems(optionItems);
+
                 }
             }
         }
