@@ -79,15 +79,33 @@ export default {
 
                 this.queryParameterMap = {}
                 let hasPageQuery = false
+                let totalHeight = 0
                 for (let j = 0; j < componentList.length; j++) {
                     const component = componentList[j]
                     this.queryParameterMap[component.id] = []
                     if (component.type === 'page-query') {
                         hasPageQuery = true
                     }
+                    if (component.layout) {
+                        //计算所有组件中占据layout的最大高度
+                        const itemBottom = component.layout.top + component.layout.height
+                        if (itemBottom > totalHeight) {
+                            totalHeight = itemBottom
+                        }
+                    }
                 }
 
                 this.pageStyle = JSON.parse(resp.pageStyle || JSON.stringify(DEFAULT_COMMON_CANVAS_STYLE_STRING))
+                if (totalHeight > 0) {
+                    //获得main-canvas的高度
+                    const mainCanvasHeight = this.$refs.pageViewContainer.offsetHeight
+                    if (mainCanvasHeight > 0) {
+                        this.pageStyle.layout.rowHeight = 1/totalHeight * (mainCanvasHeight - this.pageStyle.layout.gap * (totalHeight))
+                        if (this.pageStyle.layout.rowHeight < 50) {
+                            this.pageStyle.layout.rowHeight = 50
+                        }
+                    }
+                }
 
                 panelDataPrepare(componentList, this.pageStyle, function () { })
 
