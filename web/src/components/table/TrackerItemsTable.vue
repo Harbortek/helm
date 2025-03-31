@@ -257,7 +257,10 @@
                             <div style="display: inline-flex;">
                             <a-tooltip v-if="row?.icon" :title="'工作项类型：' + row.tracker?.name"
                                 :overlayStyle="{ fontSize: '10px' }">
-                                <div class="task-icon"><h-icon :component="row.tracker?.icon" /></div>
+                                <div class="task-icon">
+                                    <!-- <h-icon :component="row.tracker?.icon" /> -->
+                                    <t-icon :trackerType="row.trackerType||row.tracker"></t-icon>
+                                </div>
                             </a-tooltip>
                             <span style="margin-left: 5px;">{{ currentProjectKeyName.toUpperCase() + '-' + row.itemNo }}</span>
                             </div>
@@ -521,6 +524,7 @@ import KanbanLayout from './trackerItemTableLayout/KanbanLayout.vue';
 import CalendarLayout from './trackerItemTableLayout/CalendarLayout.vue';
 import TreeLayout from './trackerItemTableLayout/TreeLayout.vue';
 import MatrixLayout from './trackerItemTableLayout/MatrixLayout.vue';
+import TIcon from '@/components/icon/t-icon.vue';
 
 
 
@@ -530,7 +534,7 @@ export default {
         ContentPage, Sortable, CreateTrackerItemDialog, EditTrackerItemDialog, TrackerItemFilter,
         RegisterHourDialog, SprintOperateDialog, TrackerItemStatusPopover, ProjectSelect, ProjectUserSelect,
         TrackerItemUserSelect, CreateViewDialog, TrackerItemImportModal, TrackerItemExportModal, TrackerTransformModal,
-        KanbanLayout, CalendarLayout, HAvatar, TreeLayout, MatrixLayout, TrackerItemBatchDeleteModal
+        KanbanLayout, CalendarLayout, HAvatar, TreeLayout, MatrixLayout, TrackerItemBatchDeleteModal,TIcon
     },
     props: {
         projectId: {

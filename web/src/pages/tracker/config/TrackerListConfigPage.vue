@@ -17,8 +17,10 @@
             <vxe-column title="以下为当前项目使用的工作项类型" :width="600">
                 <template #default="{ row }">
                     <div class="icon-title-desc-item" @click="onClickRow(row)">
-                        <div class="icon-container"><h-icon :type="row.trackerType.icon"
-                                :style="{ color: row.trackerType.color, backgroundColor: row.trackerType.backgroundColor }" />
+                        <div class="icon-container">
+                            <t-icon v-if="row.trackerType?.icon" :trackerType="row.trackerType"></t-icon>
+                            <!-- <h-icon :type="row.trackerType.icon"
+                                :style="{ color: row.trackerType.color, backgroundColor: row.trackerType.backgroundColor }" /> -->
                         </div>
                         <div class="text-container">
                             <div class="ui-font-h3">
@@ -109,9 +111,11 @@ import {
 import {
     findEnumsByCode,
 } from "@/services/system/EnumService";
+import TIcon from '@/components/icon/t-icon.vue';
+
 export default {
     name: "TrackerConfigMainPage",
-    components: { ConfigPage, SelectableList, TrackerListSortDialog, TrackerListCopyDialog },
+    components: { ConfigPage, SelectableList, TrackerListSortDialog, TrackerListCopyDialog,TIcon },
     data() {
         let that = this
         const nameValidator = (rule, value, callback) => {

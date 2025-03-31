@@ -26,7 +26,7 @@
                 :checkbox-config="{ reserve:true,checkField: 'checked', trigger: 'row' }">
 
             <!-- <vxe-column type="checkbox" title="" width="30"></vxe-column> -->
-                <vxe-column field="itemNo" title="编号" tree-node>
+                <vxe-column field="itemNo" title="编号" tree-node width="100">
                     <template #default="{ row }">
                         {{ currentProjectKeyName + '-' + row.itemNo }}
                     </template>
@@ -53,14 +53,14 @@
                         </a>
                     </template>
                 </vxe-column>
-                <vxe-column field="status" title="优先级">
+                <vxe-column field="status" title="优先级" width="100">
                     <template #default="{ row }">
                         <a-tag style="border:none"
                             :style="{ color: row.priority?.color, backgroundColor: row.priority?.backgroundColor }">{{
                                 row.priority?.name }}</a-tag>
                     </template>
                 </vxe-column>
-                <vxe-column field="status.name" title="状态">
+                <vxe-column field="status.name" title="状态" width="100">
                     <template #default="{ row }">
                     <div v-if="row.status" class="transition-status">
                         <span class="ui-tag-status" :style="{ color: row.meaning?.color, 'border-color': row.meaning?.color }">{{
@@ -68,21 +68,22 @@
                     </div>
                     </template>
                 </vxe-column>
-                <vxe-column field="planEndDate" title="计划结束时间"> </vxe-column>
-
-                <vxe-column field="createBy" title="创建者">
-                    <template #default="{ row }">
-                        <h-avatar v-if="!loading" :name="row.createBy.name" :icon="row.createBy.icon"></h-avatar>
-                    </template>
-                </vxe-column>
-                <vxe-column field="owner" title="负责人">
+                <vxe-column field="owner" title="负责人" width="100">
                     <template #default="{ row }">
                         <div v-if="row.owner">
                             <h-avatar :name="row.owner?.name" :icon="row.owner?.icon"></h-avatar>
                         </div>
+                        <div v-else>未分配</div>
                     </template>
                 </vxe-column>
-                <vxe-column field="createDate" title="创建日期"> </vxe-column>
+                <vxe-column field="planEndDate" title="计划结束时间" width="150"> </vxe-column>
+
+                <vxe-column field="createBy" title="创建者" width="100">
+                    <template #default="{ row }">
+                        <h-avatar v-if="!loading" :name="row.createBy.name" :icon="row.createBy.icon"></h-avatar>
+                    </template>
+                </vxe-column>
+                <vxe-column field="createDate" title="创建日期" width="150"> </vxe-column>
             </vxe-table>
         </div>
     </div>

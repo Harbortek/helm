@@ -24,8 +24,11 @@
 
                                         
                                         <div style="white-space: nowrap;text-overflow: ellipsis;overflow: hidden;"> 
-                                            <a-icon v-if="tracker.icon" :component="tracker.icon" />
-                                            <span style="margin-left:5px">{{ item.name }}</span>
+                                            <!-- <a-icon v-if="tracker.icon" :component="tracker.icon" /> -->
+                                            <t-icon  :trackerType="tracker.trackerType||tracker"></t-icon>
+                                            <a-tooltip :title="item.name" :overlayStyle="{ fontSize: '10px' }">
+                                                <span style="margin-left:5px">{{ item.name }}</span>
+                                            </a-tooltip>
                                         </div>
                                         
                                         <div style="display: flex;justify-content: space-between;">
@@ -117,6 +120,7 @@ import {
     findTrackerItems
 } from "@/services/tracker/TrackerItemService";
 import { roundToNearestMinutesWithOptions } from "date-fns/fp";
+import TIcon from '@/components/icon/t-icon.vue';
 
 export default {
     name: 'KanbanLayout',
@@ -129,7 +133,7 @@ export default {
         conditionGroups:Array,
     },
     components: {
-        draggable, HAvatar
+        draggable, HAvatar, TIcon
     },
     computed:{
         ...mapGetters("project", ["currentProjectKeyName"]),

@@ -17,33 +17,36 @@
                 :row-config="{isHover: true}"
                 :footer-method="footerMethod"
                 :data="hyperlinkList">
-                <vxe-column title="角色" width="150"  show-overflow>
-                    <template #default="{ row }">
-                        <a-select v-model="row.linkRole" @change="onChangeLinkType(row)" style="width:100%;" 
-                            :disabled="trackerItem?.notPagePerm" placeholder="Role">
-                            <a-select-option value="internal">内部链接</a-select-option>
-                            <a-select-option value="external">外部链接</a-select-option>
-                        </a-select>
-                    </template>
-                </vxe-column>
-                <vxe-column title="链接" min-width="150"  show-overflow>
+                <vxe-column title="角色" :width="isToolBar?'110':'150'"  show-overflow>
                     <template #default="{ row }">
                         <div style="display: flex;">
-                            <a-select v-model="row.linkType" @change="onChangeType(row)" style="width:90px"
+                            <a-select v-model="row.linkRole" @change="onChangeLinkType(row)" style="width:100%;" 
+                                :disabled="trackerItem?.notPagePerm" placeholder="Role" :showArrow="!isToolBar">
+                                <a-select-option value="internal">内部链接</a-select-option>
+                                <a-select-option value="external">外部链接</a-select-option>
+                            </a-select>
+                        </div>
+                    </template>
+                </vxe-column>
+                <vxe-column title="链接" :min-width="isToolBar?'80':'150'"  show-overflow>
+                    <template #default="{ row }">
+                        <div style="display: flex;">
+                            <a-select v-model="row.linkType" @change="onChangeType(row)" :showArrow="!isToolBar"
+                                :style="{width:'100px',marginLeft:isToolBar?'-10px':''}"
                                 :disabled="trackerItem?.notPagePerm" placeholder="Type">
                                 <a-select-option value="URL">URL</a-select-option>
                             </a-select>
                             <vxe-input @focus="focusValue=row.linkPath" @blur="onBlurEdit(row)" :disabled="trackerItem?.notPagePerm"
-                                style="width:calc(100% - 100px);margin-left:10px;" v-model="row.linkPath" placeholder="URL"></vxe-input>
+                                style="width:100%;margin-left:10px;" v-model="row.linkPath" placeholder="URL"></vxe-input>
                         </div>
                     </template>
                 </vxe-column>
-                <vxe-column title="操作" width="150" align="center"  show-overflow>  
+                <vxe-column title="操作" :width="isToolBar?'50':'150'" align="center"  show-overflow>  
                     <template #default="{ rowIndex }">
                         <div style="display: flex;justify-content: center">
-                            <vxe-button title="删除" type="text" icon="vxe-icon-delete" :disabled="trackerItem?.notPagePerm"
+                            <vxe-button title="删除" type="text" icon="vxe-icon-delete" :style="{padding:isToolBar?'0 5px 0 0':'',marginLeft:isToolBar?'-10px':''}" :disabled="trackerItem?.notPagePerm"
                                 @click="onClickDelete(rowIndex)"></vxe-button>
-                            <vxe-button v-if="rowIndex==hyperlinkList.length-1" title="增加" type="text"
+                            <vxe-button v-if="rowIndex==hyperlinkList.length-1" title="增加" type="text" :style="{padding:isToolBar?'0':''}"
                                 :disabled="trackerItem?.notPagePerm" icon="vxe-icon-add" @click="onClickAdd"></vxe-button>
                             </div>
                     </template>
