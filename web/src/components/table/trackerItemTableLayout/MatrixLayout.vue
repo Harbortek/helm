@@ -27,12 +27,12 @@
                     <a-tooltip placement="top" :mouseEnterDelay="0.2">
                             <template slot="title">
                                 <div style="font-size:8px;">
-                                    {{ currentProjectKeyName + '-' + row.itemNo }} - {{ row.name }}
+                                    <h-item-no :trackerItem="row"></h-item-no> - {{ row.name }}
                                 </div>
                             </template>
                         <div @click="onEditTrackerItem(row)" style="white-space: nowrap;overflow: hidden;cursor:pointer;">
                             <a-icon v-if="tracker.icon" :component="tracker.icon" />
-                            {{ currentProjectKeyName + '-' + row.itemNo }} - {{ row.name }}</div>
+                            <h-item-no :trackerItem="row"></h-item-no> - {{ row.name }}</div>
                     </a-tooltip>
                 </template>
                 
@@ -69,6 +69,8 @@ import {
     findTrackerItems,findTrackerLinksByItemIds, updateMatrixLinks
 } from "@/services/tracker/TrackerItemService";
 import { findLinkTypes } from "@/services/tracker/TrackerLinkTypeService"
+import HItemNo from '@/components/table/itemNo/h-itemNo.vue';
+
 export default {
     name: 'MatrixLayout',
     props: {
@@ -79,7 +81,7 @@ export default {
         conditionGroups:Array,
     },
     components: {
-        
+        HItemNo
     },
     computed:{
         ...mapGetters("project", ["currentProjectKeyName"]),

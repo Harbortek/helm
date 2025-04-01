@@ -53,7 +53,8 @@
                                     </div>
                             </a-tooltip> -->
                             <t-icon :trackerType="row.targetItem.trackerType||row.sourceItem.tracker"></t-icon>
-                                    {{currentProjectKeyName + '-' + row.targetItem?.itemNo }}
+                                    <!-- {{currentProjectKeyName + '-' + row.targetItem?.itemNo }} -->
+                                    <h-item-no :trackerItem="row.targetItem"></h-item-no>
 
                         </template>
                         <template v-else>
@@ -64,7 +65,8 @@
                                    </div>
                             </a-tooltip> -->
                             <t-icon :trackerType="row.sourceItem.trackerType||row.sourceItem.tracker"></t-icon>
-                            {{currentProjectKeyName + '-' + row.sourceItem?.itemNo }}
+                            <!-- {{currentProjectKeyName + '-' + row.sourceItem?.itemNo }} -->
+                            <h-item-no :trackerItem="row.sourceItem"></h-item-no>
 
                         </template>
                     </template>
@@ -244,10 +246,11 @@ import { hasPermission } from '@/utils/permission'
 import VXETable from "vxe-table";
 import { mapGetters } from "vuex";
 import TIcon from '@/components/icon/t-icon.vue';
+import HItemNo from '@/components/table/itemNo/h-itemNo.vue';
 
 export default {
     name: 'TrackerRelatedItem',
-    components: { TrackerItemSelectModal, TIcon},
+    components: { TrackerItemSelectModal, TIcon,HItemNo},
     props: {
         projectId: String,
         trackerId: String,

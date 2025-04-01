@@ -624,7 +624,7 @@ public class TrackerItemServiceImpl implements TrackerItemService {
                 if (ObjectUtils.isNotEmpty(oldValue)) {
                     oldValue = enumService.findOneEnumItemById((Long) oldValue).getName();
                 }
-                newValue = enumService.findOneEnumItemById(item.getPriorityId()).getName();
+                newValue = enumService.findOneEnumItemById(item.getSeverityId()).getName();
 
                 //发送通知
                 trackerNotificationService.sendSystemNotification(NotificationEvents.CHANGE_ITEM_PRIORITY, tracker, item, SecurityUtils.getCurrentUser());

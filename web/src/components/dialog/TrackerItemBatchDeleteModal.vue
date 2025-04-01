@@ -33,29 +33,28 @@
               </div>
             </div>
             <div style="height: calc(100% - 130px); margin-top: 10px;">
-              <vxe-table ref="vxeTable" row-id="id" height="auto" :loading="loading" style="cursor: pointer;" :data="selectedRows"
+              <vxe-table ref="vxeTable" row-id="id" height="auto" :loading="loading" style="cursor: pointer;overflow-x: hidden;" :data="selectedRows"
                 :row-config="{ isHover: true }">
                   <vxe-column field="itemNo" title="编号" width="100px">
                       <template #default="{ row }">
-                          {{projectKeyName+'-'+row.itemNo}}
+                          <!-- {{projectKeyName+'-'+row.itemNo}} -->
+                          <t-icon :trackerType="row.trackerType||row.tracker"></t-icon>
+                          <HItemNo :trackerItem="row"></HItemNo>
                       </template>
                   </vxe-column>
-                  <vxe-column field="name" title="标题" min-width="200" show-overflow>
+                  <vxe-column field="name" title="标题" min-width="50" show-overflow>
                     <template #default="{ row }">
-                      <div>
-                        <a-icon :component="row.icon"/>&nbsp;
-                        <span>{{ row.name }}</span>
-                      </div>
+                      <span>{{ row.name }}</span>
                     </template>
                   </vxe-column>
-                  <vxe-column field="tracker.name" title="工作项类型" min-width="100"></vxe-column>
-                  <vxe-column field="createDate" title="创建时间" min-width="100" show-overflow></vxe-column>
-                  <vxe-column field="createBy.name" title="创建者1" min-width="100">
+                  <vxe-column field="tracker.name" title="工作项类型" width="90"></vxe-column>
+                  <vxe-column field="createDate" title="创建时间" width="150" show-overflow></vxe-column>
+                  <vxe-column field="createBy.name" title="创建者" width="90">
                     <template #default="{ row }">
                         <h-avatar :name="row.createBy?.name" :icon="row.createBy?.icon"></h-avatar>
                     </template>
                   </vxe-column>
-                  <vxe-column field="owner.name" title="负责人" min-width="100">
+                  <vxe-column field="owner.name" title="负责人" width="90">
                     <template #default="{ row }">
                         <div v-if="row.owner">
                           <h-avatar :name="row.owner?.name" :icon="row.owner?.icon"></h-avatar>
@@ -63,16 +62,16 @@
                         <div v-else>未分配</div>
                     </template>
                   </vxe-column>
-                  <vxe-column field="lastModifiedDate" title="更新时间" min-width="100" show-overflow></vxe-column>
-                  <vxe-column field="project.name" title="所属项目" min-width="100"></vxe-column>
-                  <vxe-column field="priority.name" title="优先级" min-width="100">
+                  <vxe-column field="lastModifiedDate" title="更新时间" width="150" show-overflow></vxe-column>
+                  <!-- <vxe-column field="project.name" title="所属项目" width="90"></vxe-column> -->
+                  <vxe-column field="priority.name" title="优先级" width="90">
                     <template #default="{ row }">
                         <a-tag style="border:none"
                             :style="{ color: row.priority.color, backgroundColor: row.priority.backgroundColor }">{{
                                 row.priority.name }}</a-tag>
                     </template>
                   </vxe-column>
-                  <vxe-column field="status.name" title="状态" min-width="100">
+                  <vxe-column field="status.name" title="状态" width="90">
                     <template #default="{ row }">
                         <div class="transition-status">
                             <span class="ui-tag-status"
@@ -102,11 +101,12 @@ import PrioritySelect from '@/components/select/PrioritySelect.vue';
 import SprintSelect from '@/components/select/SprintSelect.vue';
 import { batchDeleteTrackerItem} from "@/services/tracker/TrackerItemService";
 import { VXETable } from 'vxe-table';
-
+import TIcon from '@/components/icon/t-icon.vue';
+import HItemNo from '@/components/table/itemNo/h-itemNo.vue';
 
 export default {
   name: "TrackerItemBatchDeleteModal",
-  components: {ConfigPage,ProjectUserSelect, PrioritySelect, SprintSelect, HAvatar},
+  components: {ConfigPage,ProjectUserSelect, PrioritySelect, SprintSelect, HAvatar,TIcon,HItemNo},
   data() {
     return {
       loading: false,
@@ -307,10 +307,10 @@ export default {
     }
 }
 .transition-status {
-    min-width: 110px;
+    // min-width: 110px;
     display: flex;
     align-items: center;
-    margin-right: 20px;
+    // margin-right: 20px;
     white-space: nowrap;
 
     .ui-tag-status {

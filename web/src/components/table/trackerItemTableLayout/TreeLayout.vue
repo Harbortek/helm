@@ -28,7 +28,8 @@
             <!-- <vxe-column type="checkbox" title="" width="30"></vxe-column> -->
                 <vxe-column field="itemNo" title="编号" tree-node width="100">
                     <template #default="{ row }">
-                        {{ currentProjectKeyName + '-' + row.itemNo }}
+                        <!-- {{ currentProjectKeyName + '-' + row.itemNo }} -->
+                        <h-item-no :trackerItem="row"></h-item-no>
                     </template>
                 </vxe-column>
                 <vxe-column field="name" title="标题" min-width="300">
@@ -99,6 +100,8 @@ import {
     findTrackerItems,findTrackerLinksByItemIds, findTrackerItemsTree, updateMatrixLinks
 } from "@/services/tracker/TrackerItemService";
 import { findLinkTypes } from "@/services/tracker/TrackerLinkTypeService"
+import HItemNo from '@/components/table/itemNo/h-itemNo.vue';
+
 export default {
     name: 'MatrixLayout',
     props: {
@@ -109,7 +112,7 @@ export default {
         conditionGroups:Array,
     },
     components: {
-        HAvatar
+        HAvatar,HItemNo
     },
     computed:{
         ...mapGetters("project", ["currentProjectKeyName"]),

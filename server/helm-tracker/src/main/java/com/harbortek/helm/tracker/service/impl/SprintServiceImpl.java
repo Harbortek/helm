@@ -140,6 +140,8 @@ public class SprintServiceImpl implements SprintService {
         entity.setStatusId(sprintVo.getStatus().getId());
         entity.setOwnerId(sprintVo.getOwner().getId());
         entity.setTargetVersionId(sprintVo.getTargetVersion().getId());
+        entity.setPlanStartDate(sprintVo.getPlanStartDate());
+        entity.setPlanEndDate(sprintVo.getPlanEndDate());
         sprintDao.updateSprint(entity);
         return DataUtils.toVo(entity, SprintVo.class);
     }

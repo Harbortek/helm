@@ -255,14 +255,15 @@
 
                         <template #itemNo_default="{ row }">
                             <div style="display: inline-flex;">
-                            <a-tooltip v-if="row?.icon" :title="'工作项类型：' + row.tracker?.name"
+                            <!-- <a-tooltip v-if="row?.icon" :title="'工作项类型：' + row.tracker?.name"
                                 :overlayStyle="{ fontSize: '10px' }">
                                 <div class="task-icon">
-                                    <!-- <h-icon :component="row.tracker?.icon" /> -->
-                                    <t-icon :trackerType="row.trackerType||row.tracker"></t-icon>
+                                    <h-icon :component="row.tracker?.icon" />
                                 </div>
-                            </a-tooltip>
-                            <span style="margin-left: 5px;">{{ currentProjectKeyName.toUpperCase() + '-' + row.itemNo }}</span>
+                            </a-tooltip> -->
+                            <t-icon :trackerType="row.trackerType||row.tracker"></t-icon>
+                            <!-- <span style="margin-left: 5px;">{{ currentProjectKeyName.toUpperCase() + '-' + row.itemNo }}</span> -->
+                            <HItemNo :trackerItem="row"></HItemNo>
                             </div>
                         </template>
 
@@ -326,6 +327,12 @@
                         </template>
                         <template #status_header>
                             <i style="margin-right: .2em;" class="vxe-icon-edit"></i>状态
+                        </template>
+                        <template #severity_default="{ row }">
+                            <a-tag :style="{color:row.severity?.color,backgroundColor:row.severity?.backgroundColor}">{{row.severity?.name}}</a-tag>
+                        </template>
+                        <template #severity_edit="{ row }">
+                            <SeveritySelect v-model="row.severity.id" @change="(id,severity)=>onChangeSeverity(id,severity,row)"></SeveritySelect>
                         </template>
 
                         <template #createBy_default="{ row }">
@@ -501,7 +508,6 @@ import {
     createWorkHours, stateChange, updateTrackerItemSprint, exportTrackerItems
 } from "@/services/tracker/TrackerItemService";
 import { findTrackerItemsByPageIdWithoutInternalTrackers } from '@/services/tracker/ProjectPageService'
-
 import { findProjectUsers } from "@/services/tracker/ProjectRoleMemberService";
 import { createView, findOneView, updateView } from "@/services/tracker/ViewService"
 import { findSprints } from '@/services/plan/SprintService'
@@ -525,6 +531,8 @@ import CalendarLayout from './trackerItemTableLayout/CalendarLayout.vue';
 import TreeLayout from './trackerItemTableLayout/TreeLayout.vue';
 import MatrixLayout from './trackerItemTableLayout/MatrixLayout.vue';
 import TIcon from '@/components/icon/t-icon.vue';
+import HItemNo from '@/components/table/itemNo/h-itemNo.vue';
+import SeveritySelect from '@/components/select/SeveritySelect.vue';
 
 
 
@@ -534,7 +542,8 @@ export default {
         ContentPage, Sortable, CreateTrackerItemDialog, EditTrackerItemDialog, TrackerItemFilter,
         RegisterHourDialog, SprintOperateDialog, TrackerItemStatusPopover, ProjectSelect, ProjectUserSelect,
         TrackerItemUserSelect, CreateViewDialog, TrackerItemImportModal, TrackerItemExportModal, TrackerTransformModal,
-        KanbanLayout, CalendarLayout, HAvatar, TreeLayout, MatrixLayout, TrackerItemBatchDeleteModal,TIcon
+        KanbanLayout, CalendarLayout, HAvatar, TreeLayout, MatrixLayout, TrackerItemBatchDeleteModal,TIcon,HItemNo,
+        SeveritySelect
     },
     props: {
         projectId: {
@@ -872,6 +881,12 @@ export default {
         onChangeOwnerEdit() {
             console.log("onChangeOwnerEdit")
         },
+        onChangeSeverity(id,severity,row){
+            changeSystemField(row.id, "severity", id).then(resp => {
+                VXETable.modal.message({ content: '更新成功', status:'success' })
+                row.severity=severity
+            })
+        },
         onChangePriorityEdit(e, row) {
             for (let priority of this.prioritys) {
                 if (e.value == priority.id) {
@@ -933,6 +948,7 @@ export default {
                 { field: 'realEndDate', title: '实际结束时间', editRender: {}, width: 150, showHeaderOverflow: "tooltip", slots: { edit: 'real_end_date_edit' } },
                 { field: 'progress', title: '进度', editRender: {}, width: 100, slots: { edit: 'progress_edit' } },
                 { field: 'closeDate', title: '关闭时间', editRender: {}, width: 150, slots: { edit: 'close_date_edit' } },
+                { field: 'severity', title: '严重级别', editRender: {}, width: 150, slots: { default: 'severity_default',edit: 'severity_edit' } },
             ]
         },
         

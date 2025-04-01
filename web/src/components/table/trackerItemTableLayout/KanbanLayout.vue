@@ -38,13 +38,21 @@
                                                     <a-tooltip v-if="field.systemProperty=='itemNo'" :key="field.id" :title="'编号：' + currentProjectKeyName + '-' + item.itemNo"
                                                         :overlayStyle="{ fontSize: '10px' }">
                                                         <div class="ui-tag-key-field">
-                                                            {{ currentProjectKeyName + '-' + item.itemNo }}</div><br>
+                                                            <!-- {{ currentProjectKeyName + '-' + item.itemNo }} -->
+                                                            <h-item-no :trackerItem="item"></h-item-no>
+                                                        </div><br>
                                                     </a-tooltip>
                                                     <a-tooltip  v-else-if="field.systemProperty=='priority'&&item.priority" :key="field.id" :title="'优先级：' + item.priority?.name"
                                                         :overlayStyle="{ fontSize: '10px' }">
                                                         <div class="ui-tag-key-field"
                                                             :style="{ color: item.priority?.color, backgroundColor: item.priority?.backgroundColor }">
                                                             {{ item.priority?.name }}</div>
+                                                    </a-tooltip>
+                                                    <a-tooltip  v-else-if="field.systemProperty=='severity'&&item.severity" :key="field.id" :title="'严重级别：' + item.severity?.name"
+                                                        :overlayStyle="{ fontSize: '10px' }">
+                                                        <div class="ui-tag-key-field"
+                                                            :style="{ color: item.severity?.color, backgroundColor: item.severity?.backgroundColor }">
+                                                            {{ item.severity?.name }}</div>
                                                     </a-tooltip>
 
                                                     <a-tooltip v-else-if="field.systemProperty&&getPropertyValue(item,field.systemProperty)" :key="field.id" 
@@ -121,6 +129,7 @@ import {
 } from "@/services/tracker/TrackerItemService";
 import { roundToNearestMinutesWithOptions } from "date-fns/fp";
 import TIcon from '@/components/icon/t-icon.vue';
+import HItemNo from '@/components/table/itemNo/h-itemNo.vue';
 
 export default {
     name: 'KanbanLayout',
@@ -133,7 +142,7 @@ export default {
         conditionGroups:Array,
     },
     components: {
-        draggable, HAvatar, TIcon
+        draggable, HAvatar, TIcon,HItemNo
     },
     computed:{
         ...mapGetters("project", ["currentProjectKeyName"]),
@@ -406,7 +415,7 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin-right: 10px;
+    margin-right: 5px;
     margin-top: 5px;
     background-color: rgba(144, 144, 144, .15);
     height: 20px;

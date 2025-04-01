@@ -28,7 +28,8 @@
                             <div class="calendar-item" @click="onEditTrackerItem(item,value)">
                                 <div class="calendar-item-content">
                                     <div class="calendar-item-title">
-                                        <t-icon :trackerType="tracker.trackerType||tracker"></t-icon>
+                                        <h-item-no :trackerItem="item"></h-item-no>
+                                        <t-icon style="margin-left:5px" :trackerType="tracker.trackerType||tracker"></t-icon>
                                         <!-- <a-tooltip :title="item.name" :overlayStyle="{ fontSize: '10px' }"> -->
                                             <span style="margin-right:5px;">{{ item.name }}</span>
                                         <!-- </a-tooltip> -->
@@ -37,7 +38,7 @@
                                         <a-tag v-if="item.owner"
                                             :style="{ color: item.priority?.color, backgroundColor: item.priority?.backgroundColor }">{{
                                                 item.priority?.name }}</a-tag>
-                                        <a-tag>{{ currentProjectKeyName + '-' + item.itemNo }}</a-tag><br>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -49,7 +50,11 @@
                                 <div class="calendar-item-title">
                                     <!-- <a-icon v-if="tracker.icon" :component="tracker.icon" />
                                     <span style="margin:auto 10px;">{{ item.name }}</span> -->
-                                    <t-icon :trackerType="tracker.trackerType||tracker"></t-icon>
+                                    <a-tooltip v-if="item.itemNo" :title="'编号：' + currentProjectKeyName + '-' + item.itemNo"
+                                        :overlayStyle="{ fontSize: '10px' }">
+                                        <h-item-no :trackerItem="item"></h-item-no>
+                                    </a-tooltip>
+                                    <t-icon style="margin-left:5px" :trackerType="tracker.trackerType||tracker"></t-icon>
                                     <a-tooltip :title="item.name" placement="topLeft" :overlayStyle="{ fontSize: '10px' }">
                                         <span style="margin-right:5px;">{{ item.name }}</span>
                                     </a-tooltip>
@@ -64,10 +69,7 @@
                                             :style="{ color: item.priority?.color, backgroundColor: item.priority?.backgroundColor }">{{
                                                 item.priority?.name }}</a-tag>
                                     </a-tooltip>
-                                    <a-tooltip v-if="item.itemNo" :title="'编号：' + currentProjectKeyName + '-' + item.itemNo"
-                                        :overlayStyle="{ fontSize: '10px' }">
-                                        <a-tag>{{ currentProjectKeyName + '-' + item.itemNo }}</a-tag><br>
-                                    </a-tooltip>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -87,6 +89,7 @@ import {
     findTrackerItems
 } from "@/services/tracker/TrackerItemService";
 import TIcon from '@/components/icon/t-icon.vue';
+import HItemNo from '@/components/table/itemNo/h-itemNo.vue';
 
 export default {
     name: 'CalendarLayout',
@@ -98,7 +101,7 @@ export default {
         conditionGroups:Array,
     },
     components: {
-        TIcon
+        TIcon,HItemNo
     },
     computed:{
         ...mapGetters("project", ["currentProjectKeyName"]),

@@ -130,7 +130,7 @@
                 </a-badge>
               </a-col>
               <a-col style="padding-left: 10px;" :span="12">
-                <a-input-search placeholder="搜索工作项标题" v-model="queryParam.keyword" @search="handleSearch" />
+                <a-input-search placeholder="搜索工作项" v-model="queryParam.keyword" @search="handleSearch" />
               </a-col>
           </a-col>
         </a-row>
@@ -150,7 +150,9 @@
 
             <vxe-column field="" title="编号" :width="100">
               <template #default="{ row }">
-                {{ currentProjectKeyName + '-' + row.itemNo }}
+                <!-- {{ currentProjectKeyName + '-' + row.itemNo }} -->
+                <t-icon :trackerType="row.trackerType||row.tracker"></t-icon>
+                <HItemNo :trackerItem="row"></HItemNo>
               </template>
             </vxe-column>
 
@@ -158,7 +160,9 @@
               <template #default="{ row }">
                 <div class="task-description">
                     <a @click.stop class="prefix-container" @click="onEditTrackerItem(row)">
-                        <div v-if="row?.icon" class="task-icon"><a-icon :component="row?.icon" /></div>
+                        <div v-if="row?.icon" class="task-icon">
+                          <!-- <a-icon :component="row?.icon" /> -->
+                        </div>
                         <span>{{ row.name }}</span>
                     </a>
                 </div>
@@ -231,7 +235,7 @@
 
             </a-col>
             <a-col :span="12">
-              <a-input-search placeholder="搜索工作项标题" v-model="keyword['projectPlans']" @search="handleSearch" />
+              <a-input-search placeholder="搜索项目计划" v-model="keyword['projectPlans']" @search="handleSearch" />
             </a-col>
           </a-col>
         </a-row>
@@ -317,7 +321,7 @@
 
             </a-col>
             <a-col :span="12">
-              <a-input-search placeholder="搜索工作项标题" v-model="keyword['targetVersions']" @search="handleSearch" />
+              <a-input-search placeholder="搜索版本" v-model="keyword['targetVersions']" @search="handleSearch" />
             </a-col>
           </a-col>
         </a-row>
@@ -397,7 +401,7 @@
 
             </a-col>
             <a-col :span="12">
-              <a-input-search placeholder="搜索工作项标题" v-model="keyword['sprints']" @search="handleSearch" />
+              <a-input-search placeholder="搜索迭代" v-model="keyword['sprints']" @search="handleSearch" />
             </a-col>
           </a-col>
         </a-row>
@@ -479,7 +483,7 @@
 
             </a-col>
             <a-col :span="12">
-              <a-input-search placeholder="搜索工作项标题" v-model="keyword['milestones']" @search="handleSearch" />
+              <a-input-search placeholder="搜索里程碑" v-model="keyword['milestones']" @search="handleSearch" />
             </a-col>
           </a-col>
         </a-row>
@@ -569,7 +573,7 @@
 
             </a-col>
             <a-col :span="12">
-              <a-input-search placeholder="搜索工作项标题" v-model="keyword['tasks']" @search="handleSearch" />
+              <a-input-search placeholder="搜索计划执行" v-model="keyword['tasks']" @search="handleSearch" />
             </a-col>
           </a-col>
         </a-row>
@@ -655,7 +659,7 @@
 
             </a-col>
             <a-col :span="12">
-              <a-input-search placeholder="搜索工作项标题" v-model="keyword['deliverables']" @search="handleSearch" />
+              <a-input-search placeholder="搜索交付物" v-model="keyword['deliverables']" @search="handleSearch" />
             </a-col>
           </a-col>
         </a-row>
@@ -738,7 +742,7 @@
 
             </a-col>
             <a-col :span="12">
-              <a-input-search placeholder="搜索工作项标题" v-model="keyword['documents']" @search="handleSearch" />
+              <a-input-search placeholder="搜索文档" v-model="keyword['documents']" @search="handleSearch" />
             </a-col>
           </a-col>
         </a-row>
@@ -832,7 +836,8 @@ import { findSprints } from '@/services/plan/SprintService'
 import { findWaitExecutePlans } from '@/services/plan/PlanService'
 import { findMilestones } from '@/services/plan/PlanService'
 import { findByProjectId } from '@/services/tracker/ProjectPageService'
-
+import TIcon from '@/components/icon/t-icon.vue';
+import HItemNo from '@/components/table/itemNo/h-itemNo.vue';
 
 export default {
   name: 'TableItemSelectView',
@@ -846,7 +851,7 @@ export default {
     editReviewId: String,
   },
   components: {
-    TrackerItemFilter, HAvatar
+    TrackerItemFilter, HAvatar,TIcon,HItemNo
   },
   data() {
     return {
