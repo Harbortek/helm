@@ -2,7 +2,9 @@
     <a-modal v-if="visiable" v-model="visiable" centered :title="dialogTitleWorkHour" width="520px" @ok="onOK" @cancel="onClose">
         <div style="border-bottom: 1px solid #e8e8e8;" class="task-detail-module-title">
             <div class="task-detail-module-title-text">工作项名称</div>
-            #{{currentProjectKeyName+'-'+trackerItem?.itemNo}}&nbsp;&nbsp;{{trackerItem?.name}}
+            <!-- #{{currentProjectKeyName+'-'+trackerItem?.itemNo}}&nbsp;&nbsp;{{trackerItem?.name}} -->
+            <t-icon :trackerType="trackerItem.trackerType||trackerItem.tracker"></t-icon>
+            <HItemNo :trackerItem="trackerItem"></HItemNo>&nbsp;{{trackerItem?.name}}
         </div>
         <a-form-model :layout="'horizontal'" ref="formDataHour" :model="formDataHour" :rules="rulesHours">
             <a-row :gutter="15">
@@ -107,11 +109,12 @@ import VXETable from 'vxe-table';
 import { mapGetters } from "vuex";
 import ProjectUserSelect from '../../../components/select/ProjectUserSelect.vue';
 import { remainingRegistrableTime } from "@/services/tracker/TrackerItemService"
-import { hasPermission } from '@/utils/permission'
+import TIcon from '@/components/icon/t-icon.vue';
+import HItemNo from '@/components/table/itemNo/h-itemNo.vue';
 
 export default {
     name: "RegisterHourDialog",
-    components: { ProjectUserSelect },
+    components: { ProjectUserSelect, TIcon, HItemNo },
     data() {
         return {
             remainHourRadio:1,

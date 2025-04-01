@@ -160,6 +160,8 @@ export default {
                     // } else if (result.type === 'MILE_STONE') {
                     //     result.planEndDate = this.formData.planEndDate.format('YYYY-MM-DD')
                     // }
+                    result.planStartDate = this.formData.planStartDate.format('YYYY-MM-DD HH:mm:ss')
+                    result.planEndDate = this.formData.planEndDate.format('YYYY-MM-DD HH:mm:ss')
                     result.targetVersion = { id: this.formData.targetVersionId }
                     result.owner = { id: this.formData.ownerId }
                     console.log(result)

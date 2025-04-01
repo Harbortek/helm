@@ -22,17 +22,17 @@
         <div style="height:calc(100% - 42px);">
             <vxe-grid border :loading="loading" height="auto" :columns="tableColumn" :data="itemDataRow" row-id="id"
                 :column-config="{resizable: true}" :row-config="{isHover: true,resizable: true,height: 38}" @scroll="onScroll"
-                :header-cell-style="{'height': '150px'}" show-overflow show-header-overflow onselectstart="return false">
+                :header-cell-style="{'height': '200px'}" show-overflow show-header-overflow onselectstart="return false">
                 <template #first_default="{ row }">
                     <a-tooltip placement="top" :mouseEnterDelay="0.2">
                             <template slot="title">
                                 <div style="font-size:8px;">
-                                    {{ currentProjectKeyName + '-' + row.itemNo }} - {{ row.name }}
+                                    <h-item-no :trackerItem="row"></h-item-no> - {{ row.name }}
                                 </div>
                             </template>
                         <div @click="onEditTrackerItem(row)" style="white-space: nowrap;overflow: hidden;cursor:pointer;">
                             <a-icon v-if="tracker.icon" :component="tracker.icon" />
-                            {{ currentProjectKeyName + '-' + row.itemNo }} - {{ row.name }}</div>
+                            <h-item-no :trackerItem="row"></h-item-no> - {{ row.name }}</div>
                     </a-tooltip>
                 </template>
                 
@@ -69,6 +69,8 @@ import {
     findTrackerItems,findTrackerLinksByItemIds, updateMatrixLinks
 } from "@/services/tracker/TrackerItemService";
 import { findLinkTypes } from "@/services/tracker/TrackerLinkTypeService"
+import HItemNo from '@/components/table/itemNo/h-itemNo.vue';
+
 export default {
     name: 'MatrixLayout',
     props: {
@@ -79,7 +81,7 @@ export default {
         conditionGroups:Array,
     },
     components: {
-        
+        HItemNo
     },
     computed:{
         ...mapGetters("project", ["currentProjectKeyName"]),
@@ -343,7 +345,7 @@ export default {
                                 field: item.id,
                                 title: '',
                                 editRender: {},
-                                width: 150,
+                                minWidth: 320,
                                 showHeaderOverflow:"tooltip",
                                 slots: {default: 'first_default'}
                             })
@@ -382,7 +384,7 @@ export default {
                 slots: { default: 'default',
                     header: ()=>{
                         return [
-                        <div style="height: 150px;cursor:pointer;" onClick={ ()=> this.onEditTrackerItem(item)}>
+                        <div style="height: 200px;cursor:pointer;" onClick={ ()=> this.onEditTrackerItem(item)}>
                             <a-tooltip placement="top" mouseEnterDelay={0.2}>
                                     <template slot="title">
                                         <div style="font-size:8px;">

@@ -28,8 +28,9 @@
                         <div style="width:100%">
                             <a-icon v-if="trackerItem?.relatedWorkItems.length > 0" style="margin-right: 3px;"
                                 type="arrow-up" />
-                            <a-icon v-if="trackerItem?.tracker?.icon" style="margin-right:3px"
-                                :component="trackerItem?.tracker?.icon" />
+                            <!-- <a-icon v-if="trackerItem?.tracker?.icon" style="margin-right:3px"
+                                :component="trackerItem?.tracker?.icon" /> -->
+                                <t-icon :trackerType="trackerItem?.trackerType||trackerItem?.tracker"></t-icon>
                             <span style="font-size:17px;">{{ currentProjectKeyName + '-' + trackerItem?.itemNo }}</span>
                             <!-- <a-input v-model="formData.itemNo"
                                 style="width:10%;border:none;font-size:18px;color: rgba(0, 0, 0, 0.85);"
@@ -244,7 +245,7 @@ import TrackerTestCases from './TrackerTestCases.vue';
 import TrackerRelatedTest from './TrackerRelatedTest.vue';
 import { Graph, Vector } from "@antv/x6";
 import TrackerItemKeyFields from '../../../components/select/TrackerItemKeyFields.vue';
-
+import TIcon from '@/components/icon/t-icon.vue';
 
 export default {
     name: "EditTrackerItemDialog",
@@ -252,7 +253,7 @@ export default {
         TrackerSelect, SprintSelect, ProjectUserSelect, RoleMembersTable, SimpleEditor, TrackerComment, TrackerAttachment,
         TrackerRelatedWiki, Graph, RegisterHourDialog, TrackerItemKeyFields, TrackerRelatedItem, TrackerWorkHours,
         TrackerCycleProgress, TrackerRelatedCode, TrackerHyperlinks, TrackerTestCases, TrackerRelatedTest, TrackerItemFields,
-        TrackerItemFieldsShow,
+        TrackerItemFieldsShow,TIcon
     },
     data() {
         return {

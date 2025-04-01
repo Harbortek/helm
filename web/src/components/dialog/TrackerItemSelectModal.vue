@@ -40,10 +40,12 @@
 
               <vxe-column field="" header-class-name="hidden-cell" title="" :width="120">
                 <template #default="{ row }">
-                  <a-tooltip :title="'工作项类型：' + row.tracker?.name" :overlayStyle="{ fontSize: '10px' }">
+                  <!-- <a-tooltip :title="'工作项类型：' + row.tracker?.name" :overlayStyle="{ fontSize: '10px' }">
                     <a-icon v-if="row?.icon" :component="row?.icon" />
                   </a-tooltip>
-                  {{ (currentProjectKeyName + '-' + row.itemNo).toUpperCase() }}
+                  {{ (currentProjectKeyName + '-' + row.itemNo).toUpperCase() }} -->
+                  <t-icon :trackerType="row.trackerType||row.tracker"></t-icon>
+                  <HItemNo :trackerItem="row"></HItemNo>
                 </template>
               </vxe-column>
               <vxe-column field="name" title="" width="" header-class-name="hidden-cell">
@@ -124,6 +126,8 @@ import {
 import { findSprints } from '@/services/plan/SprintService'
 import TrackerItemFilter from "../tool/TrackerItemFilter.vue";
 import Vue from "vue";
+import TIcon from '@/components/icon/t-icon.vue';
+import HItemNo from '@/components/table/itemNo/h-itemNo.vue';
 
 export default {
   name: 'TrackerItemSelectModal',
@@ -136,7 +140,7 @@ export default {
     isTest: Boolean,
   },
   components: {
-    TrackerItemFilter
+    TrackerItemFilter,TIcon, HItemNo
   },
   data() {
     return {

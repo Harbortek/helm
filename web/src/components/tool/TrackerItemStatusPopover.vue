@@ -117,6 +117,7 @@ export default {
             stateChange(this.trackerItem.id, stateTransition.id).then(resp => {
                 this.$message.success("更新成功")
                 this.trackerItem.status=resp;
+                this.trackerItem.meaning=resp?.meaning;
                 this.refresh()
                 this.$emit("change")
             })

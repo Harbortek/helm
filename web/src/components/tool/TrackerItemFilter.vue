@@ -185,7 +185,6 @@ export default {
           }
         }
       })
-      console.log("this.fff",this.tracker,fields)
       return fields;
     },
   },

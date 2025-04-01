@@ -30,6 +30,7 @@ import lombok.experimental.FieldNameConstants;
 import lombok.experimental.SuperBuilder;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -59,29 +60,29 @@ public class SprintVo extends BaseVo {
     /**
      * 计划开始时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+8") // 返回到前台
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8") // 返回到前台
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    Date planStartDate;
+    LocalDateTime planStartDate;
 
     /**
      * 计划结束时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+8") // 返回到前台
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8") // 返回到前台
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    Date planEndDate;
+    LocalDateTime planEndDate;
 
     /**
      * 实际开始时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+8") // 返回到前台
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8") // 返回到前台
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    Date realStartDate;
+    LocalDateTime realStartDate;
     /**
      * 实际结束时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd",timezone="GMT+8") // 返回到前台
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8") // 返回到前台
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    Date realEndDate;
+    LocalDateTime realEndDate;
 
 
     /**

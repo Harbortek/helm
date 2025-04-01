@@ -5,7 +5,7 @@
         </div>
         <a-form-model style="margin-left:10px;" :layout="'horizontal'" :labelCol="{ span: 8 }"
             :wrapperCol="{ span: 16 }" labelAlign="right" :model="formData">
-            <a-row :gutter="15" :style="{width:!isToolBar?'60%':''}">
+            <a-row :gutter="15" :style="{width:!isToolBar?'60%':'102%'}">
                 <a-form-model-item label="计划开始日期" placeholder="未设置">
                     <a-date-picker @change="onChangePlanStart" :disabled="trackerItem?.notPagePerm"
                         :disabled-date="disabledStartDate" v-model="formData.planStartDate"

@@ -40,7 +40,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .PropertyView-wrapper {
   width: 100%;
   height: 100%;
@@ -51,6 +51,7 @@ export default {
     height: 36px;
     line-height: 36px;
     padding-left: 15px;
+    padding-right:8px;
     border-bottom: 1px solid #DEDEDE;
   }
 

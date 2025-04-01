@@ -6,9 +6,10 @@
             icon="vxe-icon-paste">关联工作项</vxe-button>
         <a-form-model-item label="关联工作项" prop="relatedWorkItems" :span="24">
             <vxe-table ref="optionsTable" :loading="loading" :show-header="false" :data="relatedWorkItems"
-                :row-config="{ isHover: true }" stripe>
-                <vxe-column type="seq" :width="60" />
-                <vxe-column field="relation" title="" min-width="110" show-overflow>
+                :row-config="{ isHover: true }" show-overflow stripe>
+                <!-- <vxe-column type="seq" :width="60" /> -->
+                
+                <vxe-column field="relation" title="" :width="isToolBar?'100':'120'" show-overflow>
                     <template #default="{ row }">
                         <a-tooltip :overlayStyle="{ fontSize: '10px' }">
                             <template slot="title">
@@ -42,46 +43,54 @@
                         </a-tooltip>
                     </template>
                 </vxe-column>
-                <vxe-column title="" width="90" show-overflow>
+                <vxe-column v-if="!isToolBar" title="" width="90" show-overflow>
                     <template #default="{ row }">
                         <template v-if="row.sourceItem.id === itemId">
-                            <a-tooltip v-if="row.targetItem?.icon" :title="'工作项类型：' + row.targetItem?.tracker?.name"
+                            <!-- <a-tooltip v-if="row.targetItem?.icon" :title="'工作项类型：' + row.targetItem?.tracker?.name"
                                 :overlayStyle="{ fontSize: '10px' }">
-                                <div style="margin-right:5px"><a-icon :component="row.targetItem?.icon" />{{
-        currentProjectKeyName + '-' + row.targetItem?.itemNo }}</div>
-                            </a-tooltip>
+                                <div style="margin-right:5px">
+                                    <a-icon :component="row.targetItem?.icon" />
+                                    </div>
+                            </a-tooltip> -->
+                            <t-icon :trackerType="row.targetItem.trackerType||row.sourceItem.tracker"></t-icon>
+                                    <!-- {{currentProjectKeyName + '-' + row.targetItem?.itemNo }} -->
+                                    <h-item-no :trackerItem="row.targetItem"></h-item-no>
 
                         </template>
                         <template v-else>
-                            <a-tooltip v-if="row.sourceItem?.icon" :title="'工作项类型：' + row.sourceItem?.tracker?.name"
+                            <!-- <a-tooltip v-if="row.sourceItem?.icon" :title="'工作项类型：' + row.sourceItem?.tracker?.name"
                                 :overlayStyle="{ fontSize: '10px' }">
-                                <div style="margin-right:5px"><a-icon :component="row.sourceItem?.icon" />{{
-        currentProjectKeyName + '-' + row.sourceItem?.itemNo }}</div>
-                            </a-tooltip>
+                                <div style="margin-right:5px">
+                                    <a-icon :component="row.sourceItem?.icon" />
+                                   </div>
+                            </a-tooltip> -->
+                            <t-icon :trackerType="row.sourceItem.trackerType||row.sourceItem.tracker"></t-icon>
+                            <!-- {{currentProjectKeyName + '-' + row.sourceItem?.itemNo }} -->
+                            <h-item-no :trackerItem="row.sourceItem"></h-item-no>
 
                         </template>
                     </template>
                 </vxe-column>
-                <vxe-column v-if="!isToolBar" field="" title="" :width="60">
+                <vxe-column v-if="!isToolBar" field="" title="" :width="50">
                     <template #default="{ row }">
                         <template v-if="row.sourceItem.id === itemId">
                             <a-tooltip :title="'负责人：' + row.targetItem?.owner?.name"
                                 :overlayStyle="{ fontSize: '10px' }" :mouseEnterDelay="0.01">
                                 <a-tag class="a-tag-box">
-                                    {{ row.targetItem?.owner?.name }}</a-tag>
+                                    {{ row.targetItem?.owner?.name||'未分配' }}</a-tag>
                             </a-tooltip>
                         </template>
                         <template v-else>
                             <a-tooltip :title="'负责人：' + row.sourceItem?.owner?.name"
                                 :overlayStyle="{ fontSize: '10px' }" :mouseEnterDelay="0.01">
                                 <a-tag class="a-tag-box">
-                                    {{ row.sourceItem?.owner?.name }}</a-tag>
+                                    {{ row.sourceItem?.owner?.name||'未分配' }}</a-tag>
                             </a-tooltip>
                         </template>
                     </template>
                 </vxe-column>
 
-                <vxe-column v-if="!isToolBar" title="" :width="60">
+                <vxe-column v-if="!isToolBar" title="" :width="50">
                     <template #default="{ row }">
                         <template v-if="row.sourceItem.id === itemId">
                             <a-tooltip :title="'优先级：' + row.targetItem?.priority?.name"
@@ -103,26 +112,46 @@
                 </vxe-column>
 
 
-                <vxe-column field="name" title="" min-width="80" show-overflow>
+                <vxe-column v-if="!isToolBar" field="name" title="" min-width="80" show-overflow>
                     <template #default="{ row }">
                         <template v-if="row.sourceItem.id === itemId">
-                            <div style="display: flex;">
 
-                                <span>{{ row.targetItem?.name }}</span>
-                            </div>
+                            <span>{{ row.targetItem?.name }}</span>
                         </template>
                         <template v-else>
-                            <div style="display: flex;">
-                                <a-tooltip v-if="row.sourceItem?.icon" :title="'工作项类型：' + row.sourceItem?.tracker?.name"
+                                <!-- <a-tooltip v-if="row.sourceItem?.icon" :title="'工作项类型：' + row.sourceItem?.tracker?.name"
                                     :overlayStyle="{ fontSize: '10px' }">
                                     <div style="margin-right:5px"><a-icon :component="row.sourceItem?.icon" /></div>
-                                </a-tooltip>
-                                <span>{{ row.sourceItem?.name }}</span>
-                            </div>
+                                </a-tooltip> -->
+                            <span>{{ row.sourceItem?.name }}</span>
                         </template>
                     </template>
                 </vxe-column>
-                <vxe-column v-if="isToolBar" field="status.name" title="" min-width="100" show-overflow>
+                <vxe-column v-if="isToolBar" field="name" title="" min-width="80" show-overflow>
+                    <template #default="{ row }">
+                        <template v-if="row.sourceItem.id === itemId">
+                            <!-- <a-tooltip v-if="row.targetItem?.icon" :title="'工作项类型：' + row.targetItem?.tracker?.name"
+                                :overlayStyle="{ fontSize: '10px' }">
+                                
+                                <a-icon :component="row.targetItem?.icon" style="margin:auto 2px auto -10px;" />
+                            </a-tooltip> -->
+                            <t-icon :trackerType="row.targetItem.trackerType||row.targetItem.tracker" 
+                                    style="margin:auto 2px auto -10px;"></t-icon>
+                            <span>{{ row.targetItem?.name }}</span>
+                        </template>
+                        <template v-else>
+                            <!-- <a-tooltip v-if="row.sourceItem?.icon" :title="'工作项类型：' + row.sourceItem?.tracker?.name"
+                                :overlayStyle="{ fontSize: '10px' }">
+                                <a-icon :component="row.sourceItem?.icon" style="margin:auto 2px auto -10px;" />
+                                
+                            </a-tooltip> -->
+                            <t-icon :trackerType="row.sourceItem.trackerType||row.targetItem.tracker" 
+                                    style="margin:auto 2px auto -10px;"></t-icon>
+                            <span>{{ row.sourceItem?.name }}</span>
+                        </template>
+                    </template>
+                </vxe-column>
+                <vxe-column v-if="isToolBar" field="status.name" align="center" width="80" show-overflow>
                     <template #default="{ row }">
                         <div style="height:20px;" @mouseover="operateMouseOver($event)"
                             @mouseleave="operateMouseLeave($event)">
@@ -143,7 +172,7 @@
                                 </template>
                             </div>
                             <div id="operate-id" style="cursor:pointer" class="status-operate-class">
-                                <a-tooltip :overlayStyle="{ fontSize: '10px' }">
+                                <a-tooltip :overlayStyle="{ fontSize: '10px' }" :mouseEnterDelay="0.5">
                                     <template slot="title">
                                         新窗口打开
                                     </template>
@@ -151,7 +180,7 @@
                                         @click="onEditItem(row)"></vxe-button>
                                 </a-tooltip>
 
-                                <a-tooltip v-if="!trackerItem?.notPagePerm" :overlayStyle="{ fontSize: '10px' }">
+                                <a-tooltip v-if="!trackerItem?.notPagePerm" :overlayStyle="{ fontSize: '10px' }" :mouseEnterDelay="0.5">
                                     <template slot="title">
                                         <span>删除</span>
                                     </template>
@@ -162,7 +191,7 @@
                         </div>
                     </template>
                 </vxe-column>
-                <vxe-column v-if="!isToolBar" field="status.name" title="" min-width="100" show-overflow>
+                <vxe-column v-if="!isToolBar" field="status.name" title="" width="80" show-overflow>
                     <template #default="{ row }">
                         <template v-if="row.sourceItem.id === itemId">
                             <div v-if="row.targetItem?.status" class="transition-status-right">
@@ -216,9 +245,12 @@ import TrackerItemSelectModal from '@/components/dialog/TrackerItemSelectModal'
 import { hasPermission } from '@/utils/permission'
 import VXETable from "vxe-table";
 import { mapGetters } from "vuex";
+import TIcon from '@/components/icon/t-icon.vue';
+import HItemNo from '@/components/table/itemNo/h-itemNo.vue';
+
 export default {
     name: 'TrackerRelatedItem',
-    components: { TrackerItemSelectModal, },
+    components: { TrackerItemSelectModal, TIcon,HItemNo},
     props: {
         projectId: String,
         trackerId: String,
@@ -420,10 +452,10 @@ export default {
 }
 
 .transition-status-right {
-    float: right;
+    // float: right;
     display: flex;
     align-items: center;
-    margin-right: 20px;
+    // margin-right: 20px
     white-space: nowrap;
 
     .ui-tag-status {

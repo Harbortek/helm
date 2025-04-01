@@ -13,13 +13,15 @@
                     show-footer :footer-method="footerMethod"  max-height="400">
                     <vxe-column title="工作项">
                         <template #default="{ row }">
-                            <a-icon v-if="row.trackerType?.icon" :style="{'color':row.trackerType?.color}" :component="row.trackerType?.icon" />
+                            <!-- <a-icon v-if="row.trackerType?.icon" :style="{'color':row.trackerType?.color}" :component="row.trackerType?.icon" /> -->
+                            <t-icon v-if="row.trackerType?.icon" :trackerType="row.trackerType"></t-icon>
                             &nbsp;{{ row.name }}
                         </template>
                         <template #footer="{}">
                             <a-select v-model="selectItem" placeholder="请选择" @change="onChangeSelect">
                                 <a-select-option v-for="item in getTrackerList" :key="item.id" :title="item.name" :value="item.id">
-                                    <a-icon v-if="item.trackerType?.icon" :style="{'color':item.trackerType?.color}" :component="item.trackerType?.icon" />
+                                    <!-- <a-icon v-if="item.trackerType?.icon" :style="{'color':item.trackerType?.color}" :component="item.trackerType?.icon" /> -->
+                                    <t-icon v-if="item.trackerType?.icon" :trackerType="item.trackerType"></t-icon>
                                         &nbsp;{{ item.name }}
                                 </a-select-option>  
                             </a-select>
@@ -54,9 +56,12 @@ import TrackerFieldsSelectModal from '@/components/dialog/TrackerFieldsSelectMod
 import {
   findTrackers,findOneTracker
 } from "@/services/tracker/TrackerService";
+import TIcon from '@/components/icon/t-icon.vue';
+
+
 export default {
     name: "SmartDocSettingsDialog",
-    components: { TrackerSelect,TrackerFieldsSelectModal},
+    components: { TrackerSelect,TrackerFieldsSelectModal,TIcon},
     data() {
         return {
             formData: {
@@ -106,10 +111,11 @@ export default {
         },
         getTableData(){
             this.tableData.forEach(item=>{
-                if(!item.name||!item.trackerFields){
+                if(!item.name||!item.trackerFields||!item.trackerType){
                     let tracker=this.trackerList.find(t=>t.id==item.id)
                     item.name=tracker?.name
                     item.trackerFields=tracker?.trackerFields||[]
+                    item.trackerType=tracker?.trackerType
                 }
             })
             return this.tableData;
@@ -133,6 +139,7 @@ export default {
             immediate: true,
             handler: function (newVal, oldVal) {
                 if(newVal){
+                    console.log("adjfpajdfandiajd",newVal)
                     this.tableData = newVal.map(item=>{
                         item.fieldIds=item.fields.map(_=>_.id)
                         return item;
@@ -172,7 +179,8 @@ export default {
         onChangeSelect(v){
             let item=this.trackerList.find(e=>e.id==v)
             if(item){
-                this.tableData.push({id:item.id,name:item.name,content:'description',fieldIds:[],trackerFields:item.trackerFields});
+                this.tableData.push({id:item.id,name:item.name,content:'description',fieldIds:[],
+                    trackerFields:item.trackerFields,trackerType:item.trackerType});
             }
             this.selectItem=undefined;
         },

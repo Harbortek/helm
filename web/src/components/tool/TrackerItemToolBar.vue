@@ -1,21 +1,15 @@
 <template>
     <div style="height:100%;" class="ui-task-detail">
-        <a-tabs :loading="loading" default-active-key="1" size="small" v-if="itemId&&trackerItem?.id">
+        <a-tabs :loading="loading" default-active-key="1" size="small" v-if="itemId&&trackerItem?.id" style="min-height:200px">
             <a-tab-pane key="1">
                 <span slot="tab">
                     <div style="display: flex;justify-content: center;">工作项详情</div>
                 </span>
                 <a-spin :spinning="loading">
                     <a-row>
-                        <a-tooltip v-if="trackerItem?.trackerType?.icon" :title="'工作项类型：' + trackerItem.tracker?.name" :overlayStyle="{ fontSize: '10px' }">
-                            <a-icon :style="{marginRight:'3px',color:trackerItem?.trackerType?.color,backgroundColor:trackerItem?.trackerType?.backgroundColor}"
-                                :component="trackerItem?.trackerType?.icon" />
-                        </a-tooltip>
-                        <a-tooltip v-else-if="trackerItem?.icon" :title="'工作项类型：' + trackerItem.tracker?.name" :overlayStyle="{ fontSize: '10px' }">
-                            <a-icon style="margin-right:3px"
-                                    :component="trackerItem?.icon" />
-                        </a-tooltip>
-                        <span v-if="trackerItem?.itemNo" style="font-size:14px;">{{ currentProjectKeyName + '-' + trackerItem?.itemNo }}</span>
+                        <t-icon v-if="trackerItem?.trackerType?.icon" :trackerType="trackerItem?.trackerType"></t-icon>
+                        <t-icon v-else-if="trackerItem?.tracker" :trackerType="trackerItem.tracker"></t-icon>
+                        <HItemNo v-if="trackerItem?.itemNo" style="font-size:14px;" :trackerItem="trackerItem"></HItemNo>
                     </a-row>
                     <a-layout-header v-if="tracker.id>0" class="ui-task-detail__header" theme="light">
                         <a-row class="ui-task-detail-header__summary">
@@ -244,7 +238,8 @@ import TrackerTestCases from '@/pages/tracker/items/TrackerTestCases.vue';
 import TrackerRelatedTest from '@/pages/tracker/items/TrackerRelatedTest.vue';
 import TrackerItemFields from '@/components/tool/TrackerItemFields.vue';
 import TrackerItemFieldsShow from '@/components/tool/TrackerItemFieldsShow.vue';
-import { conforms } from 'lodash';
+import TIcon from '@/components/icon/t-icon.vue';
+import HItemNo from '@/components/table/itemNo/h-itemNo.vue';
 
 
 
@@ -255,7 +250,7 @@ export default {
         TrackerComment, TrackerAttachment, Graph, RegisterHourDialog,TrackerItemKeyFields,
         TrackerRelatedWiki,TrackerRelatedCode,TrackerHyperlinks,TrackerRelatedItem,TrackerWorkHours,
         TrackerCycleProgress,TrackerTestCases,TrackerRelatedTest,TrackerItemFields,
-        TrackerItemFieldsShow,
+        TrackerItemFieldsShow,TIcon,HItemNo
     },
     props: {
         itemId: {

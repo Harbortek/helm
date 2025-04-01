@@ -2,8 +2,7 @@
   <a-select :mode="mode" v-model="selectItem" :placeholder="placeholder" @change="onChange" :disabled="disabled"
     :getPopupContainer="getPopupContainer" allowClear>
     <a-select-option v-for="item in trackers" :key="item.id" :title="item.name" :value="item.id">
-      <a-icon v-if="item.trackerType?.icon" :style="{ 'color': item.trackerType?.color }"
-        :component="item.trackerType?.icon" />
+        <t-icon v-if="item.trackerType?.icon" :trackerType="item.trackerType"></t-icon>
       &nbsp;{{ item.name }}
     </a-select-option>
   </a-select>
@@ -14,9 +13,13 @@ import {
   findTrackers
 } from "@/services/tracker/TrackerService";
 import { getTrackerPermissionIds } from "@/utils/permission";
+import TIcon from '@/components/icon/t-icon.vue';
 
 export default ({
   name: "TrackerSelect",
+  components: {
+    TIcon
+  },
   model: {
     prop: "value", //绑定的值，通过父组件传递
     event: "change" //自定义时间名

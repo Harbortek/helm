@@ -20,20 +20,25 @@
         <a-spin :spinning="loading">
         <a-calendar v-model="displayDate" @panelChange="panelChange" :header-render="headerRender">
             <div slot="dateCellRender" slot-scope="value" class="events">
-                <a-popover v-model="calendarsVisible[value.format('YYYY-MM-DD')]" :title="value.format('YYYY-MM-DD')" :overlayStyle="{background:'#666;',maxHeight:'600px',overflow:'auto'}">
+                <!-- v-model="calendarsVisible[value.format('YYYY-MM-DD')]" -->
+                <a-popover :title="value?.format('YYYY-MM-DD')" 
+                    :overlayStyle="{background:'#666;',maxHeight:'600px',overflow:'auto'}" :mouseEnterDelay="0.01">
                     <template slot="content">
                         <div v-for="item in getListData(value)" :key="item.id">
                             <div class="calendar-item" @click="onEditTrackerItem(item,value)">
                                 <div class="calendar-item-content">
                                     <div class="calendar-item-title">
-                                        <a-icon v-if="tracker.icon" :component="tracker.icon" /><span
-                                            style="margin:auto 10px;">{{ item.name }}</span>
+                                        <h-item-no :trackerItem="item"></h-item-no>
+                                        <t-icon style="margin-left:5px" :trackerType="tracker.trackerType||tracker"></t-icon>
+                                        <!-- <a-tooltip :title="item.name" :overlayStyle="{ fontSize: '10px' }"> -->
+                                            <span style="margin-right:5px;">{{ item.name }}</span>
+                                        <!-- </a-tooltip> -->
 
                                         <a-tag v-if="item.owner">{{ item.owner?.name }} </a-tag>
                                         <a-tag v-if="item.owner"
                                             :style="{ color: item.priority?.color, backgroundColor: item.priority?.backgroundColor }">{{
                                                 item.priority?.name }}</a-tag>
-                                        <a-tag>{{ currentProjectKeyName + '-' + item.itemNo }}</a-tag><br>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -43,8 +48,17 @@
                         <div class="calendar-item" @click="onEditTrackerItem(item,value)">
                             <div class="calendar-item-content">
                                 <div class="calendar-item-title">
-                                    <a-icon v-if="tracker.icon" :component="tracker.icon" /><span
-                                        style="margin:auto 10px;">{{ item.name }}</span>
+                                    <!-- <a-icon v-if="tracker.icon" :component="tracker.icon" />
+                                    <span style="margin:auto 10px;">{{ item.name }}</span> -->
+                                    <a-tooltip v-if="item.itemNo" :title="'编号：' + currentProjectKeyName + '-' + item.itemNo"
+                                        :overlayStyle="{ fontSize: '10px' }">
+                                        <h-item-no :trackerItem="item"></h-item-no>
+                                    </a-tooltip>
+                                    <t-icon style="margin-left:5px" :trackerType="tracker.trackerType||tracker"></t-icon>
+                                    <a-tooltip :title="item.name" placement="topLeft" :overlayStyle="{ fontSize: '10px' }">
+                                        <span style="margin-right:5px;">{{ item.name }}</span>
+                                    </a-tooltip>
+
                                     <a-tooltip v-if="item.owner" :title="'负责人：' + item.owner?.name"
                                         :overlayStyle="{ fontSize: '10px' }">
                                         <a-tag>{{ item.owner?.name }} </a-tag>
@@ -55,10 +69,7 @@
                                             :style="{ color: item.priority?.color, backgroundColor: item.priority?.backgroundColor }">{{
                                                 item.priority?.name }}</a-tag>
                                     </a-tooltip>
-                                    <a-tooltip v-if="item.itemNo" :title="'编号：' + currentProjectKeyName + '-' + item.itemNo"
-                                        :overlayStyle="{ fontSize: '10px' }">
-                                        <a-tag>{{ currentProjectKeyName + '-' + item.itemNo }}</a-tag><br>
-                                    </a-tooltip>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -77,6 +88,9 @@ import moment from 'moment';
 import {
     findTrackerItems
 } from "@/services/tracker/TrackerItemService";
+import TIcon from '@/components/icon/t-icon.vue';
+import HItemNo from '@/components/table/itemNo/h-itemNo.vue';
+
 export default {
     name: 'CalendarLayout',
     props: {
@@ -87,7 +101,7 @@ export default {
         conditionGroups:Array,
     },
     components: {
-        
+        TIcon,HItemNo
     },
     computed:{
         ...mapGetters("project", ["currentProjectKeyName"]),
@@ -99,6 +113,7 @@ export default {
             displayDate:null,
             itemData:[],
             calendarsVisible:{},
+            ffff:false,
         }
     },
     mounted() {
@@ -153,7 +168,7 @@ export default {
             return this.itemData.filter(item => { return value.format("YYYY-MM-DD") == moment(item[this.displayBy]).format("YYYY-MM-DD") })
         },
         onEditTrackerItem(row,value){
-            this.calendarsVisible[value.format('YYYY-MM-DD')]=false;
+            // this.calendarsVisible[value.format('YYYY-MM-DD')]=false;
             this.$emit("onEditTrackerItem",row)
         },
         refresh(){
