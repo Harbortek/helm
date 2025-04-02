@@ -17,8 +17,7 @@
 package com.harbortek.helm.util;
 
 import java.text.*;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
@@ -129,7 +128,7 @@ public class DateUtils {
 	public static String formatElapsedTime(long millis) {
 		long seconds = millis / 1000;
 		long minutes = seconds / 60;
-		Object[] args = { new Long(minutes), new Long(seconds % 60) };
+		Object[] args = { minutes, seconds % 60 };
 		return MINUTE_SECONDS.format(args);
 	}
 
@@ -374,8 +373,8 @@ public class DateUtils {
 	public static List<String> list2daysBetween(String startTime, String endTime) {
 		List<String> list = new ArrayList<String>();
 		int days = daysBetween(DateUtils.toDate(startTime), DateUtils.toDate(endTime)) + 1;
-		for (int i = 0; i < days; i++) {
-			Long L_time = DateUtils.toDate(startTime).getTime() + new Long(i) * 24 * 60 * 60 * 1000;
+		for (long i = 0; i < days; i++) {
+			Long L_time = DateUtils.toDate(startTime).getTime() + i * 24 * 60 * 60 * 1000;
 			String time = DateUtils.toDefDateString(new Date(L_time));
 			list.add(time);
 		}
@@ -392,8 +391,8 @@ public class DateUtils {
 	public static List<String> list2daysBetween(String startTime, String endTime, String format) {
 		List<String> list = new ArrayList<String>();
 		int days = daysBetween(DateUtils.toDate(startTime), DateUtils.toDate(endTime)) + 1;
-		for (int i = 0; i < days; i++) {
-			Long L_time = DateUtils.toDate(startTime).getTime() + new Long(i) * 24 * 60 * 60 * 1000;
+		for (long i = 0; i < days; i++) {
+			Long L_time = DateUtils.toDate(startTime).getTime() + i * 24 * 60 * 60 * 1000;
 			String time = DateUtils.toDefDateString(new Date(L_time), format);
 			list.add(time);
 		}
@@ -623,5 +622,41 @@ public class DateUtils {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));  //获取时区
         return sdf.format(value);
+	}
+
+	public static String toUTC(LocalDateTime value){
+		if (value==null){
+			return "";
+		}
+		return value.atZone(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+	}
+
+	public static LocalDateTime toLocalDateTime(String value) {
+		if (ObjectUtils.isNotEmpty(value)) {
+			return LocalDateTime.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+		}
+		return null;
+	}
+
+	public static Date toDate(LocalDateTime value) {
+		if (ObjectUtils.isNotEmpty(value)) {
+			return Date.from(value.atZone(ZoneId.systemDefault()).toInstant());
+		}
+		return null;
+	}
+
+	public static LocalDateTime toLocalDateTime(Date value) {
+		if (value!=null){
+			return LocalDateTime.ofInstant(value.toInstant(), ZoneId.systemDefault());
+		}
+		return null;
+	}
+
+	public static boolean isBefore(Date v1, Date v2) {
+		return compareDate(v1, v2) < 0;
+	}
+
+	public static boolean isAfter(Date v1, Date v2) {
+		return compareDate(v1, v2) > 0;
 	}
 }

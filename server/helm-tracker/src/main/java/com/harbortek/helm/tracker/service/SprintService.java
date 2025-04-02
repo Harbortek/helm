@@ -34,4 +34,6 @@ public interface SprintService {
     SprintVo convertSprint(SprintVo sprintVo);
 
     Collection<SprintVo> findUnPlanedSprints(Long projectId);
+
+    void syncSprintWorkingHours(Long projectId, Long parentId);
 }

@@ -107,48 +107,49 @@
                 <template #edit="{ row }">
                     <div v-if="row.id">
                         <div v-if="exceptFields(row)" class="can-not-edit"></div>
-                        <vxe-select v-else-if="row.inputType == 'OPTIONS'" v-model="row.defaultValue"
+                        <vxe-select v-else-if="row.inputType === 'OPTIONS'" v-model="row.defaultValue"
                             @change="onChangeDefaultValue(row)" clearable>
                             <vxe-option :value="row.system ? item.id : item.name" v-for="item in row.items" :key="item.id"
                                 :label="item.name"></vxe-option>
                         </vxe-select>
-                        <vxe-select v-else-if="row.inputType == 'MULTI_OPTIONS'" v-model="row.defaultValue"
+                        <vxe-select v-else-if="row.inputType === 'MULTI_OPTIONS'" v-model="row.defaultValue"
                             @change="onChangeDefaultValue(row)" multiple clearable>
                             <vxe-option :value="row.system ? item.id : item.name" v-for="item in row.items" :key="item.id"
                                 :label="item.name"></vxe-option>
                         </vxe-select>
-                        <vxe-select v-else-if="row.inputType == 'STATUS'" v-model="row.defaultValue"
+                        <vxe-select v-else-if="row.inputType === 'STATUS'" v-model="row.defaultValue"
                             @change="onChangeDefaultValue(row)" clearable>
                             <vxe-option :value="row.system ? item.id : item.name" v-for="item in tracker.trackerStatuses"
                                 :key="item.id" :label="item.name"></vxe-option>
                         </vxe-select>
-                        <vxe-select v-else-if="row.inputType == 'STATUS_TYPE'" v-model="row.defaultValue"
+                        <vxe-select v-else-if="row.inputType === 'STATUS_TYPE'" v-model="row.defaultValue"
                             @change="onChangeDefaultValue(row)" clearable>
                             <vxe-option :value="row.system ? item.id : item.name" v-for="item in trackerStatusTypeList"
                                 :key="item.id" :label="item.name"></vxe-option>
                         </vxe-select>
-                        <vxe-select v-else-if="row.inputType == 'SPRINT'" v-model="row.defaultValue"
+                        <vxe-select v-else-if="row.inputType === 'SPRINT'" v-model="row.defaultValue"
                             @change="onChangeDefaultValue(row)" clearable>
                             <vxe-option :value="row.system ? item.id : item.name" v-for="item in sprintList" :key="item.id"
                                 :label="item.name"></vxe-option>
                         </vxe-select>
+                        <div v-else-if="row.inputType === 'TARGET_VERSION'"></div>
                         <vxe-select v-else-if="row.inputType == 'BOOL'" v-model="row.defaultValue"
                             @change="onChangeDefaultValue(row)" clearable>
                             <vxe-option value="true" label="是"></vxe-option>
                             <vxe-option value="false" label="否"></vxe-option>
                         </vxe-select>
-                        <vxe-input v-else-if="row.inputType == 'DATE'" v-model="row.defaultValue"
+                        <vxe-input v-else-if="row.inputType === 'DATE'" v-model="row.defaultValue"
                             @change="onChangeDefaultValue(row)" placeholder="日期选择" type="date"></vxe-input>
-                        <vxe-input v-else-if="row.inputType == 'TIME'" v-model="row.defaultValue"
+                        <vxe-input v-else-if="row.inputType === 'TIME'" v-model="row.defaultValue"
                             @change="onChangeDefaultValue(row)" placeholder="时间选择" type="time"></vxe-input>
 
                         <project-user-select :getPopupContainer="triggerNode => { return triggerNode.parentNode; }"
-                            v-model="row.defaultValue" v-else-if="row.inputType == 'USER'" style="width:100%"
+                            v-model="row.defaultValue" v-else-if="row.inputType === 'USER'" style="width:100%"
                             :projectId="projectId" @change="onChangeDefaultValue(row)" />
                         <project-user-select :getPopupContainer="triggerNode => { return triggerNode.parentNode; }"
-                            v-model="row.defaultValue" v-else-if="row.inputType == 'MEMBERS'" style="width:100%"
+                            v-model="row.defaultValue" v-else-if="row.inputType === 'MEMBERS'" style="width:100%"
                             :mode="'multiple'" :projectId="projectId" @change="onChangeDefaultValue(row)" />
-                        <tracker-select v-model="row.defaultValue" v-else-if="row.inputType == 'WORK_ITEM'"
+                        <tracker-select v-model="row.defaultValue" v-else-if="row.inputType === 'WORK_ITEM'"
                             style="width:100%" :getPopupContainer="triggerNode => { return triggerNode.parentNode; }"
                             :projectId="projectId" @change="onChangeDefaultValue(row)"></tracker-select>
 

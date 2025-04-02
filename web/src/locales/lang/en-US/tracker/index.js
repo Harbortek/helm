@@ -24,6 +24,7 @@ export default {
   "tracker.field.type.REFERENCE": "Reference",
   "tracker.field.type.PROJECT": "Work Item Project",
   "tracker.field.type.SPRINT": "Sprint",
+  "tracker.field.type.TARGET_VERSION": "Target Version",
   "tracker.field.type.TEST_STEP": "Test Step",
 
   "project.permission.PROJECT_ADMIN": "Manage Project",

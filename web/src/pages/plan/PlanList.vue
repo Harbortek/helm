@@ -1,15 +1,16 @@
 <template>
-    <config-page title="" description="项目计划主要用于规划项目计划和跟踪项目进度，进行WBS 计划拆解和里程碑、交付物管理，将项目计划与迭代、任务管理工具紧密结合，确保计划稳步推进。">
+    <config-page title="" description="版本计划主要用于规划版本和跟踪进度，，将版本计划与迭代、工作项管理紧密结合，确保计划稳步推进。">
         <a-layout style="width: 100%;height: 100%;">
             <a-layout-sider width="900" style="background-color: #fff;" :collapsible="false">
                 <vxe-toolbar ref="xToolbar" size="medium" style="margin-right: 5px;">
                     <template #buttons>
                         <a-space>
+                            <a-button @click="goBack"><h-icon type="arrow-left" />返回</a-button>
                             <a-button @click="onClapseAll"><h-icon type="collapse_all" />收缩</a-button>
                             <a-button @click="onExpandAll"><h-icon type="expand_all" />展开</a-button>
                         </a-space>
                     </template>
-                    <template #tools>
+                    <!-- <template #tools>
                         <a-space>
                             <a-dropdown>
                                 <vxe-button v-action="'PAGE_WRITE|' + pageId" type="primary"
@@ -42,7 +43,7 @@
                                 icon="vxe-icon-export">导出</vxe-button>
                         </a-space>
 
-                    </template>
+                    </template> -->
                 </vxe-toolbar>
                 <div style="height: calc(100% - 48px);">
                     <vxe-table size="mini" ref="xTable" show-overflow border row-key :show-header="true" height="100%"
@@ -52,13 +53,13 @@
                         :edit-config="{ trigger: 'click', mode: 'cell', showStatus: true, showUpdateStatus: true, beforeEditMethod: beforeEditMethod, icon: 'vxe-icon-edit' }"
                         :edit-rules="{}" :row-class-name="rowClassName" @current-change="tableRowSelected"
                         @toggle-tree-expand="toogleTreeExpand" @edit-closed="tableEditClosed">
-                        <vxe-column title="" field="seqNumber" width="70px">
-                            <template #default="{ row }">
+                        <vxe-column title="" field="seqNumber" type="seq" width="50px">
+                            <!-- <template #default="{ row }">
                                 <span class="dragIcon"><h-icon type="drag"></h-icon></span>
                                 <span>{{ row.seqNumber }}</span>
-                            </template>
+                            </template> -->
                         </vxe-column>
-                        <vxe-column field="name" title="名称" tree-node :edit-render="{}">
+                        <vxe-column field="name" title="名称" tree-node>
                             <template #default="{ row }">
                                 <div style="display: inline-flex;">
                                     <div style="width:20px;">
@@ -68,24 +69,23 @@
                                     </div> {{ row.name }}
                                 </div>
                             </template>
-                            <template #edit="scope">
+                            <!-- <template #edit="scope">
                                 <vxe-input v-model="scope.row.name" placeholder="请输入名称" @change="onNameChange(scope)" />
-                            </template>
+                            </template> -->
                         </vxe-column>
                         <!-- <vxe-column field="type" title="类型" width="120px">
                             <template #default="{ row }">
                                 {{ $t('plan.type.' + row.type) }}
                             </template>
                         </vxe-column> -->
-                        <vxe-column field="progress" title="进度" width="80px" :formatter="formatProgress"
-                            :edit-render="{}">
-                            <template #edit="scope">
+                        <vxe-column field="progress" title="进度" width="80px" :formatter="formatProgress">
+                            <!-- <template #edit="scope">
                                 <vxe-input v-model="scope.row.progress" type="integer" min="0" max="100"
                                     @input="onProgressChange(scope)" />
-                            </template>
-                            <!-- <template #default="{ row }">
-                                {{ formatProgress(row.progress) }}
                             </template> -->
+                            <template #default="{ row }">
+                                {{ formatProgress(row.progress) }}
+                            </template>
                         </vxe-column>
                         <vxe-column field="owner.name" title="负责人" width="100px" :edit-render="{ name: 'select' }">
                             <template #edit="scope">
@@ -128,14 +128,14 @@
                                 {{ row.duration }}
                             </template>
                         </vxe-column>
-                        <vxe-column field="duration" title="前置计划" width="100px">
+                        <!-- <vxe-column field="duration" title="前置计划" width="100px">
                             <template #default="{ row }">
                                 {{ formatTasks(row.preTasks) }}
                             </template>
-                        </vxe-column>
+                        </vxe-column> -->
 
 
-                        <vxe-column title="" header-align="center" width="40">
+                        <!-- <vxe-column title="" header-align="center" width="40">
                             <template #header>
                                 <a-icon type="setting" />
                             </template>
@@ -174,7 +174,7 @@
                                     </a-menu>
                                 </a-dropdown>
                             </template>
-                        </vxe-column>
+                        </vxe-column> -->
                     </vxe-table>
                 </div>
 
@@ -184,10 +184,8 @@
 
             </a-layout-content>
         </a-layout>
-        <plan-dialog :isShowDialog="showCreateDialog" :projectId="projectId" :editMode="editMode"
-            :currentPlan="currentPlan" :plans="tableData" @ok="onCreatePlanOK" @cancel="showCreateDialog = false" />
-        <div :w="240" :h="42" :isResizable="false" :x="zoomControlBarX" :y="zoomControlBarY" :z="1000"
-            :sticks="['mr']">
+        <!-- <plan-dialog :isShowDialog="showCreateDialog" :projectId="projectId" :editMode="editMode"
+            :currentPlan="currentPlan" :plans="tableData" @ok="onCreatePlanOK" @cancel="showCreateDialog = false" /> -->
             <div class="gantt-zoomControl-bar">
                 <a-space>
                     <a-button @click="moveToday">今天</a-button>
@@ -201,7 +199,6 @@
                     <a-button icon="minus" @click="zoomOut"></a-button>
                     <a-button icon="plus" @click="zoomIn"></a-button></a-space>
             </div>
-        </div>
     </config-page>
 </template>
 
@@ -223,7 +220,7 @@ import ProjectUserSelect from '@/components/select/ProjectUserSelect2.vue';
 import { uploadFile, downloadFile } from '@/services/global/FileService'
 export default {
     name: 'PlanList',
-    components: { ConfigPage, gantt, PlanDialog, ProjectUserSelect, HAvatar },
+    components: { ConfigPage, gantt, ProjectUserSelect, HAvatar },
     data() {
         return {
             loading: false,
@@ -255,12 +252,21 @@ export default {
         pageId() {
             return this.$route.params.pageId
         },
-
+        versionId() {
+            console.log(this.$route.params.versionId)
+            return this.$route.params.versionId
+        }
+    },
+    watch: {
+        versionId: {
+            immediate: true,
+            handler(newVal, oldVal) {
+                this.loadData()
+            }
+        }
     },
     mounted() {
         this.initGantt()
-
-        this.loadData()
     },
     beforeDestroy() {
         if (this.sortable) {
@@ -272,7 +278,7 @@ export default {
             if (!v) return '-'
             else return formatDate(v)
         },
-        formatProgress({ cellValue }) {
+        formatProgress(cellValue) {
             if (!cellValue) return '-'
             else return cellValue + '%'
         },
@@ -453,7 +459,6 @@ export default {
                 'onTaskDblClick',
                 function (id, e) {
                     console.log('id', id, e);
-                    dialogVisible.value = true;
                     return false;
                 },
                 {}
@@ -482,16 +487,16 @@ export default {
         },
         loadData() {
             this.loading = true
-            buildGantt(this.projectId).then(resp => {
+            buildGantt(this.projectId,this.versionId).then(resp => {
                 this.tableData = resp.tasks || []
                 this.tableData.forEach(f => { f.owner = f.owner || { id: '' } })
                 this.tableData.sort((a, b) => {
                     return (a.ordinary || 0) - (b.ordinary || 0)
                 })
                 this.loading = false
-                if (!this.sortable) {
-                    this.rowDrop()
-                }
+                // if (!this.sortable) {
+                //     this.rowDrop()
+                // }
                 this.tasks = { data: [], links: resp.links }
                 this.tableData.forEach(item => {
                     this.tasks.data.push({
@@ -506,6 +511,7 @@ export default {
                     })
                 })
                 console.log(this.tasks)
+                gantt.clearAll();
                 gantt.parse(this.tasks);
                 this.$nextTick(() => {
                     this.$refs.xTable.setAllTreeExpand(true)
@@ -550,7 +556,7 @@ export default {
         beforeEditMethod({ row, rowIndex, column, columnIndex }) {
             if (!hasPermission("PAGE_WRITE", this.pageId)) return false;
             if (row.type === 'GROUP') return column.field === 'owner.name' || column.field === 'name'
-            else if (row.type === 'TASK') return true
+            else if (row.type === 'TASK') return !row.finished
             else if (row.type === 'MILE_STONE') return column.field === 'planEndDate' || column.field === 'owner.name' || column.field === 'name'
         },
         tableEditClosed({ row, column }) {
@@ -584,6 +590,7 @@ export default {
                     Object.assign(row, resp)
                     row.updated = false
                     $table.reloadRow(row, resp, column.field)
+                    this.loadData()
                 })
             }
         },
@@ -845,7 +852,10 @@ export default {
             autoPlan(this.projectId).then(resp => {
                 this.loadData()
             })
-        }
+        },
+        goBack() {
+            this.$router.go(-1)
+        },
     },
 }
 </script>
@@ -961,9 +971,13 @@ export default {
 }
 
 .gantt-zoomControl-bar {
+    position: absolute;
+    right: 20px;
+    top: 40px;
     padding: 5px;
     border: solid 1px #e6f7ff;
     background-color: #e6f7ff;
     box-shadow: #575859;
+    z-index: 1000;
 }
 </style>

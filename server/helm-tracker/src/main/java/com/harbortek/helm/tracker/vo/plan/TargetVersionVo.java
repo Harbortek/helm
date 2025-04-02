@@ -23,6 +23,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Date;
+
 @SuperBuilder
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -30,4 +32,27 @@ import lombok.experimental.SuperBuilder;
 @FieldNameConstants
 public class TargetVersionVo extends BaseVo {
     Long projectId;
+    Long statusId;
+    /**
+     * 计划开始时间
+     */
+    Date planStartDate;
+
+    /**
+     * 计划结束时间
+     */
+    Date planEndDate;
+
+    /**
+     * 实际开始时间
+     */
+    Date realStartDate;
+    /**
+     * 实际结束时间
+     */
+    Date realEndDate;
+
+    Double totalWorkingHours;
+    Double completedWorkingHours;
+    Double remainingWorkingHours;
 }

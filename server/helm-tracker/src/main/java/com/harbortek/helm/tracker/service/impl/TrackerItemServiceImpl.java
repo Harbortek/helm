@@ -48,7 +48,6 @@ import com.harbortek.helm.tracker.vo.chart.ProjectCardInfo;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
 import com.harbortek.helm.tracker.vo.link.TrackerLinkVo;
 import com.harbortek.helm.tracker.vo.log.*;
-import com.harbortek.helm.tracker.vo.plan.SprintVo;
 import com.harbortek.helm.tracker.vo.tracker.TrackerVo;
 import com.harbortek.helm.tracker.vo.tracker.fields.*;
 import com.harbortek.helm.tracker.vo.tracker.permissions.FieldPermission;
@@ -672,7 +671,7 @@ public class TrackerItemServiceImpl implements TrackerItemService {
             } else if (SystemFields.PLAN_END_DATE.equals(systemProperty)) {
                 oldValue = item.getPlanEndDate();
                 try {
-                    item.setPlanEndDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(newValue.toString()));
+                    item.setPlanEndDate(DateUtils.toDate(newValue.toString()));
                 } catch (Exception e1) {
                     logger.error("Exception", e1);
                 }
@@ -684,7 +683,7 @@ public class TrackerItemServiceImpl implements TrackerItemService {
             } else if (SystemFields.PLAN_START_DATE.equals(systemProperty)) {
                 oldValue = item.getPlanStartDate();
                 try {
-                    item.setPlanStartDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(newValue.toString()));
+                    item.setPlanStartDate(DateUtils.toDate(newValue.toString()));
                 } catch (Exception e1) {
                     logger.error("Exception", e1);
                 }
@@ -792,7 +791,7 @@ public class TrackerItemServiceImpl implements TrackerItemService {
         checkTrackerPermission(List.of(TrackerPermissions.ITEM_EDIT_ASSOCIATIONS),item.getTrackerId(),
                 item.getId(),"","没有编辑关联工作项权限");
         TrackerLinkEntity entity = DataUtils.toEntity(trackerLink, TrackerLinkEntity.class);
-        entity.setCreateDate(new Date());
+        entity.setCreateDate(DateUtils.now());
         trackerLinkDao.updateTrackerLink(entity);
         changeLogDao.createChangeLog(itemId, ChangeLogMessages.TRACKER_ITEM_ASSOCIATION, "修改了关联工作项",
                 item, "", trackerLink.getTargetItem().getItemNo());
@@ -1717,12 +1716,12 @@ public class TrackerItemServiceImpl implements TrackerItemService {
         } else if (SystemFields.CREATE_BY.equals(field)) {
             trackerItem.setCreateBy(new IdNameReference<>(UserVo.builder().id(Long.valueOf(value.toString())).build()));
         } else if (SystemFields.CREATE_DATE.equals(field)) {
-            trackerItem.setCreateDate(DateUtils.strToDate(value.toString()));
+            trackerItem.setCreateDate(DateUtils.toDate(value.toString()));
         } else if (SystemFields.LAST_MODIFIED_BY.equals(field)) {
             trackerItem.setLastModifiedBy(
                     new IdNameReference<>(UserVo.builder().id(Long.valueOf(value.toString())).build()));
         } else if (SystemFields.LAST_MODIFIED_DATE.equals(field)) {
-            trackerItem.setLastModifiedDate(DateUtils.strToDate(value.toString()));
+            trackerItem.setLastModifiedDate(DateUtils.toDate(value.toString()));
         } else if (SystemFields.STATUS.equals(field)) {
             trackerItem.setStatusId(Long.valueOf(value.toString()));
             for (TrackerStatus status : trackerItem.getTracker().getReferTo().getTrackerStatuses()) {
@@ -1734,7 +1733,7 @@ public class TrackerItemServiceImpl implements TrackerItemService {
         } else if (SystemFields.ASSIGNED_TO.equals(field)) {
             trackerItem.setAssignedTo(new IdNameReference<>(UserVo.builder().id(Long.valueOf(value.toString())).build()));
         } else if (SystemFields.ASSIGNED_DATE.equals(field)) {
-            trackerItem.setAssignedDate(DateUtils.strToDate(value.toString()));
+            trackerItem.setAssignedDate(DateUtils.toDate(value.toString()));
         } else if (SystemFields.PRIORITY.equals(field)) {
             EnumItemVo enumItemVo = enumService.findOneEnumItemById(Long.valueOf(value.toString()));
             trackerItem.setPriority(enumItemVo);
@@ -1742,17 +1741,17 @@ public class TrackerItemServiceImpl implements TrackerItemService {
             EnumItemVo enumItemVo = enumService.findOneEnumItemById(Long.valueOf(value.toString()));
             trackerItem.setSeverity(enumItemVo);
         } else if (SystemFields.PLAN_START_DATE.equals(field)) {
-            trackerItem.setPlanStartDate(DateUtils.strToDate(value.toString()));
+            trackerItem.setPlanStartDate(DateUtils.toDate(value.toString()));
         } else if (SystemFields.PLAN_END_DATE.equals(field)) {
-            trackerItem.setPlanEndDate(DateUtils.strToDate(value.toString()));
+            trackerItem.setPlanEndDate(DateUtils.toDate(value.toString()));
         } else if (SystemFields.REAL_START_DATE.equals(field)) {
-            trackerItem.setRealStartDate(DateUtils.strToDate(value.toString()));
+            trackerItem.setRealStartDate(DateUtils.toDate(value.toString()));
         } else if (SystemFields.REAL_END_DATE.equals(field)) {
-            trackerItem.setRealEndDate(DateUtils.strToDate(value.toString()));
+            trackerItem.setRealEndDate(DateUtils.toDate(value.toString()));
         } else if (SystemFields.PROGRESS.equals(field)) {
             trackerItem.setProgress(Integer.valueOf(value.toString()));
         } else if (SystemFields.CLOSE_DATE.equals(field)) {
-            trackerItem.setCloseDate(DateUtils.strToDate(value.toString()));
+            trackerItem.setCloseDate(DateUtils.toDate(value.toString()));
         } else if (SystemFields.ESTIMATE_WORKING_HOURS.equals(field)) {
             trackerItem.setEstimateWorkingHours(Double.valueOf(value.toString()));
         } else if (SystemFields.REGISTERED_WORKING_HOURS.equals(field)) {

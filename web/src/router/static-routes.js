@@ -247,40 +247,40 @@ const options = {
                   component: () => import("@/pages/collection/CollectionList"),
                 },
                 {
-                  path: "plan/:pageId(\\d+)",
-                  name: "plan",
-                  component: () => import("@/pages/plan/PlanList"),
-                },
-                {
                   path: "targetVersion/:pageId(\\d+)",
                   name: "targetVersion",
                   component: () => import("@/pages/plan/TargetVersionList"),
                 },
                 {
-                  path: "milestones/:pageId(\\d+)",
-                  name: "milestones",
-                  component: () => import("@/pages/plan/MilestoneList"),
+                  path: "targetVersion/:pageId(\\d+)/detail/:versionId(\\d+)",
+                  name: "targetVersionPlan",
+                  component: () => import("@/pages/plan/PlanList"),
                 },
-                {
-                  path: "milestones/:pageId(\\d+)/detail/:itemId(\\d+)",
-                  name: "milestoneDetail",
-                  component: () => import("@/pages/plan/MilestoneDetail"),
-                },
-                {
-                  path: "deliverables/:pageId(\\d+)",
-                  name: "deliverables",
-                  component: () => import("@/pages/plan/DeliverableList"),
-                },
-                {
-                  path: "tasks/:pageId(\\d+)",
-                  name: "tasks",
-                  component: () => import("@/pages/plan/TaskList"),
-                },
-                {
-                  path: "tasks/:pageId(\\d+)/detail/:itemId(\\d+)",
-                  name: "taskDetail",
-                  component: () => import("@/pages/plan/TaskDetail"),
-                },
+                // {
+                //   path: "milestones/:pageId(\\d+)",
+                //   name: "milestones",
+                //   component: () => import("@/pages/plan/MilestoneList"),
+                // },
+                // {
+                //   path: "milestones/:pageId(\\d+)/detail/:itemId(\\d+)",
+                //   name: "milestoneDetail",
+                //   component: () => import("@/pages/plan/MilestoneDetail"),
+                // },
+                // {
+                //   path: "deliverables/:pageId(\\d+)",
+                //   name: "deliverables",
+                //   component: () => import("@/pages/plan/DeliverableList"),
+                // },
+                // {
+                //   path: "tasks/:pageId(\\d+)",
+                //   name: "tasks",
+                //   component: () => import("@/pages/plan/TaskList"),
+                // },
+                // {
+                //   path: "tasks/:pageId(\\d+)/detail/:itemId(\\d+)",
+                //   name: "taskDetail",
+                //   component: () => import("@/pages/plan/TaskDetail"),
+                // },
                 {
                   path: "sprints/:pageId(\\d+)",
                   name: "sprints",
@@ -582,61 +582,6 @@ const options = {
             },
           ],
         },
-        //集成
-        // {
-        //   path: "integration",
-        //   name: "intergration",
-        //   redirect: "/integration/repository",
-        //   meta: {
-        //     title: "menu.integration",
-        //     icon: "api",
-        //     show: true,
-        //   },
-        //   components: {
-        //     default: ContentView,
-        //     TopTitle,
-        //   },
-        //   children: [
-        //     {
-        //       path: "repository",
-        //       name: "repository",
-        //       meta: {
-        //         // icon: 'database',
-        //         title: "menu.integration.repository",
-        //       },
-        //       component: () =>
-        //         import("@/pages/integration/repository/RepositoryPage"),
-        //     },
-        //     {
-        //       path: "dataset",
-        //       name: "dataset",
-        //       meta: {
-        //         // icon: 'bars',
-        //         title: "menu.integration.dataset",
-        //       },
-        //       component: () =>
-        //         import("@/pages/integration/dataset/DatasetPage"),
-        //     },
-        //     {
-        //       path: "model",
-        //       name: "model",
-        //       meta: {
-        //         // icon: 'bars',
-        //         title: "menu.integration.model",
-        //       },
-        //       component: BlankPage,
-        //     },
-        //     {
-        //       path: "job",
-        //       name: "job",
-        //       meta: {
-        //         // icon: 'deployment-unit',
-        //         title: "menu.integration.job",
-        //       },
-        //       component: () => import("@/pages/integration/job/JobPage"),
-        //     },
-        //   ],
-        // },
         {
           path: "review",
           name: "review",
@@ -666,7 +611,6 @@ const options = {
             default: ConfigView,
             TopTitle,
           },
-          // redirect:'/config/sys/org',
           children: [
             {
               name: "tracker",

@@ -24,6 +24,7 @@ export default {
   "tracker.field.type.REFERENCE": "引用",
   "tracker.field.type.PROJECT": "工作项项目",
   "tracker.field.type.SPRINT": "迭代",
+  "tracker.field.type.TARGET_VERSION": "目标版本  ",
   "tracker.field.type.TEST_STEP": "测试步骤",
 
   "project.permission.PROJECT_ADMIN": "管理项目",

@@ -16,7 +16,6 @@
 
 package com.harbortek.helm.tracker.entity.plan;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 
 public interface Planable {
@@ -29,21 +28,21 @@ public interface Planable {
 
      void setOwnerId(Long ownerId);
 
-     LocalDateTime getPlanStartDate();
+     Date getPlanStartDate();
 
-     void setPlanStartDate(LocalDateTime planStartDate);
+     void setPlanStartDate(Date planStartDate);
 
-     LocalDateTime getPlanEndDate();
+     Date getPlanEndDate();
 
-     void setPlanEndDate(LocalDateTime planEndDate);
+     void setPlanEndDate(Date planEndDate);
 
-     LocalDateTime getRealStartDate();
+     Date getRealStartDate();
 
-     void setRealStartDate(LocalDateTime realStartDate);
+     void setRealStartDate(Date realStartDate);
 
-     LocalDateTime getRealEndDate() ;
+     Date getRealEndDate() ;
 
-     void setRealEndDate(LocalDateTime realEndDate) ;
+     void setRealEndDate(Date realEndDate) ;
 
      Integer getProgress() ;
 

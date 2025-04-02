@@ -1,13 +1,13 @@
 export const PAGE_COMPONENTS = [
-  {
-    id: "plans",
-    name: "项目计划",
-    group: "计划",
-    icon: "",
-    path: (menuItem, projectId) => {
-      return `/tracker/project/${projectId}/plan/${menuItem.id}`;
-    },
-  },
+  // {
+  //   id: "plans",
+  //   name: "项目计划",
+  //   group: "计划",
+  //   icon: "",
+  //   path: (menuItem, projectId) => {
+  //     return `/tracker/project/${projectId}/plan/${menuItem.id}`;
+  //   },
+  // },
   {
     id: "targetVersions",
     name: "版本",
@@ -26,33 +26,33 @@ export const PAGE_COMPONENTS = [
       return `/tracker/project/${projectId}/sprints/${menuItem.id}`;
     },
   },
-  {
-    id: "milestones",
-    name: "里程碑",
-    group: "计划",
-    icon: "",
-    path: (menuItem, projectId) => {
-      return `/tracker/project/${projectId}/milestones/${menuItem.id}`;
-    },
-  },
-  {
-    id: "deliverables",
-    name: "交付物",
-    group: "计划",
-    icon: "",
-    path: (menuItem, projectId) => {
-      return `/tracker/project/${projectId}/deliverables/${menuItem.id}`;
-    },
-  },
-  {
-    id: "tasks",
-    name: "计划执行",
-    group: "计划",
-    icon: "",
-    path: (menuItem, projectId) => {
-      return `/tracker/project/${projectId}/tasks/${menuItem.id}`;
-    },
-  },
+  // {
+  //   id: "milestones",
+  //   name: "里程碑",
+  //   group: "计划",
+  //   icon: "",
+  //   path: (menuItem, projectId) => {
+  //     return `/tracker/project/${projectId}/milestones/${menuItem.id}`;
+  //   },
+  // },
+  // {
+  //   id: "deliverables",
+  //   name: "交付物",
+  //   group: "计划",
+  //   icon: "",
+  //   path: (menuItem, projectId) => {
+  //     return `/tracker/project/${projectId}/deliverables/${menuItem.id}`;
+  //   },
+  // },
+  // {
+  //   id: "tasks",
+  //   name: "计划执行",
+  //   group: "计划",
+  //   icon: "",
+  //   path: (menuItem, projectId) => {
+  //     return `/tracker/project/${projectId}/tasks/${menuItem.id}`;
+  //   },
+  // },
   {
     id: "testRun",
     name: "测试运行",

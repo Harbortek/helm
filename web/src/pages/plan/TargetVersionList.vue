@@ -5,6 +5,7 @@
 
                 <template #tools>
                     <vxe-button v-action="'PAGE_WRITE|'+pageId" icon="vxe-icon-add" @click="onCreateVerson">新增版本</vxe-button>
+                    <vxe-button v-action="'PAGE_WRITE|'+pageId" icon="vxe-icon-sync" @click="onSyncVersons">同步版本</vxe-button>
                 </template>
             </vxe-toolbar>
             <vxe-table ref="xTable" show-overflow border row-key :show-header="true" :auto-resize="true" :data="tableData"
@@ -13,38 +14,25 @@
 
                 <vxe-column field="name" title="名称">
                     <template #default="{ row }">
-                        {{ row.name }}
+                        <a @click="showDetail(row)">  {{ row.name }} </a>
                     </template>
                 </vxe-column>
 
-                <!-- <vxe-column field="progress" title="进度" header-align="center" align="center" width="100px">
+                <vxe-column field="progress" title="进度" header-align="center" align="center" width="100px">
                     <template #default="{ row }">
                         {{ formatProgress(row.progress) }}
                     </template>
                 </vxe-column>
-                <vxe-column field="owner.name" title="负责人" header-align="center" align="center" width="150px">
-                    <template #default="{ row }">
-                        <template v-if="row.owner.id">
-                            <a-avatar v-if="row.owner?.icon" class="avatar" size="small" :src="iconUrl(row.owner?.icon)" />
-                            <a-avatar v-else class="avatar" size="small" style="backgroundColor:rgb(44,178,174)">{{
-                                row.owner?.name }}</a-avatar>
-                            {{ row.owner?.name }}
-                        </template>
-                        <template v-else>
-                            -
-                        </template>
-                    </template>
-                </vxe-column>
-                <vxe-column field="planStartDate" title="开始日期" header-align="center" align="center" width="150">
+                <vxe-column field="planStartDate" title="计划开始日期" header-align="center" align="center" width="150">
                     <template #default="{ row }">
                         {{ formatDate(row.planStartDate) }}
                     </template>
                 </vxe-column>
-                <vxe-column field="planEndDate" title="结束日期" header-align="center" align="center" width="150px">
+                <vxe-column field="planEndDate" title="计划结束日期" header-align="center" align="center" width="150px">
                     <template #default="{ row }">
                         {{ formatDate(row.planEndDate) }}
                     </template>
-                </vxe-column> -->
+                </vxe-column> 
                 <vxe-column align="center" title="操作" width="280">
                     <template #default="{ row }">
                         <a-button v-action="'PAGE_WRITE|'+pageId" type="link" @click="onEditVersion(row)">{{
@@ -61,7 +49,7 @@
 </template>
 
 <script>
-import { findVersions, createVersion, updateVersion, deleteVersion } from '@/services/plan/TargetVersionService'
+import { findVersions, createVersion, updateVersion, deleteVersion,syncVersions } from '@/services/plan/TargetVersionService'
 import ConfigPage from '@/components/config-page/ConfigPage.vue';
 import { iconUrl } from "@/utils/util"
 import { formatDate, isWeekend } from '@/utils/DateUtils'
@@ -148,9 +136,16 @@ export default {
                     })
                 }
             })
+        },
+        onSyncVersons() {
+            syncVersions(this.projectId).then(resp => {
+                this.loadData()
+                VXETable.modal.message({ content: '同步成功', status: 'info' })
+            })
+        },
+        showDetail(row) {
+            this.$router.push({ name: 'targetVersionPlan', params: {pageId:this.pageId, versionId: row.id } })
         }
-
-
     },
 }
 </script>

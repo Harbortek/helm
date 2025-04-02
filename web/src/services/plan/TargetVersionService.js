@@ -27,3 +27,11 @@ export function deleteVersion(id) {
     method: METHOD.DELETE,
   });
 }
+
+export function syncVersions(projectId) {
+  return request({
+    url: "/plan/version/sync",
+    method: METHOD.POST,
+    params: { projectId: projectId },
+  });
+}
