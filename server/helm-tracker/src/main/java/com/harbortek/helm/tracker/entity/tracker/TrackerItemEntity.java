@@ -21,7 +21,6 @@ import com.harbortek.helm.common.entity.BaseEntity;
 import com.harbortek.helm.common.vo.BaseIdentity;
 import com.harbortek.helm.system.entity.EnumItemEntity;
 import com.harbortek.helm.system.entity.UserEntity;
-import com.harbortek.helm.tracker.entity.plan.SprintEntity;
 import com.harbortek.helm.tracker.entity.project.ProjectEntity;
 import com.harbortek.helm.tracker.vo.tracker.fields.TrackerField;
 import lombok.Builder;

@@ -28,7 +28,6 @@ import lombok.experimental.FieldNameConstants;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -61,21 +60,21 @@ public class SprintEntity extends BaseEntity implements Planable{
     /**
      * 计划开始时间
      */
-    LocalDateTime planStartDate;
+    Date planStartDate;
 
     /**
      * 计划结束时间
      */
-    LocalDateTime planEndDate;
+    Date planEndDate;
 
     /**
      * 实际开始时间
      */
-    LocalDateTime realStartDate;
+    Date realStartDate;
     /**
      * 实际结束时间
      */
-    LocalDateTime realEndDate;
+    Date realEndDate;
 
 
     /**
@@ -93,6 +92,10 @@ public class SprintEntity extends BaseEntity implements Planable{
 
     @EntityReference(TargetVersionEntity.class)
     private Long targetVersionId;
+
+    Double totalWorkingHours;
+    Double completedWorkingHours;
+    Double remainingWorkingHours;
 
     /**
      * 关联的工作项ID

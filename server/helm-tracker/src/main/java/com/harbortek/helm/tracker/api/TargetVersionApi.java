@@ -66,4 +66,11 @@ public class TargetVersionApi {
         versionService.deleteTargetVersion(id);
         return ResponseEntity.ok().build();
     }
+
+    @Parameter(name="同步版本")
+    @RequestMapping(value = "/sync", method = RequestMethod.POST)
+    ResponseEntity<Void> syncVersions(Long projectId) {
+        versionService.syncTargetVersions(projectId);
+        return ResponseEntity.ok().build();
+    }
 }

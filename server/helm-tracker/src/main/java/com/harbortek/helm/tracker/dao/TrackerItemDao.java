@@ -45,9 +45,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
-import static org.jooq.impl.DSL.constraint;
-import static org.jooq.impl.DSL.val;
-
 @Repository
 @Slf4j
 public class TrackerItemDao extends BaseJdbcDao {
@@ -282,6 +279,22 @@ public class TrackerItemDao extends BaseJdbcDao {
         }
 
         Field<JSON> externalArray = DSL.jsonArray(sprintIds.stream().map(t->DSL.inline(String.valueOf(t))).toList());
+        SelectConditionStep<?> query = getDslContext().selectFrom(getTable(TrackerItemEntity.class))
+                .where(getField(TrackerItemEntity.Fields.projectId).eq(projectId))
+                .and(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
+                .and(DSL.field("JSON_OVERLAPS({0},COALESCE(JSON_EXTRACT({1},'$.*'),'[]'))",
+                        externalArray,getField(TrackerItemEntity.Fields.values)).eq(true))
+                .and("tracker_item_has_permission(id," + SecurityUtils.getCurrentUser().getId() + ",'ITEM_VIEW') ");
+        return find(query.getSQL(ParamType.INLINED),null, TrackerItemEntity.class);
+
+    }
+
+    public List<TrackerItemEntity> findByTargetVersionIds(Long projectId,List<Long> targetVersionIds) {
+        if(ObjectUtils.isEmpty(targetVersionIds)){
+            return null;
+        }
+
+        Field<JSON> externalArray = DSL.jsonArray(targetVersionIds.stream().map(t->DSL.inline(String.valueOf(t))).toList());
         SelectConditionStep<?> query = getDslContext().selectFrom(getTable(TrackerItemEntity.class))
                 .where(getField(TrackerItemEntity.Fields.projectId).eq(projectId))
                 .and(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))

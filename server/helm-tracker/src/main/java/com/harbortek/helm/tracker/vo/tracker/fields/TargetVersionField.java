@@ -14,50 +14,26 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.tracker.entity.plan;
+package com.harbortek.helm.tracker.vo.tracker.fields;
 
-import com.harbortek.helm.common.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.harbortek.helm.tracker.constants.FieldTypes;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
 import lombok.experimental.SuperBuilder;
-import org.springframework.data.relational.core.mapping.Table;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 @SuperBuilder
 @Data
-@EqualsAndHashCode(callSuper=true)
-@FieldNameConstants
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-@Table(value = "target_versions")
-public class TargetVersionEntity extends BaseEntity {
-    Long projectId;
-
-    Long statusId;
-    /**
-     * 计划开始时间
-     */
-    Date planStartDate;
-
-    /**
-     * 计划结束时间
-     */
-    Date planEndDate;
-
-    /**
-     * 实际开始时间
-     */
-    Date realStartDate;
-    /**
-     * 实际结束时间
-     */
-    Date realEndDate;
-
-    Integer progress;
-
-    Double totalWorkingHours;
-    Double completedWorkingHours;
-    Double remainingWorkingHours;
+@FieldNameConstants
+@JsonTypeName(value = FieldTypes.TARGET_VERSION)
+public class TargetVersionField extends TrackerField{
+	String nop;
+	List<OptionsField.OptionItem> items = new ArrayList<>();
 }

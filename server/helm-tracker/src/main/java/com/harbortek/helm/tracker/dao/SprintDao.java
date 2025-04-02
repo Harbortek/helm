@@ -95,4 +95,13 @@ public class SprintDao extends BaseJdbcDao {
         Query query = Query.query(criteria);
         return find(query, SprintEntity.class);
     }
+
+    public List<SprintEntity> findSprintByTargetVersion(Long projectId, Long targetVersionId) {
+        Criteria criteria = Criteria.empty();
+        criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
+        criteria = criteria.and(Criteria.where(SprintEntity.Fields.projectId).is(projectId));
+        criteria = criteria.and(Criteria.where(SprintEntity.Fields.targetVersionId).is(targetVersionId));
+        Query query = Query.query(criteria);
+        return find(query, SprintEntity.class);
+    }
 }

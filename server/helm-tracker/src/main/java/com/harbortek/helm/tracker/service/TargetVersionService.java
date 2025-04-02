@@ -30,4 +30,6 @@ public interface TargetVersionService {
     TargetVersionVo updateTargetVersion(TargetVersionVo versionVo);
 
     void deleteTargetVersion(Long id);
+
+    void syncTargetVersions(Long projectId);
 }

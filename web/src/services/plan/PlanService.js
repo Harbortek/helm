@@ -1,10 +1,10 @@
 import { request,download,   METHOD } from "@/utils/request";
 import Cookies from "js-cookie";
-export function buildGantt(projectId) {
+export function buildGantt(projectId,versionId) {
   return request({
     url: "/tracker/plan/gantt",
     method: METHOD.GET,
-    params: { projectId: projectId },
+    params: { projectId: projectId,versionId:versionId  },
   });
 }
 

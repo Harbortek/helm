@@ -29,40 +29,40 @@ import java.util.List;
 
 public interface PlanService {
 
-    GanttVo buildGantt(Long projectId);
-    Collection<PlanVo> findPlans(Long projectId);
+    GanttVo buildGantt(Long projectId,Long versionId);
+//    Collection<PlanVo> findPlans(Long projectId);
 
-    Collection<PlanVo> findMilestones(Long projectId);
-
-    PlanVo findOnePlan(Long id);
-
-    PlanVo createPlan(PlanVo planVo);
-
+//    Collection<PlanVo> findMilestones(Long projectId);
+//
+//    PlanVo findOnePlan(Long id);
+//
+//    PlanVo createPlan(PlanVo planVo);
+//
     PlanVo updatePlan(PlanVo planVo);
-
-    void deletePlan(Long id);
-
-    void updateDeliverables(Long planId, List<DeliverableVo> deliverables);
-
-    AttachmentVo uploadAttachment(Long deliverableId, AttachmentVo attachmentVo);
-
-    void updateDeliverable(Long deliverableId, DeliverableVo deliverableVo);
-
-    void autoPlans(Long projectId);
-
-    Collection<DeliverableVo> findDeliverables(Long projectId);
-
-    Collection<PlanVo> findWaitExecutePlans(Long projectId, Long currentUserId);
-
-    void associateSprints(Long planId, List<SprintVo> sprints);
-
-    void associateTrackerItems(Long planId, List<TrackerItemVo> trackerItems);
-
-    void dissociateSprints(Long planId, List<SprintVo> sprints);
-
-    void dissociateTrackerItems(Long planId, List<TrackerItemVo> trackerItems);
-
-    void changeOrder(List<PlanVo> planVos);
-
-    void importMPP(Long projectId, InputStream mppFile);
+//
+//    void deletePlan(Long id);
+//
+//    void updateDeliverables(Long planId, List<DeliverableVo> deliverables);
+//
+//    AttachmentVo uploadAttachment(Long deliverableId, AttachmentVo attachmentVo);
+//
+//    void updateDeliverable(Long deliverableId, DeliverableVo deliverableVo);
+//
+//    void autoPlans(Long projectId);
+//
+//    Collection<DeliverableVo> findDeliverables(Long projectId);
+//
+//    Collection<PlanVo> findWaitExecutePlans(Long projectId, Long currentUserId);
+//
+//    void associateSprints(Long planId, List<SprintVo> sprints);
+//
+//    void associateTrackerItems(Long planId, List<TrackerItemVo> trackerItems);
+//
+//    void dissociateSprints(Long planId, List<SprintVo> sprints);
+//
+//    void dissociateTrackerItems(Long planId, List<TrackerItemVo> trackerItems);
+//
+//    void changeOrder(List<PlanVo> planVos);
+//
+//    void importMPP(Long projectId, InputStream mppFile);
 }

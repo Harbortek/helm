@@ -205,13 +205,6 @@ export default {
           //构建项目主体菜单
           let pages = resp.pages;
           let index = 1;
-          // this.projectMenus.push({
-          //   id: index++,
-          //   name: "工作区",
-          //   icon: "project",
-          //   path: "/tracker/projectList"
-          // })
-          // this.projectMenus.push({ id: index++, name: '总览', path: `/tracker/project/${projectId}/summary`, icon: 'home' })
           for (let j = 0; j < pages?.length; j++) {
             const page = pages[j]
             if (page.folder) {
@@ -289,37 +282,6 @@ export default {
             this.trackerMenus=null
           }
 
-          // this.projectMenus.push({
-          //   id: index++, name: '计划', icon: 'schedule', children: [
-          //     { id: index++, name: '项目计划', path: `/tracker/project/${projectId}/plan`, icon: '' },
-          //     { id: index++, name: '迭代', path: `/tracker/project/${projectId}/sprints`, icon: '' },
-          //     { id: index++, name: '里程碑', path: `/tracker/project/${projectId}/milestones`, icon: '' },
-          //     { id: index++, name: '交付物', path: `/tracker/project/${projectId}/deliverables`, icon: '' },
-          //     { id: index++, name: '计划执行', path: `/tracker/project/${projectId}/tasks`, icon: '' },
-          //   ]
-          // })
-
-          // this.projectMenus.push({
-          //   id: index++, name: '测试', icon: 'test', children: [
-          //     { id: index++, name: '测试运行', path: `/tracker/project/${projectId}/testplan`, icon: '' },
-          //     { id: index++, name: '测试用例', path: `/tracker/project/${projectId}/testCase`, icon: '' },
-          //   ]
-          // })
-
-          // this.projectMenus.push({
-          //   id: index++, name: '代码仓库', path: `/tracker/project/${projectId}/repository`, icon: 'code'
-          // })
-          // this.projectMenus.push({
-          //   id: index++, name: '流水线', path: `/tracker/project/${projectId}/pipeline`, icon: 'pipeline'
-          // })
-
-
-          // this.projectMenus.push({
-          //   id: index++, name: '基线', path: `/tracker/project/${projectId}/baseline`, icon: 'history'
-          // })
-
-
-          // console.log(this.trackerMenus)
         })
       }
       findRecentProjects(this.keyword).then(resp => {

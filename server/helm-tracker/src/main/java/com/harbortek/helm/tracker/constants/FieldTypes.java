@@ -78,6 +78,7 @@ public interface FieldTypes {
 
     String WORK_ITEM_NO = "WORK_ITEM_NO";
     String SPRINT = "SPRINT";
+    String TARGET_VERSION = "TARGET_VERSION";
 
     String STATUS_TYPE = "STATUS_TYPE";
     String PROJECT = "PROJECT";

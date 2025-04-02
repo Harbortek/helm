@@ -28,6 +28,7 @@
                     <a-select-option value="WORK_ITEM">工作项</a-select-option>
                     <!-- <a-select-option value="Sprint">迭代</a-select-option> -->
                     <a-select-option value="SPRINT">迭代</a-select-option>
+                    <a-select-option value="TARGET_VERSION">目标版本</a-select-option>
                     <a-select-option value="TABLE">表格</a-select-option>
                     <a-select-option value="TEST_STEP">测试步骤</a-select-option>
 

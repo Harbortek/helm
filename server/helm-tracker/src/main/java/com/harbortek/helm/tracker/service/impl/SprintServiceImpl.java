@@ -29,8 +29,8 @@ import com.harbortek.helm.tracker.entity.plan.SprintEntity;
 import com.harbortek.helm.tracker.entity.tracker.TrackerEntity;
 import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
 import com.harbortek.helm.tracker.service.SprintService;
+import com.harbortek.helm.tracker.service.TargetVersionService;
 import com.harbortek.helm.tracker.service.TrackerItemService;
-import com.harbortek.helm.tracker.service.TrackerService;
 import com.harbortek.helm.tracker.vo.plan.SprintVo;
 import com.harbortek.helm.tracker.vo.tracker.fields.SprintField;
 import com.harbortek.helm.util.*;
@@ -39,10 +39,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service("sprintService")
@@ -66,48 +65,52 @@ public class SprintServiceImpl implements SprintService {
     @Autowired
     TrackerDao trackerDao;
 
+    @Autowired
+    TargetVersionService targetVersionService;
+
 
     @Override
     public Collection<SprintVo> findSprints(Long projectId) {
-        if(projectId == null){
+        if (projectId == null) {
             return null;
         }
         List<SprintEntity> sprintEntities = sprintDao.findSprints(projectId);
         List<SprintVo> sprintVos = DataUtils.toVo(sprintEntities, SprintVo.class);
         //计算迭代进度
         List<Long> sprintIds = sprintEntities.stream().map(BaseEntity::getId).collect(Collectors.toList());
-        List<TrackerItemEntity> trackerItemList = trackerItemDao.findBySprintIds(projectId,sprintIds);
-        if(ObjectUtils.isNotEmpty(trackerItemList)){
+        List<TrackerItemEntity> trackerItemList = trackerItemDao.findBySprintIds(projectId, sprintIds);
+        if (ObjectUtils.isNotEmpty(trackerItemList)) {
             List<Long> itemIds = trackerItemList.stream().map(TrackerItemEntity::getTrackerId).toList();
-            Map<Long, Long> trackerMap= trackerDao.findByIds(itemIds, TrackerEntity.class)
+            Map<Long, Long> trackerMap = trackerDao.findByIds(itemIds, TrackerEntity.class)
                     .stream().collect(Collectors.toMap(BaseEntity::getId, tracker ->
                             tracker.getTrackerFields().stream()
-                                    .filter(field -> field instanceof SprintField&&!field.getSystem())
+                                    .filter(field -> field instanceof SprintField && !field.getSystem())
                                     .findFirst()
                                     .map(IdNameVo::getId)
                                     .orElse(0L)
                     ));
 
             sprintVos.forEach(sprintVo -> {
-                double progress=0,duration=0,progressTotal=0,durationTotal=0;
+                double progress = 0, duration = 0, progressTotal = 0, durationTotal = 0;
                 for (TrackerItemEntity trackerItem : trackerItemList) {
-                    Long itemSprintId=trackerMap.get(trackerItem.getTrackerId());
-                    if(itemSprintId.equals(sprintVo.getId())){
-                        progress=0;duration=1;
-                        if(trackerItem.getPlanStartDate()!=null&&trackerItem.getPlanEndDate()!=null){
-                            duration=DateUtils.daysBetween(trackerItem.getPlanStartDate(),trackerItem.getPlanEndDate());
+                    Long itemSprintId = trackerMap.get(trackerItem.getTrackerId());
+                    if (itemSprintId.equals(sprintVo.getId())) {
+                        progress = 0;
+                        duration = 1;
+                        if (trackerItem.getPlanStartDate() != null && trackerItem.getPlanEndDate() != null) {
+                            duration = DateUtils.daysBetween(trackerItem.getPlanStartDate(), trackerItem.getPlanEndDate());
                         }
-                        if(trackerItem.getProgress()!=null&&trackerItem.getProgress()!=0){
-                            progress=trackerItem.getProgress();
+                        if (trackerItem.getProgress() != null && trackerItem.getProgress() != 0) {
+                            progress = trackerItem.getProgress();
                         }
-                        progressTotal+=(duration*progress);
-                        durationTotal+=duration;
+                        progressTotal += (duration * progress);
+                        durationTotal += duration;
                     }
                 }
-                if(progressTotal==0){
+                if (progressTotal == 0) {
                     sprintVo.setProgress(0);
-                }else{
-                    sprintVo.setProgress(Integer.parseInt(String.format("%.0f",(progressTotal/durationTotal))));
+                } else {
+                    sprintVo.setProgress(Integer.parseInt(String.format("%.0f", (progressTotal / durationTotal))));
                 }
             });
         }
@@ -126,12 +129,11 @@ public class SprintServiceImpl implements SprintService {
         SprintEntity entity = DataUtils.toEntity(sprintVo, SprintEntity.class);
         entity.setItemNo(projectDao.getNextItemNo(entity.getProjectId()));
         entity.setStatusId(enumService.findOneEnumItemByCode(sprintVo.getProjectId(), EnumCodes.PROJECT_STATUS_MEANING,
-                                                             ProjectStatusMeaning.NOT_STARTED).getId());
+                ProjectStatusMeaning.NOT_STARTED).getId());
         entity.setMeaning(ProjectStatusMeaning.NOT_STARTED);
         entity = sprintDao.createSprint(entity);
         return DataUtils.toVo(entity, SprintVo.class);
     }
-
 
 
     @Override
@@ -151,7 +153,7 @@ public class SprintServiceImpl implements SprintService {
         //修改迭代下的item
         Long projectId = (Long) SecurityUtils.get(SecurityUtils.PROJECT_ID);
         List<Long> itemIds = trackerItemDao.findBySprintIds(projectId, List.of(id)).stream().map(TrackerItemEntity::getId).toList();
-        trackerItemService.updateTrackerItemSprint(null,itemIds);
+        trackerItemService.updateTrackerItemSprint(null, itemIds);
 
         //删除迭代
         sprintDao.deleteSprint(id);
@@ -160,13 +162,13 @@ public class SprintServiceImpl implements SprintService {
     @Override
     public SprintVo convertSprint(SprintVo sprintVo) {
         SprintEntity entity = DataUtils.toEntity(sprintVo, SprintEntity.class);
-        if(ProjectStatusMeaning.NOT_STARTED.equals(sprintVo.getMeaning())){
+        if (ProjectStatusMeaning.NOT_STARTED.equals(sprintVo.getMeaning())) {
             entity.setStatusId(enumService.findOneEnumItemByCode(sprintVo.getProjectId(), EnumCodes.PROJECT_STATUS_MEANING,
-                                                                 ProjectStatusMeaning.ONGOING).getId());
+                    ProjectStatusMeaning.ONGOING).getId());
             entity.setMeaning(ProjectStatusMeaning.ONGOING);
-        }else if(ProjectStatusMeaning.ONGOING.equals(sprintVo.getMeaning())){
+        } else if (ProjectStatusMeaning.ONGOING.equals(sprintVo.getMeaning())) {
             entity.setStatusId(enumService.findOneEnumItemByCode(sprintVo.getProjectId(), EnumCodes.PROJECT_STATUS_MEANING,
-                                                                 ProjectStatusMeaning.ENDED).getId());
+                    ProjectStatusMeaning.ENDED).getId());
             entity.setMeaning(ProjectStatusMeaning.ENDED);
         }
         entity = sprintDao.createSprint(entity);
@@ -175,7 +177,36 @@ public class SprintServiceImpl implements SprintService {
 
     @Override
     public Collection<SprintVo> findUnPlanedSprints(Long projectId) {
-       List<SprintEntity> sprintEntities = sprintDao.findUnPlanedSprints(projectId);
-       return DataUtils.toVo(sprintEntities,SprintVo.class);
+        List<SprintEntity> sprintEntities = sprintDao.findUnPlanedSprints(projectId);
+        return DataUtils.toVo(sprintEntities, SprintVo.class);
     }
+
+    @Override
+    public void syncSprintWorkingHours(Long projectId, Long sprintId) {
+        SprintEntity sprintEntity = sprintDao.findById(sprintId);
+        List<TrackerItemEntity> trackerItemEntities = trackerItemDao.findBySprintIds(projectId, List.of(sprintId));
+        if (ObjectUtils.isNotEmpty(trackerItemEntities)){
+            Double totalWorkingHours = trackerItemEntities.stream()
+                    .map(TrackerItemEntity::getEstimateWorkingHours)
+                    .filter(Objects::nonNull)  // 过滤掉null值
+                    .reduce(0.0, Double::sum);
+            Double completedWorkingHours = trackerItemEntities.stream()
+                    .map(TrackerItemEntity::getRegisteredWorkingHours)
+                    .filter(Objects::nonNull)  // 过滤掉null值
+                    .reduce(0.0, Double::sum);
+            Double remainingWorkingHours = trackerItemEntities.stream()
+                    .map(TrackerItemEntity::getRemainingWorkingHours)
+                    .filter(Objects::nonNull)  // 过滤掉null值
+                    .reduce(0.0, Double::sum);
+            sprintEntity.setTotalWorkingHours(totalWorkingHours);
+            sprintEntity.setCompletedWorkingHours(completedWorkingHours);
+            sprintEntity.setRemainingWorkingHours(remainingWorkingHours);
+        }
+        sprintDao.updateSprint(sprintEntity);
+
+        if (ObjectUtils.isNotEmpty(sprintEntity.getTargetVersionId())){
+            targetVersionService.syncTargetVersions(projectId);
+        }
+    }
+
 }
