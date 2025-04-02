@@ -531,7 +531,7 @@ import CalendarLayout from './trackerItemTableLayout/CalendarLayout.vue';
 import TreeLayout from './trackerItemTableLayout/TreeLayout.vue';
 import MatrixLayout from './trackerItemTableLayout/MatrixLayout.vue';
 import TIcon from '@/components/icon/t-icon.vue';
-import HItemNo from '@/components/table/itemNo/h-itemNo.vue';
+import HItemNo from '@/components/table/itemNo/ItemNo.vue';
 import SeveritySelect from '@/components/select/SeveritySelect.vue';
 
 

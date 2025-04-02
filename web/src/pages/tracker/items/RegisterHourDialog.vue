@@ -110,7 +110,7 @@ import { mapGetters } from "vuex";
 import ProjectUserSelect from '../../../components/select/ProjectUserSelect.vue';
 import { remainingRegistrableTime } from "@/services/tracker/TrackerItemService"
 import TIcon from '@/components/icon/t-icon.vue';
-import HItemNo from '@/components/table/itemNo/h-itemNo.vue';
+import HItemNo from '@/components/table/itemNo/ItemNo.vue';
 
 export default {
     name: "RegisterHourDialog",

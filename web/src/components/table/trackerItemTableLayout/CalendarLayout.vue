@@ -89,7 +89,7 @@ import {
     findTrackerItems
 } from "@/services/tracker/TrackerItemService";
 import TIcon from '@/components/icon/t-icon.vue';
-import HItemNo from '@/components/table/itemNo/h-itemNo.vue';
+import HItemNo from '@/components/table/itemNo/ItemNo.vue';
 
 export default {
     name: 'CalendarLayout',

@@ -62,11 +62,15 @@
                         <vxe-column field="name" title="名称" tree-node>
                             <template #default="{ row }">
                                 <div style="display: inline-flex;">
-                                    <div style="width:20px;">
+                                    <!-- <div style="width:20px;">
                                         <h-icon type="plan-group" v-if="row.type === 'GROUP'" />
                                         <h-icon type="plan-tasks" v-else-if="row.type === 'TASK'" />
                                         <h-icon type="flag" v-else-if="row.type === 'MILE_STONE'" />
-                                    </div> {{ row.name }}
+                                    </div>  -->
+                                    <div style="margin-left: 5px;margin-right: 5px;">
+                                        <ItemNo :trackerItem="row"/>
+                                    </div>
+                                    {{ row.name }}
                                 </div>
                             </template>
                             <!-- <template #edit="scope">
@@ -218,9 +222,10 @@ moment.locale("zh-cn");
 import { formatDate, isWeekend } from '@/utils/DateUtils'
 import ProjectUserSelect from '@/components/select/ProjectUserSelect2.vue';
 import { uploadFile, downloadFile } from '@/services/global/FileService'
+import ItemNo from '@/components/table/itemNo/ItemNo.vue';
 export default {
     name: 'PlanList',
-    components: { ConfigPage, gantt, ProjectUserSelect, HAvatar },
+    components: { ConfigPage, gantt, ProjectUserSelect, HAvatar,ItemNo },
     data() {
         return {
             loading: false,

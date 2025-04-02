@@ -239,7 +239,7 @@ import TrackerRelatedTest from '@/pages/tracker/items/TrackerRelatedTest.vue';
 import TrackerItemFields from '@/components/tool/TrackerItemFields.vue';
 import TrackerItemFieldsShow from '@/components/tool/TrackerItemFieldsShow.vue';
 import TIcon from '@/components/icon/t-icon.vue';
-import HItemNo from '@/components/table/itemNo/h-itemNo.vue';
+import HItemNo from '@/components/table/itemNo/ItemNo.vue';
 
 
 

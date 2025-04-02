@@ -33,6 +33,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @SuperBuilder
@@ -62,27 +63,27 @@ public class SprintVo extends BaseVo {
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8") // 返回到前台
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    LocalDateTime planStartDate;
+    Date planStartDate;
 
     /**
      * 计划结束时间
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8") // 返回到前台
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    LocalDateTime planEndDate;
+    Date planEndDate;
 
     /**
      * 实际开始时间
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8") // 返回到前台
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    LocalDateTime realStartDate;
+    Date realStartDate;
     /**
      * 实际结束时间
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8") // 返回到前台
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    LocalDateTime realEndDate;
+    Date realEndDate;
 
 
     /**

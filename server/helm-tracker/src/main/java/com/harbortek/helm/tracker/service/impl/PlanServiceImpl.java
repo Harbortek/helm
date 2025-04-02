@@ -94,7 +94,7 @@ public class PlanServiceImpl implements PlanService {
 
         sprintEntities.forEach(sprint -> {
             PlanEntity plan = PlanEntity.builder().id(sprint.getId()).name(sprint.getName()).projectId(sprint.getProjectId())
-                    .planStartDate(sprint.getPlanStartDate()).planEndDate(sprint.getPlanEndDate())
+                    .itemNo(sprint.getItemNo()).planStartDate(sprint.getPlanStartDate()).planEndDate(sprint.getPlanEndDate())
                     .realStartDate(sprint.getRealStartDate()).realEndDate(sprint.getRealEndDate())
                     .type(PlanTypes.TYPE_GROUP).ownerId(sprint.getOwnerId())
                     .duration(DateUtils.daysBetween(sprint.getPlanStartDate(), sprint.getPlanEndDate()))
@@ -104,7 +104,7 @@ public class PlanServiceImpl implements PlanService {
             List<TrackerItemEntity> trackerItems = trackerItemDao.findBySprintIds(projectId, List.of(sprint.getId()));
             trackerItems.forEach(item -> {
                 PlanEntity task = PlanEntity.builder().parentId(plan.getId()).id(item.getId()).name(item.getName()).projectId(item.getProjectId())
-                        .planStartDate(item.getPlanStartDate()).planEndDate(item.getPlanEndDate())
+                        .itemNo(item.getItemNo()).planStartDate(item.getPlanStartDate()).planEndDate(item.getPlanEndDate())
                         .realStartDate(sprint.getRealStartDate()).realEndDate(item.getRealEndDate())
                         .type(PlanTypes.TYPE_TASK).ownerId(item.getOwnerId())
                         .progress(item.getProgress()).duration(DateUtils.daysBetween(item.getPlanStartDate(), item.getPlanEndDate()))

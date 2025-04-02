@@ -2,7 +2,7 @@
     <div class="h-itemNo">
         <span :style="{color: getColor(trackerItem?.severity?.color), textDecoration:isEnded?'line-through':'',
             }">
-            {{ currentProjectKeyName.toUpperCase() + '-' + trackerItem?.itemNo }}</span>
+            {{ currentProjectKeyName?.toUpperCase() + '-' + trackerItem?.itemNo }}</span>
     </div>
 </template>
   
@@ -10,7 +10,7 @@
 import { mapGetters } from "vuex";
 
 export default {
-    name: 'HAvatar',
+    name: 'HItemNo',
     data() {
         return {
         }
