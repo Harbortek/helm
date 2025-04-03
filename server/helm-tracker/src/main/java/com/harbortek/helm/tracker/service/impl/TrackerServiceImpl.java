@@ -339,6 +339,8 @@ public class TrackerServiceImpl implements TrackerService {
                                     .collect(Collectors.toList());
                     ( (SprintField) trackerField).setItems(optionItems);
 
+                }else if(trackerField instanceof TableField){
+                    fillTrackerFields(((TableField) trackerField).getColumns(),trackerStatuses,projectId);
                 }
             }
         }

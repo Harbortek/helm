@@ -1437,7 +1437,7 @@ public class TrackerItemServiceImpl implements TrackerItemService {
     public List<TrackerEntity> findTrackersBySprint(Long sprintId) {
         Long projectId = (Long) SecurityUtils.get(SecurityUtils.PROJECT_ID);
         List<Long> trackerIds = trackerItemDao.findBySprintIds(projectId,List.of(sprintId))
-                .stream().map(TrackerItemEntity::getTrackerId).collect(Collectors.toList());
+                .stream().map(TrackerItemEntity::getTrackerId).distinct().toList();
         return trackerDao.findByIds(trackerIds, TrackerEntity.class,true);
     }
 

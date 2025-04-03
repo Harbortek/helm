@@ -104,7 +104,7 @@
                     <div style="height:5%" v-if="sprintId && sprintId > 0" class="toolbar-header">
                         <a-popover v-model="popoverVisible" trigger="click" placement="bottom">
                             <template slot="content">
-                                <a-input-search v-model="keyword" placeholder="搜索迭代1" style="width: 260px" />
+                                <a-input-search v-model="keyword" placeholder="搜索迭代" style="width: 260px" />
                                 <!-- <vxe-table ref="popoverTable" border="none" size="mini" height="auto"
                                     :row-config="{ isCurrent: true, isHover: true }" style="height:auto"
                                     :column-config="{ isCurrent: true, isHover: true }" :show-header="false"
