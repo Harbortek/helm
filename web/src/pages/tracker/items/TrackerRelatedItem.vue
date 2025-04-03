@@ -52,9 +52,9 @@
                                     <a-icon :component="row.targetItem?.icon" />
                                     </div>
                             </a-tooltip> -->
-                            <t-icon :trackerType="row.targetItem.trackerType||row.sourceItem.tracker"></t-icon>
+                            <!-- <t-icon :trackerType="row.targetItem.trackerType||row.targetItem.tracker"></t-icon> -->
                                     <!-- {{currentProjectKeyName + '-' + row.targetItem?.itemNo }} -->
-                                    <h-item-no :trackerItem="row.targetItem"></h-item-no>
+                            <HItemNo :trackerItem="row.targetItem"></HItemNo>
 
                         </template>
                         <template v-else>
@@ -64,9 +64,9 @@
                                     <a-icon :component="row.sourceItem?.icon" />
                                    </div>
                             </a-tooltip> -->
-                            <t-icon :trackerType="row.sourceItem.trackerType||row.sourceItem.tracker"></t-icon>
+                            <!-- <t-icon :trackerType="row.sourceItem.trackerType||row.sourceItem.tracker"></t-icon> -->
                             <!-- {{currentProjectKeyName + '-' + row.sourceItem?.itemNo }} -->
-                            <h-item-no :trackerItem="row.sourceItem"></h-item-no>
+                            <HItemNo :trackerItem="row.sourceItem"></HItemNo>
 
                         </template>
                     </template>
@@ -245,8 +245,8 @@ import TrackerItemSelectModal from '@/components/dialog/TrackerItemSelectModal'
 import { hasPermission } from '@/utils/permission'
 import VXETable from "vxe-table";
 import { mapGetters } from "vuex";
-import TIcon from '@/components/icon/t-icon.vue';
-import HItemNo from '@/components/table/itemNo/ItemNo.vue';
+import TIcon from '@/components/icon/T-Icon.vue';
+import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
 
 export default {
     name: 'TrackerRelatedItem',

@@ -22,12 +22,11 @@
                                     <div
                                         style="background: #fff;padding: 10px;margin:0 10px;color: #303030;box-shadow: 0 1px 1px 0 rgba(31,31,31,.1);">
 
-                                        
                                         <div style="white-space: nowrap;text-overflow: ellipsis;overflow: hidden;"> 
                                             <!-- <a-icon v-if="tracker.icon" :component="tracker.icon" /> -->
                                             <t-icon  :trackerType="tracker.trackerType||tracker"></t-icon>
                                             <a-tooltip :title="item.name" :overlayStyle="{ fontSize: '10px' }">
-                                                <span style="margin-left:5px">{{ item.name }}</span>
+                                                <span style="">{{ item.name }}</span>
                                             </a-tooltip>
                                         </div>
                                         
@@ -39,7 +38,7 @@
                                                         :overlayStyle="{ fontSize: '10px' }">
                                                         <div class="ui-tag-key-field">
                                                             <!-- {{ currentProjectKeyName + '-' + item.itemNo }} -->
-                                                            <h-item-no :trackerItem="item"></h-item-no>
+                                                            <HItemNo :trackerItem="item" :showIcon="false"></HItemNo>
                                                         </div><br>
                                                     </a-tooltip>
                                                     <a-tooltip  v-else-if="field.systemProperty=='priority'&&item.priority" :key="field.id" :title="'优先级：' + item.priority?.name"
@@ -128,8 +127,8 @@ import {
     findTrackerItems
 } from "@/services/tracker/TrackerItemService";
 import { roundToNearestMinutesWithOptions } from "date-fns/fp";
-import TIcon from '@/components/icon/t-icon.vue';
-import HItemNo from '@/components/table/itemNo/ItemNo.vue';
+import TIcon from '@/components/icon/T-Icon.vue';
+import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
 
 export default {
     name: 'KanbanLayout',

@@ -119,7 +119,6 @@
                   <vxe-column field="itemNo" title="编号" width="100px">
                       <template #default="{ row }">
                           <!-- {{projectKeyName+'-'+row.itemNo}} -->
-                          <t-icon :trackerType="row.trackerType||row.tracker"></t-icon>
                           <HItemNo :trackerItem="row"></HItemNo>
                       </template>
                   </vxe-column>
@@ -186,12 +185,11 @@ import PrioritySelect from '@/components/select/PrioritySelect.vue';
 import SprintSelect from '@/components/select/SprintSelect.vue';
 import { batchUpdateTrackerItem} from "@/services/tracker/TrackerItemService";
 import { VXETable } from 'vxe-table';
-import TIcon from '@/components/icon/t-icon.vue';
-import HItemNo from '@/components/table/itemNo/ItemNo.vue';
+import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
 
 export default {
   name: "TrackerTransformModal",
-  components: {ConfigPage,ProjectUserSelect, PrioritySelect, SprintSelect, HAvatar, TIcon, HItemNo},
+  components: {ConfigPage,ProjectUserSelect, PrioritySelect, SprintSelect, HAvatar, HItemNo},
   data() {
     return {
       loading: false,

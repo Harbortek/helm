@@ -56,7 +56,7 @@ import TrackerFieldsSelectModal from '@/components/dialog/TrackerFieldsSelectMod
 import {
   findTrackers,findOneTracker
 } from "@/services/tracker/TrackerService";
-import TIcon from '@/components/icon/t-icon.vue';
+import TIcon from '@/components/icon/T-Icon.vue';
 
 
 export default {

@@ -151,7 +151,6 @@
             <vxe-column field="" title="编号" :width="100">
               <template #default="{ row }">
                 <!-- {{ currentProjectKeyName + '-' + row.itemNo }} -->
-                <t-icon :trackerType="row.trackerType||row.tracker"></t-icon>
                 <HItemNo :trackerItem="row"></HItemNo>
               </template>
             </vxe-column>
@@ -836,8 +835,7 @@ import { findSprints } from '@/services/plan/SprintService'
 import { findWaitExecutePlans } from '@/services/plan/PlanService'
 import { findMilestones } from '@/services/plan/PlanService'
 import { findByProjectId } from '@/services/tracker/ProjectPageService'
-import TIcon from '@/components/icon/t-icon.vue';
-import HItemNo from '@/components/table/itemNo/ItemNo.vue';
+import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
 
 export default {
   name: 'TableItemSelectView',
@@ -851,7 +849,7 @@ export default {
     editReviewId: String,
   },
   components: {
-    TrackerItemFilter, HAvatar,TIcon,HItemNo
+    TrackerItemFilter, HAvatar,HItemNo
   },
   data() {
     return {

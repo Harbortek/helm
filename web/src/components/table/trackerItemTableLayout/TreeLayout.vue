@@ -29,7 +29,7 @@
                 <vxe-column field="itemNo" title="编号" tree-node width="100">
                     <template #default="{ row }">
                         <!-- {{ currentProjectKeyName + '-' + row.itemNo }} -->
-                        <h-item-no :trackerItem="row"></h-item-no>
+                        <HItemNo :trackerItem="row" :showIcon="false"></HItemNo>
                     </template>
                 </vxe-column>
                 <vxe-column field="name" title="标题" min-width="300">
@@ -100,7 +100,7 @@ import {
     findTrackerItems,findTrackerLinksByItemIds, findTrackerItemsTree, updateMatrixLinks
 } from "@/services/tracker/TrackerItemService";
 import { findLinkTypes } from "@/services/tracker/TrackerLinkTypeService"
-import HItemNo from '@/components/table/itemNo/ItemNo.vue';
+import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
 
 export default {
     name: 'MatrixLayout',

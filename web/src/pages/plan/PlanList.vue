@@ -222,7 +222,7 @@ moment.locale("zh-cn");
 import { formatDate, isWeekend } from '@/utils/DateUtils'
 import ProjectUserSelect from '@/components/select/ProjectUserSelect2.vue';
 import { uploadFile, downloadFile } from '@/services/global/FileService'
-import ItemNo from '@/components/table/itemNo/ItemNo.vue';
+import ItemNo from '@/components/table/itemNo/H-ItemNo.vue';
 export default {
     name: 'PlanList',
     components: { ConfigPage, gantt, ProjectUserSelect, HAvatar,ItemNo },

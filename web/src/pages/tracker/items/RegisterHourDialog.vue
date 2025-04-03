@@ -3,7 +3,6 @@
         <div style="border-bottom: 1px solid #e8e8e8;" class="task-detail-module-title">
             <div class="task-detail-module-title-text">工作项名称</div>
             <!-- #{{currentProjectKeyName+'-'+trackerItem?.itemNo}}&nbsp;&nbsp;{{trackerItem?.name}} -->
-            <t-icon :trackerType="trackerItem.trackerType||trackerItem.tracker"></t-icon>
             <HItemNo :trackerItem="trackerItem"></HItemNo>&nbsp;{{trackerItem?.name}}
         </div>
         <a-form-model :layout="'horizontal'" ref="formDataHour" :model="formDataHour" :rules="rulesHours">
@@ -109,12 +108,11 @@ import VXETable from 'vxe-table';
 import { mapGetters } from "vuex";
 import ProjectUserSelect from '../../../components/select/ProjectUserSelect.vue';
 import { remainingRegistrableTime } from "@/services/tracker/TrackerItemService"
-import TIcon from '@/components/icon/t-icon.vue';
-import HItemNo from '@/components/table/itemNo/ItemNo.vue';
+import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
 
 export default {
     name: "RegisterHourDialog",
-    components: { ProjectUserSelect, TIcon, HItemNo },
+    components: { ProjectUserSelect, HItemNo },
     data() {
         return {
             remainHourRadio:1,

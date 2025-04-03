@@ -44,7 +44,6 @@
                     <a-icon v-if="row?.icon" :component="row?.icon" />
                   </a-tooltip>
                   {{ (currentProjectKeyName + '-' + row.itemNo).toUpperCase() }} -->
-                  <t-icon :trackerType="row.trackerType||row.tracker"></t-icon>
                   <HItemNo :trackerItem="row"></HItemNo>
                 </template>
               </vxe-column>
@@ -126,8 +125,7 @@ import {
 import { findSprints } from '@/services/plan/SprintService'
 import TrackerItemFilter from "../tool/TrackerItemFilter.vue";
 import Vue from "vue";
-import TIcon from '@/components/icon/t-icon.vue';
-import HItemNo from '@/components/table/itemNo/ItemNo.vue';
+import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
 
 export default {
   name: 'TrackerItemSelectModal',
@@ -140,7 +138,7 @@ export default {
     isTest: Boolean,
   },
   components: {
-    TrackerItemFilter,TIcon, HItemNo
+    TrackerItemFilter, HItemNo
   },
   data() {
     return {
