@@ -1442,6 +1442,16 @@ public class TrackerItemServiceImpl implements TrackerItemService {
     }
 
     @Override
+    public List<Long> findItemIdsBySprint(Long sprintId) {
+        Long projectId = (Long) SecurityUtils.get(SecurityUtils.PROJECT_ID);
+        EnumItemVo excludeMeaning = enumService.findOneEnumItemByCode(projectId, EnumCodes.TRACKER_STATUS_MEANING, "CLOSED");
+        if (ObjectUtils.isEmpty(excludeMeaning)) {
+            excludeMeaning=EnumItemVo.builder().build();
+        }
+        return trackerItemDao.findIdsBySprintId(projectId,sprintId,excludeMeaning.getId());
+    }
+
+    @Override
     public ProjectCardInfo findProjectCardInfo(Long projectId) {
         ProjectCardInfo cardInfo = new ProjectCardInfo();
 

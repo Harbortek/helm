@@ -402,6 +402,14 @@ export function findTrackersBySprint(sprintId) {
   });
 }
 
+export function findItemIdsBySprint(sprintId) {
+  return request({
+    url: `/tracker/project/items/sprint/${sprintId}/itemIds`,
+    method: METHOD.GET,
+  });
+}
+
+
 export function cardInfo(projectId) {
   return request({
     url: `/tracker/project/items/cardInfo/${projectId}`,

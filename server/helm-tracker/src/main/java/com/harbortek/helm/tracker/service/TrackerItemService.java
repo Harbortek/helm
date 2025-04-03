@@ -42,6 +42,7 @@ import java.util.Date;
 import java.util.List;
 
 public interface TrackerItemService {
+
     Page<TrackerItemVo> findTrackerItems(Long projectId, Long trackerId, Long sprintId, ObjectFilter filter,
                                          String keyword, Boolean isTest, Pageable pageable);
     Page<TrackerItemVo> findTrackerItemsTree(Long projectId, Long trackerId, Long sprintId, ObjectFilter filter,
@@ -115,6 +116,8 @@ public interface TrackerItemService {
     void batchUpdateTrackerItem(List<TrackerItemVo> trackerItemVos);
 
     List<TrackerEntity> findTrackersBySprint(Long sprintId);
+
+    List<Long> findItemIdsBySprint(Long sprintId);
 
     ProjectCardInfo findProjectCardInfo(Long projectId);
 

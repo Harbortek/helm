@@ -384,6 +384,13 @@ public class TrackerItemApi {
         return ResponseEntity.ok(trackers);
     }
 
+    @Parameter(name="根据sprintId查询itemIds")
+    @RequestMapping(value = "/sprint/{sprintId}/itemIds", method = RequestMethod.GET)
+    ResponseEntity<List<Long>> findItemIdsBySprint(@PathVariable Long sprintId) {
+        List<Long> trackers=itemService.findItemIdsBySprint(sprintId);
+        return ResponseEntity.ok(trackers);
+    }
+
     @Parameter(name="查询项目工作项日增加趋势图")
     @RequestMapping(value = "/cardInfo/{projectId}", method = RequestMethod.GET)
     ResponseEntity<ProjectCardInfo> cardInfo(@PathVariable Long projectId) {

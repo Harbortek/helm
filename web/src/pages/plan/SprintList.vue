@@ -133,7 +133,7 @@
                         </a-tabs>
 
                         <div style="position: absolute;right: 10px;">
-                            <vxe-button v-if="currentSprint?.meaning != 'ENDED'" status="text"
+                            <vxe-button status="text"
                                 v-action="'PAGE_WRITE|'+pageId" @click="onClickConvertSprint">
                                 {{ currentSprint?.meaning == 'NOT_STARTED' ? '开始' : '完成' }}迭代</vxe-button>
 
@@ -193,7 +193,7 @@ import SprintDialog from './SprintDialog.vue';
 import { findSprints, createSprint, updateSprint, deleteSprint, convertSprint } from '@/services/plan/SprintService'
 import { findCommitsBySprintId } from '@/services/tracker/TrackerCommitService'
 import { findTrackersBySprint } from "@/services/tracker/TrackerItemService"
-import { formatDate } from '@/utils/DateUtils'
+import { formatDate,formatLongDate } from '@/utils/DateUtils'
 import TrackerItemsTable from '@/components/table/TrackerItemsTable.vue';
 import VXETable from "vxe-table";
 import ProjectUserSelect from '@/components/select/ProjectUserSelect.vue';
@@ -285,8 +285,6 @@ export default {
             }
         },
         onClickFilterOk(){
-            console.log("this.sprintFI",this.sprintFilter)
-
             this.sprintFilterNow=Object.assign({},this.sprintFilter)
             this.sprintFilterVisible = false;
         },
@@ -340,10 +338,10 @@ export default {
             else return v + '%'
         },
         getStatusColor(status) {
-            if (!status || !status.meaning) {
+            if (!status) {
                 return ''
-            } else {
-                return status.meaning.color
+            } else {    
+                return status.color
             }
         },
         loadData() {
@@ -418,7 +416,7 @@ export default {
                     this.showSprintDialog = false
                     VXETable.modal.message({ content: '新建成功', status: 'success' })
                 })
-            } else if (this.editMode === 'edit') { 
+            } else if (this.editMode === 'edit') {
                 updateSprint(item).then(resp => {
                     this.loadData()
                     this.showSprintDialog = false
@@ -426,10 +424,20 @@ export default {
                     VXETable.modal.message({ content: '更新成功', status: 'success' })
                 })
             } else if (this.editMode === 'start' || this.editMode === 'complete') {
-                convertSprint(item).then(resp => {
+                // 根据编辑模式设置迭代的实际开始或结束时间
+                if (this.editMode === 'start') {
+                    item.realStartDate = formatLongDate(new Date());
+                } else if (this.editMode === 'complete') {
+                    item.realEndDate = formatLongDate(new Date()); 
+                    console.log("itemitem",item)
+                }
+                convertSprint(item,item.undone,item.sprintId).then(resp => {
                     this.loadData()
                     this.showSprintDialog = false
                     this.currentSprint = resp
+                    if(this.editMode=='complete'){
+                        this.$refs.itemsTable.refresh();
+                    }
                     VXETable.modal.message({ content: '操作成功', status: 'success' })
                 })
             }

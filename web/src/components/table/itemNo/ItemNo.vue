@@ -28,8 +28,7 @@ export default {
     computed: {
         ...mapGetters("project", ["currentProjectKeyName"]),
         isEnded() {
-            if (this.trackerItem?.meaning?.code == 'ENDED'||
-                this.trackerItem?.meaning?.code == 'CLOSED') {
+            if (this.trackerItem?.meaning?.code == 'CLOSED') {//this.trackerItem?.meaning?.code == 'ENDED'||
                 return true;
             }
             return false;

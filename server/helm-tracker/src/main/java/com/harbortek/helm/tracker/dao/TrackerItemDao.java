@@ -288,6 +288,24 @@ public class TrackerItemDao extends BaseJdbcDao {
         return find(query.getSQL(ParamType.INLINED),null, TrackerItemEntity.class);
 
     }
+    public List<Long> findIdsBySprintId(Long projectId, Long sprintId, Long excludeMeaningId) {
+        if(ObjectUtils.isEmpty(sprintId)){
+            return null;
+        }
+
+        Field<JSON> externalArray = DSL.jsonArray(DSL.inline(String.valueOf(sprintId)));
+        SelectConditionStep<?> query = getDslContext().selectFrom(getTable(TrackerItemEntity.class))
+                .where(getField(TrackerItemEntity.Fields.projectId).eq(projectId))
+                .and(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
+                .and(DSL.field("JSON_OVERLAPS({0},COALESCE(JSON_EXTRACT({1},'$.*'),'[]'))",
+                        externalArray,getField(TrackerItemEntity.Fields.values)).eq(true))
+                .and("tracker_item_has_permission(id," + SecurityUtils.getCurrentUser().getId() + ",'ITEM_VIEW') ");
+        if(ObjectUtils.isValid(excludeMeaningId)){
+            query = query.and(getField(TrackerItemEntity.Fields.meaningId).ne(excludeMeaningId));
+        }
+        return find(query.getSQL(ParamType.INLINED),null, TrackerItemEntity.class)
+                .stream().map(BaseEntity::getId).toList();
+    }
 
     public List<TrackerItemEntity> findByTargetVersionIds(Long projectId,List<Long> targetVersionIds) {
         if(ObjectUtils.isEmpty(targetVersionIds)){
