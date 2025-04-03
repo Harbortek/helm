@@ -261,7 +261,6 @@
                                     <h-icon :component="row.tracker?.icon" />
                                 </div>
                             </a-tooltip> -->
-                            <t-icon :trackerType="row.trackerType||row.tracker"></t-icon>
                             <!-- <span style="margin-left: 5px;">{{ currentProjectKeyName.toUpperCase() + '-' + row.itemNo }}</span> -->
                             <HItemNo :trackerItem="row"></HItemNo>
                             </div>
@@ -530,8 +529,7 @@ import KanbanLayout from './trackerItemTableLayout/KanbanLayout.vue';
 import CalendarLayout from './trackerItemTableLayout/CalendarLayout.vue';
 import TreeLayout from './trackerItemTableLayout/TreeLayout.vue';
 import MatrixLayout from './trackerItemTableLayout/MatrixLayout.vue';
-import TIcon from '@/components/icon/t-icon.vue';
-import HItemNo from '@/components/table/itemNo/ItemNo.vue';
+import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
 import SeveritySelect from '@/components/select/SeveritySelect.vue';
 
 
@@ -542,7 +540,7 @@ export default {
         ContentPage, Sortable, CreateTrackerItemDialog, EditTrackerItemDialog, TrackerItemFilter,
         RegisterHourDialog, SprintOperateDialog, TrackerItemStatusPopover, ProjectSelect, ProjectUserSelect,
         TrackerItemUserSelect, CreateViewDialog, TrackerItemImportModal, TrackerItemExportModal, TrackerTransformModal,
-        KanbanLayout, CalendarLayout, HAvatar, TreeLayout, MatrixLayout, TrackerItemBatchDeleteModal,TIcon,HItemNo,
+        KanbanLayout, CalendarLayout, HAvatar, TreeLayout, MatrixLayout, TrackerItemBatchDeleteModal,HItemNo,
         SeveritySelect
     },
     props: {

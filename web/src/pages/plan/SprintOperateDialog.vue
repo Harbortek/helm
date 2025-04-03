@@ -179,27 +179,27 @@ export default {
     }
 
     .sprint-assign {
-        width: 180px;
+        width: 160px;
         display: flex;
         height: 100%;
         align-items: center;
     }
 
     .sprint-section {
-        width: 140px;
+        width: 120px;
         display: flex;
         align-items: center;
     }
 
     .sprint-start-time {
-        width: 130px;
+        width: 150px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
     .sprint-end-time {
-        width: 130px;
+        width: 150px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;

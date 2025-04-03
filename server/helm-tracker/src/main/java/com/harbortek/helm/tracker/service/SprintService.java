@@ -31,7 +31,7 @@ public interface SprintService {
 
     void deleteSprint(Long id);
 
-    SprintVo convertSprint(SprintVo sprintVo);
+    SprintVo convertSprint(SprintVo sprintVo, String undone, Long sprintId);
 
     Collection<SprintVo> findUnPlanedSprints(Long projectId);
 

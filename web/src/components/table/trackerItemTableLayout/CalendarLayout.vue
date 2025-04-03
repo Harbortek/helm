@@ -28,7 +28,7 @@
                             <div class="calendar-item" @click="onEditTrackerItem(item,value)">
                                 <div class="calendar-item-content">
                                     <div class="calendar-item-title">
-                                        <h-item-no :trackerItem="item"></h-item-no>
+                                        <HItemNo :trackerItem="item" :showIcon="false"></HItemNo>
                                         <t-icon style="margin-left:5px" :trackerType="tracker.trackerType||tracker"></t-icon>
                                         <!-- <a-tooltip :title="item.name" :overlayStyle="{ fontSize: '10px' }"> -->
                                             <span style="margin-right:5px;">{{ item.name }}</span>
@@ -52,7 +52,7 @@
                                     <span style="margin:auto 10px;">{{ item.name }}</span> -->
                                     <a-tooltip v-if="item.itemNo" :title="'编号：' + currentProjectKeyName + '-' + item.itemNo"
                                         :overlayStyle="{ fontSize: '10px' }">
-                                        <h-item-no :trackerItem="item"></h-item-no>
+                                        <HItemNo :trackerItem="item" :showIcon="false"></HItemNo>
                                     </a-tooltip>
                                     <t-icon style="margin-left:5px" :trackerType="tracker.trackerType||tracker"></t-icon>
                                     <a-tooltip :title="item.name" placement="topLeft" :overlayStyle="{ fontSize: '10px' }">
@@ -88,8 +88,8 @@ import moment from 'moment';
 import {
     findTrackerItems
 } from "@/services/tracker/TrackerItemService";
-import TIcon from '@/components/icon/t-icon.vue';
-import HItemNo from '@/components/table/itemNo/ItemNo.vue';
+import TIcon from '@/components/icon/T-Icon.vue';
+import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
 
 export default {
     name: 'CalendarLayout',

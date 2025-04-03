@@ -27,6 +27,10 @@ export default ({
         disabled: false,
         selectFirst: true,
         placeholder:false,
+        excludes: {
+            required: false,
+            default: () => { return [] }
+        },
     },
     watch: {
         projectId: {
@@ -56,7 +60,7 @@ export default ({
         loadData() {
             let that = this;
             findSprints(this.projectId).then(resp => {
-                that.sprints = resp;
+                that.sprints = resp.filter(item=>this.excludes.indexOf(item.id)<0);
                 if (this.selectFirst && this.sprints.length > 0) {
                     this.selectItem = this.sprints[0].id;
                     this.onChange(this.selectItem);

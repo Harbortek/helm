@@ -69,8 +69,10 @@ public class SprintApi {
 
     @Parameter(name="转换迭代")
     @RequestMapping(value = "/convert", method = RequestMethod.PUT)
-    ResponseEntity<SprintVo> convertSprint(@RequestBody SprintVo sprintVo) {
-        SprintVo result = sprintService.convertSprint(sprintVo);
+    ResponseEntity<SprintVo> convertSprint(@RequestBody SprintVo sprintVo,
+                                           @RequestParam(required = false) String undone,
+                                           @RequestParam(required = false) Long sprintId) {
+        SprintVo result = sprintService.convertSprint(sprintVo,undone,sprintId);
         return ResponseEntity.ok(result);
     }
 

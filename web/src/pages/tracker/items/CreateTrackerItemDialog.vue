@@ -26,9 +26,9 @@
                         <sprint-select v-model="formData.sprintId" :projectId="projectId"></sprint-select>
                     </a-form-model-item>
                 </a-col> -->
-            </a-row>
+            <!-- </a-row>
 
-            <a-row :gutter="15">
+            <a-row :gutter="15"> -->
                 <a-col :span="f.inputType == 'WIKI' ? 24 : 12" v-for="(f) in customerFields" :key="f.id">
                     <a-form-model-item :label="f.name" :prop="f.name" :required="f.required">
                         <TrackerItemFields :fields="f" v-model="formData.values[f.id]" :projectId="projectId" 

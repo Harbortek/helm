@@ -98,7 +98,23 @@
                     header-align="center" align="center"
                     :edit-render="{}">
                     <template #default="{ row }">
-                        {{ row[column.id] }}
+                        <project-user-select
+                            v-if="column.inputType == 'USER'"
+                            v-model="row[column.id]" :isShowAvatar="false" :isShowEmail="false"
+                            :projectId="projectId" />
+                        <project-user-select
+                            v-else-if="column.inputType == 'MEMBERS'"
+                            :isShowAvatar="false" :isShowEmail="false"
+                            v-model="row[column.id]" :mode="'multiple'"
+                            :projectId="projectId" />
+                        <tracker-select
+                            v-else-if="column.inputType == 'WORK_ITEM'"
+                            v-model="frow[column.id]"
+                            :projectId="projectId">
+                        </tracker-select>
+                        <div v-else>
+                            {{ getTableValue(row, column) }}
+                        </div>
                     </template>
                     <template #edit="{ row }">
                         <a-input v-if="column.inputType == 'TEXT'"
@@ -112,30 +128,39 @@
                             v-model="row[column.id]"
                             :showToolbar="false" />
 
-                        <a-select
+                        <!-- <a-select 
                             v-else-if="column.inputType == 'OPTIONS'"
                             :placeholder="readOnly?'':fields.name"
                             v-model="row[column.id]">
                             <a-select-option :value="item.name"
                                 v-for="item in column.items"
                                 :key="item.id">{{ item.name }}</a-select-option>
-                        </a-select>
-                        <a-select
+                        </a-select> -->
+       
+                        <vxe-select v-else-if="column.inputType == 'OPTIONS'"
+                         :placeholder="readOnly?'':fields.name"
+                            v-model="row[column.id]" type="text" transfer>
+                                <vxe-option :value="item.id"
+                                    v-for="item in column.items" :key="item.id"
+                                    :label="item.name">
+                            </vxe-option>
+                        </vxe-select>
+                        <vxe-select
                             v-else-if="column.inputType == 'MULTI_OPTIONS'"
-                            :mode="'multiple'" :placeholder="readOnly?'':fields.name"
-                            v-model="row[column.id]">
-                            <a-select-option :value="item.name"
+                            clearable multiple :placeholder="readOnly?'':fields.name"
+                            v-model="row[column.id]" type="text" transfer>
+                            <vxe-option :value="item.id"
                                 v-for="item in column.items"
-                                :key="item.id">{{ item.name }}</a-select-option>
-                        </a-select>
-                        <a-select v-else-if="column.inputType == 'BOOL'"
+                                :key="item.id" :label="item.name"></vxe-option>
+                        </vxe-select>
+                        <vxe-select v-else-if="column.inputType == 'BOOL'"
                             v-model="row[column.id]"
-                            :placeholder="readOnly?'':fields.name">
-                            <a-select-option
-                                value="true">是</a-select-option>
-                            <a-select-option
-                                value="false">否</a-select-option>
-                        </a-select>
+                            :placeholder="readOnly?'':fields.name" type="text" transfer>
+                            <vxe-option
+                                value="true" label="是"></vxe-option>
+                            <vxe-option
+                                value="false" label="否"></vxe-option>
+                        </vxe-select>
 
                         <a-date-picker
                             v-else-if="column.inputType == 'DATE'"
@@ -149,11 +174,11 @@
                         <project-user-select
                             v-else-if="column.inputType == 'USER'"
                             v-model="row[column.id]"
-                            :projectId="projectId" />
+                            :projectId="projectId" :isShowAvatar="false" :isShowEmail="false" />
                         <project-user-select
                             v-else-if="column.inputType == 'MEMBERS'"
-                            v-model="row[column.id]" :mode="'multiple'"
-                            :projectId="projectId" />
+                            v-model="row[column.id]" :mode="'multiple'" 
+                            :projectId="projectId" :isShowAvatar="false" :isShowEmail="false" />
                         <tracker-select
                             v-else-if="column.inputType == 'WORK_ITEM'"
                             v-model="frow[column.id]"
@@ -375,6 +400,42 @@ export default {
             //     this.loadData()
             //     VXETable.modal.message({ content: '更新失败', status: 'error' })
             // })
+        }
+    },
+    getTableValue(row, column) {
+        let value = row[column.id]
+        if (column.inputType == 'OPTIONS') {
+            for (let i = 0; i < column.items.length; i++) {
+                let item = column.items[i]
+                if (item.id == value) {
+                    return item.name
+                }
+            }
+        } else if (column.inputType == 'MULTI_OPTIONS') {
+            let names = []  
+            if (value) {
+                for (let i = 0; i < column.items.length; i++) {
+                    let item = column.items[i]
+                    if (value.indexOf(item.id) != -1) {
+                        names.push(item.name)
+                    }
+                }
+            }
+            return names.join(',')
+        } else if (column.inputType == 'BOOL') {
+            return value ? '是' : '否'
+        } else if (column.inputType == 'DATE') {
+            return moment(value).format('YYYY-MM-DD')
+        } else if (column.inputType == 'TIME') {
+            return moment(value).format('HH:mm:ss')
+        } else if (column.inputType == 'USER') {
+            return value
+        } else if (column.inputType == 'MEMBERS') {
+            return value
+        } else if (column.inputType == 'WORK_ITEM') {
+            return value
+        } else {
+            return value
         }
     }
   }

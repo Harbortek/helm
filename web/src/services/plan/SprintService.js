@@ -27,9 +27,9 @@ export function deleteSprint(id) {
     method: METHOD.DELETE,
   });
 }
-export function convertSprint(parameter) {
+export function convertSprint(parameter,undone,sprintId) {
   return request({
-    url: "/plan/sprint/convert",
+    url: `/plan/sprint/convert?undone=${undone||''}&sprintId=${sprintId||''}`,
     method: METHOD.PUT,
     data: parameter,
   });

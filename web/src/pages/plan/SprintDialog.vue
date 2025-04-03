@@ -13,6 +13,22 @@
             <a-form-model-item v-if="editMode != 'complete'" label="工时(天)" prop="duration">
                 <a-input-number v-model="formData.duration" style="width:300px;" @change="onDurationChange" />
             </a-form-model-item>
+            <a-form-model-item v-if="editMode == 'complete'&&itemIds?.length>0" label="移出未完成工作项" prop="undone">
+                <span style="color:#87888a">此迭代中仍有<span style="color:#409eff">{{ itemIds?.length }}个未完成的工作项</span>，你可以：
+                </span>
+                <vxe-radio-group v-model="formData.undone">
+                    <vxe-radio label="noPlan" content="">
+                        移出迭代
+                    </vxe-radio>
+                    <vxe-radio label="otherSprint">
+                        移动至其他迭代
+                    </vxe-radio>
+                </vxe-radio-group>
+                <sprint-select v-if="formData.undone == 'otherSprint'" placeholder="请选择迭代"
+                    v-model="formData.sprintId" style="width:300px" :excludes="[currentSprint.id]"
+                    :projectId="projectId" />
+                
+            </a-form-model-item>
             <a-form-model-item label="结束日期" prop="planEndDate">
                 <a-date-picker v-model="formData.planEndDate" style="width:300px;" @change="onEndDateChange" />
             </a-form-model-item>
@@ -31,18 +47,23 @@ import {cloneDeep} from 'lodash'
 import ProjectUserSelect from '@/components/select/ProjectUserSelect.vue';
 import TargetVersionSelect from '@/components/select/TargetVersionSelect.vue';
 import moment from 'moment';
+import SprintSelect from '@/components/select/SprintSelect.vue';
+import { findItemIdsBySprint } from "@/services/tracker/TrackerItemService"
+
 export default {
     name: "SprintDialog",
-    components: { ProjectUserSelect, TargetVersionSelect },
+    components: { ProjectUserSelect, TargetVersionSelect,SprintSelect },
     data() {
         return {
             loading:false,
+            itemIds:[],
             formData: {
                 name: '',
                 planStartDate: '',
                 planEndDate: '',
                 ownerId: '',
                 targetVersionId: '',
+                undone:'',
             },
             rules: {
                 name: [
@@ -56,7 +77,11 @@ export default {
                 ],
                 planStartDate: [{ required: true, message: "请选择开始日期", trigger: "change" },],
                 planEndDate: [{ required: true, message: "请选择结束日期", trigger: "change" },],
-                ownerId: [{ required: true, message: "请选择负责人", trigger: "change" },]
+                ownerId: [{ required: true, message: "请选择负责人", trigger: "change" },],
+                undone: [
+                    { required: true, message: "请选择操作", trigger: "change" },
+                    { validator: this.sprintIdValidator, trigger: "change" },
+                ],
             },
         };
     },
@@ -93,6 +118,10 @@ export default {
                 if (newVal) {
                     this.loading=false;
                     this.loadData();
+                    if(this.editMode==='complete'){
+                        this.loadItemIdsBySprint();
+                    }
+                
                 }
 
             }
@@ -102,6 +131,15 @@ export default {
         this.loadData();
     },
     methods: {
+        sprintIdValidator(rule, value, callback){
+            if (!!!value) {
+                return callback(new Error('请选择操作'));
+            }
+            if(value==='otherSprint'&&!!!this.formData.sprintId){
+                return callback(new Error('请选择迭代'));
+            }
+            return callback();
+        },
         closeDialog: function () {
             this.$emit("close");
         },
@@ -118,7 +156,6 @@ export default {
                 }
                 this.formData.ownerId = this.currentSprint.owner?.id
                 this.formData.targetVersionId = this.currentSprint.targetVersion?.id
-
             } else {
                 this.formData = {
                     name: '',
@@ -128,7 +165,14 @@ export default {
                     targetVersionId: '',
                 }
             }
-            console.log("loadData.Dialog", this.formData)
+            if(this.editMode==='complete'){
+                this.$set(this.formData, 'undone', 'noPlan')
+            }
+        },
+        loadItemIdsBySprint(){
+            findItemIdsBySprint(this.currentSprint.id).then(res=>{
+                this.itemIds=res;
+            })
         },
         onStartDateChange() {
             if (this.formData.planStartDate && this.formData.duration) {
@@ -164,6 +208,7 @@ export default {
                     result.planEndDate = this.formData.planEndDate.format('YYYY-MM-DD HH:mm:ss')
                     result.targetVersion = { id: this.formData.targetVersionId }
                     result.owner = { id: this.formData.ownerId }
+                    result.itemIds=this.itemIds;
                     console.log(result)
                     this.$emit("ok", result);
                 }else{

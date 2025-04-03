@@ -6,8 +6,9 @@
             <a-avatar :size="20" style="backgroundColor:rgb(44,178,174)"></a-avatar> &nbsp;所有成员
         </a-select-option>
         <a-select-option v-for="item in data" :key="item.id" :title="item.name" :value="item.id">
-            <h-avatar :name="item.name" :icon="item.icon"></h-avatar>
-            <span v-if="!isShowEmail" class="domain-list-cell-subtext">({{ item.email }})</span>
+            <h-avatar v-if="isShowAvatar" :name="item.name" :icon="item.icon"></h-avatar>
+            <span v-else>{{ item.name }}</span>
+            <span v-if="isShowEmail" class="domain-list-cell-subtext">({{ item.email }})</span>
         </a-select-option>
     </a-select>
 </template>
@@ -33,8 +34,15 @@ export default ({
         },
         disabled: false,
         mode: false,
-        isShowEmail: false,
-        isShowAll: false,
+        isShowEmail:{
+            default: true
+        },
+        isShowAll:{
+            default: false
+        },
+        isShowAvatar:{
+            default: true
+        },
         getPopupContainer: false,
         placeholder:false,
     },

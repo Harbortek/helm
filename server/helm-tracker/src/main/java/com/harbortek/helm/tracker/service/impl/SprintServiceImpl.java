@@ -160,9 +160,18 @@ public class SprintServiceImpl implements SprintService {
     }
 
     @Override
-    public SprintVo convertSprint(SprintVo sprintVo) {
+    public SprintVo convertSprint(SprintVo sprintVo, String undone, Long sprintId) {
         SprintEntity entity = DataUtils.toEntity(sprintVo, SprintEntity.class);
-        if (ProjectStatusMeaning.NOT_STARTED.equals(sprintVo.getMeaning())) {
+        if(ObjectUtils.isNotEmpty(undone)){
+            List<Long> itemIds = trackerItemService.findItemIdsBySprint(entity.getId());
+            if("noPlan".equals(undone)){
+                trackerItemService.updateTrackerItemSprint(null, itemIds);
+            }else{
+                trackerItemService.updateTrackerItemSprint(sprintId, itemIds);
+            }
+        }
+
+        if(ProjectStatusMeaning.NOT_STARTED.equals(sprintVo.getMeaning())){
             entity.setStatusId(enumService.findOneEnumItemByCode(sprintVo.getProjectId(), EnumCodes.PROJECT_STATUS_MEANING,
                     ProjectStatusMeaning.ONGOING).getId());
             entity.setMeaning(ProjectStatusMeaning.ONGOING);
@@ -171,6 +180,8 @@ public class SprintServiceImpl implements SprintService {
                     ProjectStatusMeaning.ENDED).getId());
             entity.setMeaning(ProjectStatusMeaning.ENDED);
         }
+        entity.setRealStartDate(sprintVo.getRealStartDate());
+        entity.setRealEndDate(sprintVo.getRealEndDate());
         entity = sprintDao.createSprint(entity);
         return DataUtils.toVo(entity, SprintVo.class);
     }

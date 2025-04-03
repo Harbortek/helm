@@ -76,29 +76,41 @@
                                 <vxe-input v-model="row.name" />
                             </template>
                         </vxe-column>
-                        <vxe-column title="类型" field="inputType" header-align="center" align="center" :edit-render="{}">
+                        <vxe-column title="类型" field="inputType" header-align="center" align="center" width="200" :edit-render="{}">
                             <template #default="{ row }">
-                                {{ row.inputType ? $t('tracker.field.type.' + row.inputType) : '' }}
+                                <!-- {{ row.inputType ? $t('tracker.field.type.' + row.inputType) : '' }} -->
+                                    <a-select default-value="TEXT" v-model="row.inputType" placeholder="请选择">
+                                        <a-select-option value="TEXT">单行文本</a-select-option>
+                                        <a-select-option value="TEXT_AREA">多行文本</a-select-option>
+                                        <a-select-option value="WIKI">带格式文本</a-select-option>
+                                        <a-select-option value="OPTIONS">单选菜单</a-select-option>
+                                        <a-select-option value="MULTI_OPTIONS">多选菜单</a-select-option>
+                                        <a-select-option value="BOOL">是否</a-select-option>
+                                        <a-select-option value="DATE">日期</a-select-option>
+                                        <a-select-option value="TIME">时间</a-select-option>
+                                        <a-select-option value="DURATION">时间间隔</a-select-option>
+                                        <a-select-option value="INTEGER">整数</a-select-option>
+                                        <a-select-option value="DECIMAL">浮点数</a-select-option>
+                                        <a-select-option value="USER">单选用户</a-select-option>
+                                        <a-select-option value="MEMBERS">多选用户</a-select-option>
+                                    </a-select>
                             </template>
                             <template #edit="{ row }">
-                                <a-select default-value="TEXT" v-model="row.inputType">
+                                <a-select default-value="TEXT" v-model="row.inputType" placeholder="请选择">
                                     <a-select-option value="TEXT">单行文本</a-select-option>
-                                    <a-select-option value="TEXT_AREA">多行文本</a-select-option>
-                                    <a-select-option value="WIKI">带格式文本</a-select-option>
-
-                                    <a-select-option value="OPTIONS">单选菜单</a-select-option>
-                                    <a-select-option value="MULTI_OPTIONS">多选菜单</a-select-option>
-
-                                    <a-select-option value="BOOL">是否</a-select-option>
-                                    <a-select-option value="DATE">日期</a-select-option>
-                                    <a-select-option value="TIME">时间</a-select-option>
-                                    <a-select-option value="DURATION">时间间隔</a-select-option>
-                                    <a-select-option value="INTEGER">整数</a-select-option>
-                                    <a-select-option value="DECIMAL">浮点数</a-select-option>
-
-                                    <a-select-option value="USER">单选用户</a-select-option>
-                                    <a-select-option value="MEMBERS">多选用户</a-select-option>
-                                </a-select>
+                                        <a-select-option value="TEXT_AREA">多行文本</a-select-option>
+                                        <a-select-option value="WIKI">带格式文本</a-select-option>
+                                        <a-select-option value="OPTIONS">单选菜单</a-select-option>
+                                        <a-select-option value="MULTI_OPTIONS">多选菜单</a-select-option>
+                                        <a-select-option value="BOOL">是否</a-select-option>
+                                        <a-select-option value="DATE">日期</a-select-option>
+                                        <a-select-option value="TIME">时间</a-select-option>
+                                        <a-select-option value="DURATION">时间间隔</a-select-option>
+                                        <a-select-option value="INTEGER">整数</a-select-option>
+                                        <a-select-option value="DECIMAL">浮点数</a-select-option>
+                                        <a-select-option value="USER">单选用户</a-select-option>
+                                        <a-select-option value="MEMBERS">多选用户</a-select-option>
+                                    </a-select>
                             </template>
                         </vxe-column>
                         <vxe-column title="属性枚举值" field="enumId" header-align="center" align="center" width="200"
@@ -319,5 +331,8 @@ export default {
     width: 20px;
     height: 20px;
     border: solid 1px black;
+}
+::v-deep .vxe-table--render-default.vxe-editable .vxe-body--column, .vxe-table--render-default.vxe-editable .vxe-body--column.col--active{
+    padding:7px 0;
 }
 </style>

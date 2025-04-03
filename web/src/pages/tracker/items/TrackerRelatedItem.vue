@@ -6,7 +6,7 @@
             icon="vxe-icon-paste">关联工作项</vxe-button>
         <a-form-model-item label="关联工作项" prop="relatedWorkItems" :span="24">
             <vxe-table ref="optionsTable" :loading="loading" :show-header="false" :data="relatedWorkItems"
-                :row-config="{ isHover: true }" show-overflow stripe>
+                :row-config="{ isHover: true }" stripe>
                 <!-- <vxe-column type="seq" :width="60" /> -->
                 
                 <vxe-column field="relation" title="" :width="isToolBar?'100':'120'" show-overflow>
@@ -52,9 +52,9 @@
                                     <a-icon :component="row.targetItem?.icon" />
                                     </div>
                             </a-tooltip> -->
-                            <t-icon :trackerType="row.targetItem.trackerType||row.sourceItem.tracker"></t-icon>
+                            <!-- <t-icon :trackerType="row.targetItem.trackerType||row.targetItem.tracker"></t-icon> -->
                                     <!-- {{currentProjectKeyName + '-' + row.targetItem?.itemNo }} -->
-                                    <h-item-no :trackerItem="row.targetItem"></h-item-no>
+                            <HItemNo :trackerItem="row.targetItem"></HItemNo>
 
                         </template>
                         <template v-else>
@@ -64,14 +64,14 @@
                                     <a-icon :component="row.sourceItem?.icon" />
                                    </div>
                             </a-tooltip> -->
-                            <t-icon :trackerType="row.sourceItem.trackerType||row.sourceItem.tracker"></t-icon>
+                            <!-- <t-icon :trackerType="row.sourceItem.trackerType||row.sourceItem.tracker"></t-icon> -->
                             <!-- {{currentProjectKeyName + '-' + row.sourceItem?.itemNo }} -->
-                            <h-item-no :trackerItem="row.sourceItem"></h-item-no>
+                            <HItemNo :trackerItem="row.sourceItem"></HItemNo>
 
                         </template>
                     </template>
                 </vxe-column>
-                <vxe-column v-if="!isToolBar" field="" title="" :width="50">
+                <vxe-column v-if="!isToolBar" field="" title="" width="70" :show-overflow="false">
                     <template #default="{ row }">
                         <template v-if="row.sourceItem.id === itemId">
                             <a-tooltip :title="'负责人：' + row.targetItem?.owner?.name"
@@ -90,7 +90,7 @@
                     </template>
                 </vxe-column>
 
-                <vxe-column v-if="!isToolBar" title="" :width="50">
+                <vxe-column v-if="!isToolBar" title="" width="70">
                     <template #default="{ row }">
                         <template v-if="row.sourceItem.id === itemId">
                             <a-tooltip :title="'优先级：' + row.targetItem?.priority?.name"
@@ -245,8 +245,8 @@ import TrackerItemSelectModal from '@/components/dialog/TrackerItemSelectModal'
 import { hasPermission } from '@/utils/permission'
 import VXETable from "vxe-table";
 import { mapGetters } from "vuex";
-import TIcon from '@/components/icon/t-icon.vue';
-import HItemNo from '@/components/table/itemNo/ItemNo.vue';
+import TIcon from '@/components/icon/T-Icon.vue';
+import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
 
 export default {
     name: 'TrackerRelatedItem',
