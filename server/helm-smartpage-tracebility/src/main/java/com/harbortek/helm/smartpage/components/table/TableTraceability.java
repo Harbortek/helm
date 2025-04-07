@@ -24,18 +24,28 @@ import com.harbortek.helm.smartpage.dao.TableTraceabilityDao;
 import com.harbortek.helm.smartpage.service.DatasetService;
 import com.harbortek.helm.smartpage.utils.ExpressionUtils;
 import com.harbortek.helm.smartpage.vo.DataRequest;
+import com.harbortek.helm.smartpage.vo.ItemVo;
 import com.harbortek.helm.smartpage.vo.TableTraceabilityRequest;
+import com.harbortek.helm.system.vo.EnumItemVo;
+import com.harbortek.helm.tracker.constants.EnumCodes;
+import com.harbortek.helm.tracker.constants.PlanTypes;
+import com.harbortek.helm.tracker.constants.TrackerStatusMeaning;
 import com.harbortek.helm.tracker.dao.ProjectDao;
+import com.harbortek.helm.tracker.dao.SprintDao;
 import com.harbortek.helm.tracker.dao.TrackerDao;
+import com.harbortek.helm.tracker.dao.TrackerItemDao;
+import com.harbortek.helm.tracker.entity.link.TrackerLinkEntity;
+import com.harbortek.helm.tracker.entity.plan.PlanEntity;
+import com.harbortek.helm.tracker.entity.plan.SprintEntity;
 import com.harbortek.helm.tracker.entity.project.ProjectEntity;
 import com.harbortek.helm.tracker.entity.tracker.TrackerEntity;
 import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
-import com.harbortek.helm.util.JsonUtils;
-import com.harbortek.helm.util.ObjectUtils;
-import com.harbortek.helm.util.SecurityUtils;
+import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
+import com.harbortek.helm.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.comparator.Comparators;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -51,6 +61,12 @@ public class TableTraceability implements Component {
     @Autowired
     ProjectDao projectDao;
 
+    @Autowired
+    SprintDao sprintDao;
+
+    @Autowired
+    TrackerItemDao trackerItemDao;
+
     @Override
     public String getName() {
         return "table-traceability";
@@ -61,6 +77,9 @@ public class TableTraceability implements Component {
     public String getData(Long pageId, DataRequest request) {
         TableTraceabilityRequest config = JsonUtils.toObject(request.getConfig(), TableTraceabilityRequest.class);
         assert config != null;
+        Long projectId = config.getProjectId();
+        Long versionId = config.getTargetVersionId();
+
         Long mainTrackerId = config.getMainTrackerId();
         TrackerEntity mainTracker = trackerDao.findOneTracker(mainTrackerId);
 
@@ -74,150 +93,180 @@ public class TableTraceability implements Component {
             return emptyData();
         }
 
+        List<SprintEntity> sprintEntities = sprintDao.findSprintByTargetVersion(projectId, versionId);
 
-        Long targetVersionId = null;
-        if (StringUtils.isNotEmpty(config.getTargetVersionExpl())) {
-            targetVersionId = (Long) ExpressionUtils.execute(config.getTargetVersionExpl());
+        List<ItemVo> mainTrackerItems =  DataUtils.toVo(trackerItemDao.findBySprintIds(projectId, ObjectUtils.ids(sprintEntities))
+                .stream().filter(item->item.getTrackerId().equals(mainTrackerId))
+                .sorted(Comparator.comparing(TrackerItemEntity::getItemNo)).collect(Collectors.toList()),ItemVo.class);
+
+        Map<Long,ItemVo> mainTrackerItemMap = mainTrackerItems.stream()
+                .collect(Collectors.toMap(
+                        ItemVo::getId,
+                        item->item,
+                        (existing, replacement) -> existing // 处理重复key的情况
+                ));
+
+
+        if (ObjectUtils.isValid(linkTrackerId) && ObjectUtils.isValid(linkTypeId)) {
+            List<TrackerLinkEntity> firstLevelLinks = tableTraceabilityDao.findLinksByTarget(ObjectUtils.ids(mainTrackerItems), linkTypeId);
+            Collection<Long> sourceItemIds = ObjectUtils.ids(firstLevelLinks, TrackerLinkEntity.Fields.sourceItemId);
+            List<ItemVo> linkedTrackerItems = DataUtils.toVo(trackerDao.findByIds(sourceItemIds, TrackerItemEntity.class), ItemVo.class);
+            Map<Long, ItemVo> linkedTrackerItemMap = linkedTrackerItems.stream().collect(Collectors.toMap(
+                    ItemVo::getId,
+                    item -> item,
+                    (existing, replacement) -> existing
+            ));
+
+            for (TrackerLinkEntity firstLink : firstLevelLinks) {
+                ItemVo mainTrackerItem = mainTrackerItemMap.get(firstLink.getTargetItemId());
+                if (mainTrackerItem != null) {
+                    ItemVo linkedTrackerItem = linkedTrackerItemMap.get(firstLink.getSourceItemId());
+                    if (linkedTrackerItem != null) {
+                        mainTrackerItem.getChildren().add(linkedTrackerItem);
+                    }
+                }
+            }
+
+            Long secondLinkTrackerId = config.getSecondLinkTrackerId();
+            Long secondLinkTypeId = config.getSecondLinkTypeId();
+
+            if (ObjectUtils.isValid(secondLinkTrackerId) && ObjectUtils.isValid(secondLinkTypeId)) {
+                List<TrackerLinkEntity> secondLevelLinks =
+                        tableTraceabilityDao.findLinksByTarget(ObjectUtils.ids(linkedTrackerItems), secondLinkTypeId);
+                Collection<Long> secondSourceItemIds = ObjectUtils.ids(secondLevelLinks, TrackerLinkEntity.Fields.sourceItemId);
+                List<ItemVo> secondLinkedTrackerItems = DataUtils.toVo(trackerDao.findByIds(secondSourceItemIds, TrackerItemEntity.class), ItemVo.class);
+                Map<Long, ItemVo> secondLinkedTrackerItemMap = secondLinkedTrackerItems.stream().collect(Collectors.toMap(
+                        ItemVo::getId,
+                        item -> item,
+                        (existing, replacement) -> existing // 处理重复key的情况
+                ));
+                for (TrackerLinkEntity secondLink : secondLevelLinks) {
+                    ItemVo linkedTrackerItem = linkedTrackerItemMap.get(secondLink.getTargetItemId());
+                    if (linkedTrackerItem!= null) {
+                        ItemVo secondLinkedTrackerItem = secondLinkedTrackerItemMap.get(secondLink.getSourceItemId());
+                        if (secondLinkedTrackerItem!= null) {
+                            linkedTrackerItem.getChildren().add(secondLinkedTrackerItem);
+                        }
+                    }
+                }
+            }
         }
 
-        List<TrackerItemEntity> mainTrackerItems = tableTraceabilityDao.findTrackerItemsByTrackerId(mainTrackerId,
-                                                                                                    targetVersionId);
-
-        Map<Long, List<TrackerItemEntity>> linkedTrackerItems =
-                tableTraceabilityDao.findLinkedTrackerItems(ObjectUtils.ids(mainTrackerItems),
-                                                            linkTrackerId,
-                                                            linkTypeId);
-
-        Long secondLinkTrackerId = config.getSecondLinkTrackerId();
-        Long secondLinkTypeId = config.getSecondLinkTypeId();
-
-        Map<Long, List<TrackerItemEntity>> secondLinkedTrackerItems = new HashMap<>();
-        if (ObjectUtils.isValid(secondLinkTrackerId) && ObjectUtils.isValid(secondLinkTypeId)) {
-            List<Long> linkedTrackerItemList =
-                    linkedTrackerItems.values().stream().flatMap(Collection::stream)
-                                      .mapToLong(BaseEntity::getId)
-                                      .boxed().collect(Collectors.toList());
-            secondLinkedTrackerItems =
-                    tableTraceabilityDao.findLinkedTrackerItems(linkedTrackerItemList,
-                                                                secondLinkTrackerId,
-                                                                secondLinkTypeId);
-        }
-
-        String showType = config.getShowType();
-
-
+//        String showType = config.getShowType();
+//
+//
         // 2. 处理数据
-        List<JSONObject> data = new ArrayList<>();
-
-        if ("SHOW_ALL".equals(showType)) {
-            for (TrackerItemEntity mainTrackerItem : mainTrackerItems) {
-                JSONObject row = new JSONObject();
-                row.set("id", mainTrackerItem.getId());
-                row.set("name", mainTrackerItem.getName());
-                row.set("itemNo", prefix+mainTrackerItem.getItemNo());
-                row.set("icon", mainTracker.getIcon());
-                row.set("parentId", null);
-                data.add(row);
-            }
-            linkedTrackerItems.forEach((key, value) -> {
-                value.forEach(item -> {
-                    JSONObject row = new JSONObject();
-                    row.set("id", item.getId());
-                    row.set("name", item.getName());
-                    row.set("itemNo", prefix+item.getItemNo());
-                    if (ObjectUtils.isValid(item.getTrackerId())) {
-                        TrackerEntity tracker = trackerDao.findOneTracker(item.getTrackerId());
-                        if (tracker!=null) {
-                            row.set("icon", tracker.getIcon());
-                        }
-                    }
-                    row.set("parentId", key);
-                    data.add(row);
-                });
-            });
-            secondLinkedTrackerItems.forEach((key, value) -> {
-                value.forEach(item -> {
-                    JSONObject row = new JSONObject();
-                    row.set("id", item.getId());
-                    row.set("name", item.getName());
-                    row.set("itemNo", prefix+item.getItemNo());
-                    if (ObjectUtils.isValid(item.getTrackerId())) {
-                        TrackerEntity tracker = trackerDao.findOneTracker(item.getTrackerId());
-                        if (tracker!=null) {
-                            row.set("icon", tracker.getIcon());
-                        }
-                    }
-                    row.set("parentId", key);
-                    data.add(row);
-                });
-            });
-        } else if ("SHOW_LINKS".equals(showType)) {
-            for (TrackerItemEntity mainTrackerItem : mainTrackerItems) {
-                if (linkedTrackerItems.containsKey(mainTrackerItem.getId())) {
-                    JSONObject row = new JSONObject();
-                    row.set("id", mainTrackerItem.getId());
-                    row.set("name", mainTrackerItem.getName());
-                    row.set("itemNo", prefix+mainTrackerItem.getItemNo());
-                    row.set("icon", mainTracker.getIcon());
-                    row.set("parentId", null);
-                    data.add(row);
-                }
-            }
-            linkedTrackerItems.forEach((key, value) -> {
-                value.forEach(item -> {
-                    JSONObject row = new JSONObject();
-                    row.set("id", item.getId());
-                    row.set("name", item.getName());
-                    row.set("itemNo", prefix+item.getItemNo());
-                    if (ObjectUtils.isValid(item.getTrackerId())) {
-                        TrackerEntity tracker = trackerDao.findOneTracker(item.getTrackerId());
-                        if (tracker!=null) {
-                            row.set("icon", tracker.getIcon());
-                        }
-                    }
-                    row.set("parentId", key);
-                    data.add(row);
-                });
-            });
-            secondLinkedTrackerItems.forEach((key, value) -> {
-                value.forEach(item -> {
-                    JSONObject row = new JSONObject();
-                    row.set("id", item.getId());
-                    row.set("name", item.getName());
-                    row.set("itemNo", prefix+item.getItemNo());
-                    if (ObjectUtils.isValid(item.getTrackerId())) {
-                        TrackerEntity tracker = trackerDao.findOneTracker(item.getTrackerId());
-                        if (tracker!=null) {
-                            row.set("icon", tracker.getIcon());
-                        }
-                    }
-                    row.set("parentId", key);
-                    data.add(row);
-                });
-            });
-        } else if ("SHOW_UNLINK".equals(showType)) {
-            for (TrackerItemEntity mainTrackerItem : mainTrackerItems) {
-                if (!linkedTrackerItems.containsKey(mainTrackerItem.getId())) {
-                    JSONObject row = new JSONObject();
-                    row.set("id", mainTrackerItem.getId());
-                    row.set("name", mainTrackerItem.getName());
-                    row.set("itemNo", prefix+mainTrackerItem.getItemNo());
-                    row.set("icon", mainTracker.getIcon());
-                    row.set("parentId", null);
-                    data.add(row);
-                }
-            }
-        } else if ("SHOW_PROBLEMS".equals(showType)) {
-
-        }
+//        List<JSONObject> data = new ArrayList<>();
+//
+//        if ("SHOW_ALL".equals(showType)) {
+//            for (TrackerItemEntity mainTrackerItem : mainTrackerItems) {
+//                JSONObject row = new JSONObject();
+//                row.set("id", mainTrackerItem.getId());
+//                row.set("name", mainTrackerItem.getName());
+//                row.set("itemNo", prefix+mainTrackerItem.getItemNo());
+//                row.set("icon", mainTracker.getIcon());
+//                row.set("parentId", null);
+//                data.add(row);
+//            }
+//            linkedTrackerItems.forEach((key, value) -> {
+//                value.forEach(item -> {
+//                    JSONObject row = new JSONObject();
+//                    row.set("id", item.getId());
+//                    row.set("name", item.getName());
+//                    row.set("itemNo", prefix+item.getItemNo());
+//                    if (ObjectUtils.isValid(item.getTrackerId())) {
+//                        TrackerEntity tracker = trackerDao.findOneTracker(item.getTrackerId());
+//                        if (tracker!=null) {
+//                            row.set("icon", tracker.getIcon());
+//                        }
+//                    }
+//                    row.set("parentId", key);
+//                    data.add(row);
+//                });
+//            });
+//            secondLinkedTrackerItems.forEach((key, value) -> {
+//                value.forEach(item -> {
+//                    JSONObject row = new JSONObject();
+//                    row.set("id", item.getId());
+//                    row.set("name", item.getName());
+//                    row.set("itemNo", prefix+item.getItemNo());
+//                    if (ObjectUtils.isValid(item.getTrackerId())) {
+//                        TrackerEntity tracker = trackerDao.findOneTracker(item.getTrackerId());
+//                        if (tracker!=null) {
+//                            row.set("icon", tracker.getIcon());
+//                        }
+//                    }
+//                    row.set("parentId", key);
+//                    data.add(row);
+//                });
+//            });
+//        } else if ("SHOW_LINKS".equals(showType)) {
+//            for (TrackerItemEntity mainTrackerItem : mainTrackerItems) {
+//                if (linkedTrackerItems.containsKey(mainTrackerItem.getId())) {
+//                    JSONObject row = new JSONObject();
+//                    row.set("id", mainTrackerItem.getId());
+//                    row.set("name", mainTrackerItem.getName());
+//                    row.set("itemNo", prefix+mainTrackerItem.getItemNo());
+//                    row.set("icon", mainTracker.getIcon());
+//                    row.set("parentId", null);
+//                    data.add(row);
+//                }
+//            }
+//            linkedTrackerItems.forEach((key, value) -> {
+//                value.forEach(item -> {
+//                    JSONObject row = new JSONObject();
+//                    row.set("id", item.getId());
+//                    row.set("name", item.getName());
+//                    row.set("itemNo", prefix+item.getItemNo());
+//                    if (ObjectUtils.isValid(item.getTrackerId())) {
+//                        TrackerEntity tracker = trackerDao.findOneTracker(item.getTrackerId());
+//                        if (tracker!=null) {
+//                            row.set("icon", tracker.getIcon());
+//                        }
+//                    }
+//                    row.set("parentId", key);
+//                    data.add(row);
+//                });
+//            });
+//            secondLinkedTrackerItems.forEach((key, value) -> {
+//                value.forEach(item -> {
+//                    JSONObject row = new JSONObject();
+//                    row.set("id", item.getId());
+//                    row.set("name", item.getName());
+//                    row.set("itemNo", prefix+item.getItemNo());
+//                    if (ObjectUtils.isValid(item.getTrackerId())) {
+//                        TrackerEntity tracker = trackerDao.findOneTracker(item.getTrackerId());
+//                        if (tracker!=null) {
+//                            row.set("icon", tracker.getIcon());
+//                        }
+//                    }
+//                    row.set("parentId", key);
+//                    data.add(row);
+//                });
+//            });
+//        } else if ("SHOW_UNLINK".equals(showType)) {
+//            for (TrackerItemEntity mainTrackerItem : mainTrackerItems) {
+//                if (!linkedTrackerItems.containsKey(mainTrackerItem.getId())) {
+//                    JSONObject row = new JSONObject();
+//                    row.set("id", mainTrackerItem.getId());
+//                    row.set("name", mainTrackerItem.getName());
+//                    row.set("itemNo", prefix+mainTrackerItem.getItemNo());
+//                    row.set("icon", mainTracker.getIcon());
+//                    row.set("parentId", null);
+//                    data.add(row);
+//                }
+//            }
+//        } else if ("SHOW_PROBLEMS".equals(showType)) {
+//
+//        }
 
 
         JSONObject result = new JSONObject();
 
-        result.set("fields", new JSONArray());
+        result.set("tableColumns", new JSONArray());
 
-        result.set("data", data);
-        result.set("total", data.size());
+        result.set("data", mainTrackerItems);
+        result.set("total", mainTrackerItems.size());
 
 
         return JsonUtils.toJSONString(result);
@@ -225,7 +274,7 @@ public class TableTraceability implements Component {
 
     private static String emptyData() {
         JSONObject result = new JSONObject();
-        result.set("fields", new JSONArray());
+        result.set("tableColumns", new JSONArray());
         result.set("data", new JSONArray());
         result.set("total", 0);
         return JsonUtils.toJSONString(result);

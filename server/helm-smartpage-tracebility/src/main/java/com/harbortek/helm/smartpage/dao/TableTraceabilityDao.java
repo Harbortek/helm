@@ -82,17 +82,17 @@ public class TableTraceabilityDao extends BaseJdbcDao {
         return result;
     }
 
-    private List<TrackerLinkEntity> findLinksByTarget(Collection<Long> sourceIds, Long linkTypeId){
+    public List<TrackerLinkEntity> findLinksByTarget(Collection<Long> targetIds, Long linkTypeId){
 
         Criteria criteria = Criteria.empty();
         criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
-        criteria = criteria.and(Criteria.where(TrackerLinkEntity.Fields.targetItemId).in(sourceIds));
+        criteria = criteria.and(Criteria.where(TrackerLinkEntity.Fields.targetItemId).in(targetIds));
         criteria = criteria.and(Criteria.where(TrackerLinkEntity.Fields.linkTypeId).is(linkTypeId));
         Query query = Query.query(criteria);
         return find(query, TrackerLinkEntity.class);
     }
 
-    private Collection<Long> findSprintByTargetVersion(Long targetVersionId){
+    public Collection<Long> findSprintByTargetVersion(Long targetVersionId){
         Criteria criteria = Criteria.empty();
         criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
         criteria = criteria.and(Criteria.where(SprintEntity.Fields.targetVersionId).is(targetVersionId));

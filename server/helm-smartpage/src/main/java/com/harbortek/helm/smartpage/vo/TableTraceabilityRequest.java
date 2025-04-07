@@ -20,11 +20,12 @@ import lombok.Data;
 
 @Data
 public class TableTraceabilityRequest {
+    Long projectId;
+    Long targetVersionId;
     Long mainTrackerId;
     Long linkTrackerId;
     Long secondLinkTrackerId;
     Long linkTypeId;
     Long secondLinkTypeId;
-    String targetVersionExpl;
     String showType;
 }
