@@ -111,8 +111,8 @@ public class TrackerItemHistoryEntity extends HistoryBaseEntity {
     /**
      * 迭代ID
      */
-    @EntityReference(SprintEntity.class)
-    Long sprintId;
+//    @EntityReference(SprintEntity.class)
+//    Long sprintId;
 
     Map<Long,Object> values = new HashMap<>();
 

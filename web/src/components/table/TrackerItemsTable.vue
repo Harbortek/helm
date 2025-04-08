@@ -9,12 +9,12 @@
                     <vxe-button v-else status="primary" :content="'新建 ' + (tracker.name || '工作项')"
                         v-action="'ITEM_CREATE|' + trackerId" @click="onCreateTrackerItem"></vxe-button>
                     <!-- v-action="'PAGE_WRITE|'+proejctPageId" -->
-                    <vxe-button v-if="sprintType == 'Unplanned' || sprintType == 'All'"
+                    <vxe-button v-if="sprintType == 'Unplanned' || sprintType == 'All' || sprintId"
                         :disabled="selectedRowKeys.length == 0" v-action="'PAGE_WRITE|' + proejctPageId" status="text"
-                        content="规划至迭代" @click="showSprintOperateDialog = true"></vxe-button>
-                    <vxe-button v-if="sprintType == 'All'" :disabled="selectedRowKeys.length == 0" status="text"
+                        :content="sprintId>=0?'规划至其他迭代':'规划至迭代'" @click="showSprintOperateDialog = true"></vxe-button>
+                    <vxe-button v-if="sprintType == 'All'||sprintId>=0" :disabled="selectedRowKeys.length == 0" status="text"
                         content="移出迭代" v-action="'PAGE_WRITE|' + proejctPageId" @click="onRemoveSprint"></vxe-button>
-                    <div v-if="selectedRowKeys != 0 && (sprintType || isBatchModfigle)"
+                    <div v-if="selectedRowKeys != 0 && (sprintType || isBatchModfigle || sprintId)"
                         style="margin-left: 10px;font-size: 14px; color: #87888a; display: flex;align-items: center;">
                         已选择{{ selectedRowKeys.length }}个</div>
                     <!-- <span style="margin-left: 10px;font-size: 14px; color: #87888a; display: flex;align-items: center;">共{{
@@ -138,8 +138,9 @@
                             @click="onClickFilter">筛选<a-icon :component="filterIcon" /></a-button>
                     </a-badge>
 
+
                     <vxe-input v-if="waitInputSearch" v-model="keyword" placeholder="搜索工作项关键字" type="search" clearable
-                        @search-click="onSearch()" @blur="onBlurSearch()"></vxe-input>
+                        @search-click="onSearch()" @blur="onBlurSearch()"  @keyup.enter.native="onSearch"></vxe-input>
                     <a-button v-else type="text" @click="waitInputSearch = true">
                         <a-icon type="search" /> </a-button>
 
@@ -331,7 +332,7 @@
                             <a-tag :style="{color:row.severity?.color,backgroundColor:row.severity?.backgroundColor}">{{row.severity?.name}}</a-tag>
                         </template>
                         <template #severity_edit="{ row }">
-                            <SeveritySelect v-model="row.severity.id" @change="(id,severity)=>onChangeSeverity(id,severity,row)"></SeveritySelect>
+                            <SeveritySelect :value="row.severity?.id" @change="(id,severity)=>onChangeSeverity(id,severity,row)"></SeveritySelect>
                         </template>
 
                         <template #createBy_default="{ row }">
@@ -412,6 +413,9 @@
                         <template #close_date_edit="{ row }">
                             <vxe-input v-model="row.closeDate" @change="e => onChangeDateEdit(e, 'closeDate', row)"
                                 placeholder="日期和时间选择" type="datetime" transfer></vxe-input>
+                        </template>
+                        <template #sprint_default="{ row }">
+                            {{getSprintName(row)}}
                         </template>
                         <template #pager>
                             <div style="height: 48px;line-height:48px;padding-right:10px;text-align: right;background-color: #fff;"
@@ -511,6 +515,7 @@ import { findProjectUsers } from "@/services/tracker/ProjectRoleMemberService";
 import { createView, findOneView, updateView } from "@/services/tracker/ViewService"
 import { findSprints } from '@/services/plan/SprintService'
 import Sortable from "sortablejs"
+import { formatDate } from '@/utils/DateUtils'
 import CreateTrackerItemDialog from '@/pages/tracker/items/CreateTrackerItemDialog.vue';
 import EditTrackerItemDialog from '@/pages/tracker/items/EditTrackerItemDialog.vue'
 import RegisterHourDialog from '@/pages/tracker/items/RegisterHourDialog.vue';
@@ -531,7 +536,6 @@ import TreeLayout from './trackerItemTableLayout/TreeLayout.vue';
 import MatrixLayout from './trackerItemTableLayout/MatrixLayout.vue';
 import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
 import SeveritySelect from '@/components/select/SeveritySelect.vue';
-
 
 
 export default {
@@ -638,6 +642,7 @@ export default {
             batchType: '',
             focusValue:'',
             statusPopoverVisible:{},
+            sprintFields: {},
         };
     },
     computed: {
@@ -880,6 +885,7 @@ export default {
             console.log("onChangeOwnerEdit")
         },
         onChangeSeverity(id,severity,row){
+            this.$set(row, 'severity', severity)
             changeSystemField(row.id, "severity", id).then(resp => {
                 VXETable.modal.message({ content: '更新成功', status:'success' })
                 row.severity=severity
@@ -920,7 +926,7 @@ export default {
         initTableColumn() {
             return [
                 {
-                    field: '', type: 'checkbox', width: 60, visible: (this.sprintType || this.isBatchModfigle)
+                    field: '', type: 'checkbox', width: 60, visible: (this.sprintType || this.isBatchModfigle || this.sprintId)
                         && (!this.proejctPageId || hasPermission("PAGE_WRITE",this.proejctPageId)) ? true : false
                 },
                 { field: 'itemNo', title: '编号', width:100, slots: { default: 'itemNo_default', } },
@@ -928,26 +934,35 @@ export default {
                 { field: 'priority', title: '优先级', editRender: {}, width: 100, slots: { default: 'priority_default', edit: 'priority_edit' } },
                 { field: 'status', title: '状态', width: 100, slots: { default: 'status_default', header: 'status_header' } },
                 { field: 'ownerId', title: '负责人', width: 100, slots: { default: 'owner_default', header: 'owner_header' } },
-                { field: 'planEndDate', title: '计划结束时间', editRender: {}, width: 150, showHeaderOverflow: "tooltip", slots: { edit: 'plan_end_time_edit' } },
+                { field: 'planEndDate', title: '计划结束时间', editRender: {}, width: 130, formatter:this.formatDate, showHeaderOverflow: "tooltip", slots: { edit: 'plan_end_time_edit' } },
                 { field: 'createBy', title: '创建者', width: 100, slots: { default: 'createBy_default' } },
-                { field: 'createDate', title: '创建日期', width: 150 },
+                { field: 'createDate', title: '创建日期', formatter:this.formatDate, width: 100 }, //width: 150
             ]
         },
         initTableColumnTail() {
             return [
                 { field: 'lastModifiedBy', title: '修改者', width: 100, slots: { default: 'lastModified_default' } },
-                { field: 'estimateWorkingHours', title: '预计花费工时', align: "right", editRender: {}, width: 150, showHeaderOverflow: "tooltip", slots: { edit: 'estimate_working_hours_edit' } },
-                { field: 'registeredWorkingHours', title: '已登记工时', align: "right", width: 150, showHeaderOverflow: "tooltip", slots: { default: 'registered_working_hours_default', header: 'registered_working_hours_header' } },
-                { field: 'remainingWorkingHours', title: '剩余工时', align: "right", editRender: {}, width: 150, slots: { edit: 'remaining_working_hours_edit' } },
+                { field: 'estimateWorkingHours', title: '预计花费工时', align: "right", editRender: {}, width: 130, showHeaderOverflow: "tooltip", slots: { edit: 'estimate_working_hours_edit' } },
+                { field: 'registeredWorkingHours', title: '已登记工时', align: "right", width: 130, showHeaderOverflow: "tooltip", slots: { default: 'registered_working_hours_default', header: 'registered_working_hours_header' } },
+                { field: 'remainingWorkingHours', title: '剩余工时', align: "right", editRender: {}, width: 100, slots: { edit: 'remaining_working_hours_edit' } },
                 { field: 'assignedToId', title: '分配给', width: 100, slots: { default: 'assigned_to_default', header: 'assigned_to_header' } },
-                { field: 'assignedDate', title: '分配日期', editRender: {}, width: 150, slots: { edit: 'assigned_date_edit' } },
-                { field: 'planStartDate', title: '计划开始时间', editRender: {}, width: 150, showHeaderOverflow: "tooltip", slots: { edit: 'plan_start_date_edit' } },
-                { field: 'realStartDate', title: '实际开始时间', editRender: {}, width: 150, showHeaderOverflow: "tooltip", slots: { edit: 'real_start_date_edit' } },
-                { field: 'realEndDate', title: '实际结束时间', editRender: {}, width: 150, showHeaderOverflow: "tooltip", slots: { edit: 'real_end_date_edit' } },
+                { field: 'assignedDate', title: '分配日期', editRender: {}, formatter:this.formatDate, width: 100, slots: { edit: 'assigned_date_edit' } },
+                { field: 'planStartDate', title: '计划开始时间', editRender: {}, formatter:this.formatDate, width: 130, showHeaderOverflow: "tooltip", slots: { edit: 'plan_start_date_edit' } },
+                { field: 'realStartDate', title: '实际开始时间', editRender: {}, formatter:this.formatDate, width: 130, showHeaderOverflow: "tooltip", slots: { edit: 'real_start_date_edit' } },
+                { field: 'realEndDate', title: '实际结束时间', editRender: {}, formatter:this.formatDate, width: 130, showHeaderOverflow: "tooltip", slots: { edit: 'real_end_date_edit' } },
                 { field: 'progress', title: '进度', editRender: {}, width: 100, slots: { edit: 'progress_edit' } },
-                { field: 'closeDate', title: '关闭时间', editRender: {}, width: 150, slots: { edit: 'close_date_edit' } },
+                { field: 'closeDate', title: '关闭时间', editRender: {}, formatter:this.formatDate, width: 100, slots: { edit: 'close_date_edit' } },
                 { field: 'severity', title: '严重级别', editRender: {}, width: 150, slots: { default: 'severity_default',edit: 'severity_edit' } },
+                { field: 'sprintId', title: '迭代', width: 150, slots: { default: 'sprint_default',} },
+
             ]
+        },
+        formatDate({ cellValue }) {
+            if (cellValue) {
+                return formatDate(cellValue, 'yyyy-MM-dd');
+            } else {
+                return '';
+            }
         },
         
         initLoadTableColumn() {
@@ -965,9 +980,9 @@ export default {
         },
         loadtableColumn() {
             let newTableColumn = [];
-            if (this.sprintType || this.isBatchModfigle) {
+            if (this.sprintType || this.isBatchModfigle||this.sprintId) {
                 newTableColumn.push({
-                    type: 'checkbox', width: 60, visible: (this.sprintType || this.isBatchModfigle)
+                    type: 'checkbox', width: 60, visible: (this.sprintType || this.isBatchModfigle || this.sprintId)
                         && (!this.proejctPageId || hasPermission("PAGE_WRITE",this.proejctPageId))
                 })
             }
@@ -1025,6 +1040,10 @@ export default {
             let defaultCustomRow = ['itemNo', 'name', 'priority', 'status', 'planEndDate', 'createBy', 'ownerId', 'createDate'];
             // this.customRowList = Object.assign([], this.tracker.trackerFields);
             this.customRowList = this.tracker.trackerFields.filter(item=>item.systemProperty)
+            if(this.sprintType=='Unplanned'){
+                defaultCustomRow.push('sprintId')
+                this.customRowList.push({ id: '27', name: "迭代", systemProperty: "sprintId", inputType: "SPRINT" })
+            }
             this.customRowCheck = []
             for (let index in defaultCustomRow) {
                 for (let fieldIndex in this.customRowList) {
@@ -1440,11 +1459,11 @@ export default {
             this.refresh();
         },
         onBlurSearch() {
-            this.isInitLoad = true;
+            // this.isInitLoad = true;
             if (!this.keyword) {
                 this.waitInputSearch = false
             }
-            this.refresh();
+            // this.refresh();
         },
         onCreateTrackerItem: function () {
             this.isShowCreateTrackerItemDialog = true
@@ -1614,7 +1633,13 @@ export default {
                 this.trackerFilter.trackerId = Vue.observable([]);
                 resp.forEach(item => {
                     this.trackerFilter.trackerId.push({ id: item.id, name: item.name, icon: item.icon })
+                    item.trackerFields.forEach(field => {
+                        if (field.inputType === 'SPRINT') {
+                            this.$set(this.sprintFields,item.id,field)
+                        }
+                    })
                 });
+                console.log("aabc",this.sprintFields)
             })
 
             findEnumsByCode('TRACKER_PRIORITY').then((resp) => {
@@ -1642,6 +1667,14 @@ export default {
                     this.trackerFilter.sprintId.push({ id: item.id, name: item.name })
                 });
             })
+        },
+        getSprintName(row){
+            let field=this.sprintFields[row.tracker?.id]
+            let sprintId=row.values[field?.id]
+            if(sprintId){
+                return this.trackerFilter.sprintId?.find(v => v.id == sprintId)?.name||''
+            }
+            return '';
         },
         initTrackerFields() {
             this.trackerFilter.trackerFields = systemFields;

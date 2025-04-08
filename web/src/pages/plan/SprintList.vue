@@ -214,7 +214,7 @@ export default {
             editMode: 'create',
             showSprintDialog: false,
             sprintType: 'Unplanned',
-            sprintId: '',
+            sprintId: '-2',
             trackerId: '',
             trackerList: [],
             keyword: '',
@@ -379,6 +379,7 @@ export default {
                 this.sprintId = '-2';
             }
 
+            this.$refs.itemsTable.keyword=''
             this.$refs.sprintTable.clearCurrentRow()
         },
         onSprintMenuChange(item) {
@@ -402,6 +403,7 @@ export default {
             this.trackerId = '';
             this.$refs.popoverTable?.setCurrentRow(newValue)
             this.$refs.categoryTable.clearCurrentRow()
+            this.$refs.itemsTable.keyword=''
         },
         onCreateSprint() {
             this.editMode = 'create';

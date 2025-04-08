@@ -127,7 +127,7 @@
             @cancel="addFieldsVisible = false">
             <a-form-model :model="formData">
                 <a-form-model-item prop="field">
-                    <a-select placeholder="选择属性" style="width: 460px;" show-search optionFilterProp='children'
+                    <a-select placeholder="选择属性" mode="multiple" style="width: 460px;" show-search optionFilterProp='children'
                         v-model="formData.field">
                         <a-select-option v-for="item in addFields" :key="item.id"
                             :value="item.id">{{ item.name }}</a-select-option>
@@ -338,9 +338,9 @@ export default {
         },
         onOKAddFields() {
             if (this.formData.field) {
-                let field = this.findFields(this.formData.field)
-                if (field) {
-                    this.customerFields.push(field)
+                let fieldList = this.findFieldList(this.formData.field)
+                if (fieldList) {
+                    this.customerFields.push(...fieldList)
                 }
                 this.addFieldsVisible = false;
                 this.formData.field = undefined;
@@ -443,6 +443,12 @@ export default {
         findFields(fieldId) {
             if (this.tracker && this.tracker.trackerFields && this.tracker.trackerFields.length > 0) {
                 return this.tracker.trackerFields.filter(f => { return f.id === fieldId })[0]
+            }
+            return null;
+        },
+        findFieldList(fieldIds) {
+            if (this.tracker && this.tracker.trackerFields && this.tracker.trackerFields.length > 0) {
+                return this.tracker.trackerFields.filter(f => { return fieldIds.includes(f.id) })
             }
             return null;
         },
