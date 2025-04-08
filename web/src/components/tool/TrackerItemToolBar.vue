@@ -236,7 +236,7 @@ import TrackerTestCases from '@/pages/tracker/items/TrackerTestCases.vue';
 import TrackerRelatedTest from '@/pages/tracker/items/TrackerRelatedTest.vue';
 import TrackerItemFields from '@/components/tool/TrackerItemFields.vue';
 import TrackerItemFieldsShow from '@/components/tool/TrackerItemFieldsShow.vue';
-import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
+import HItemNo from '@/components/table/itemNo/ItemNo.vue';
 
 
 

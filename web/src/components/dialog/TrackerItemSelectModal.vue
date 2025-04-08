@@ -125,7 +125,7 @@ import {
 import { findSprints } from '@/services/plan/SprintService'
 import TrackerItemFilter from "../tool/TrackerItemFilter.vue";
 import Vue from "vue";
-import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
+import HItemNo from '@/components/table/itemNo/ItemNo.vue';
 
 export default {
   name: 'TrackerItemSelectModal',

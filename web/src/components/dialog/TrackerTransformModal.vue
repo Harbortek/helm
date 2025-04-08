@@ -185,7 +185,7 @@ import PrioritySelect from '@/components/select/PrioritySelect.vue';
 import SprintSelect from '@/components/select/SprintSelect.vue';
 import { batchUpdateTrackerItem} from "@/services/tracker/TrackerItemService";
 import { VXETable } from 'vxe-table';
-import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
+import HItemNo from '@/components/table/itemNo/ItemNo.vue';
 
 export default {
   name: "TrackerTransformModal",

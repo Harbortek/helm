@@ -1,6 +1,6 @@
 <template>
     <div class="h-itemNo">
-        <t-icon v-if="showIcon" :trackerType="trackerItem?.trackerType||trackerItem?.tracker"></t-icon>
+        <item-icon v-if="showIcon" :trackerType="trackerItem?.trackerType||trackerItem?.tracker"></item-icon>
         <span :style="{color: getColor(trackerItem?.severity?.color), textDecoration:isEnded?'line-through':'',
             }">
             {{ currentProjectKeyName?.toUpperCase() + '-' + trackerItem?.itemNo }}</span>
@@ -9,12 +9,12 @@
   
 <script>
 import { mapGetters } from "vuex";
-import TIcon from '@/components/icon/T-Icon.vue';
+import ItemIcon from '@/components/icon/ItemIcon.vue';
 
 export default {
     name: 'HItemNo',
     components: {
-        TIcon,
+        ItemIcon,
     },
     data() {
         return {

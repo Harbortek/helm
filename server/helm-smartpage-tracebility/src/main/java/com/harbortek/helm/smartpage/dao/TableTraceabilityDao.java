@@ -18,87 +18,80 @@ package com.harbortek.helm.smartpage.dao;
 
 import com.harbortek.helm.common.dao.BaseJdbcDao;
 import com.harbortek.helm.common.entity.BaseEntity;
+import com.harbortek.helm.smartpage.vo.ItemVo;
 import com.harbortek.helm.tracker.entity.link.TrackerLinkEntity;
-import com.harbortek.helm.tracker.entity.plan.SprintEntity;
 import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
+import com.harbortek.helm.util.DataUtils;
 import com.harbortek.helm.util.ObjectUtils;
-import com.harbortek.helm.util.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.Field;
-import org.jooq.JSON;
-import org.jooq.SelectConditionStep;
-import org.jooq.conf.ParamType;
-import org.jooq.impl.DSL;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 @Slf4j
 public class TableTraceabilityDao extends BaseJdbcDao {
-    public List<TrackerItemEntity> findTrackerItemsByTrackerId(Long trackerId,Long targetVersionId){
+    public List<ItemVo> findLinkedTrackerItems(List<ItemVo> trackerItems, Long linkTypeId, Integer linkDirection){
 
-
-        SelectConditionStep<?> query = getDslContext().selectFrom(getTable(TrackerItemEntity.class))
-                .where(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
-                .and(getField(TrackerItemEntity.Fields.trackerId).eq(trackerId)
-                .and("tracker_item_has_permission(id," + SecurityUtils.getCurrentUser().getId() + ",'ITEM_VIEW') "));
-
-        if (ObjectUtils.isValid(targetVersionId)){
-            Collection<Long> sprintIds = findSprintByTargetVersion(targetVersionId);
-            Field<JSON> externalArray = DSL.jsonArray(sprintIds.stream().map(t->DSL.inline(String.valueOf(t))).toList());
-            query = query.and(DSL.field("JSON_OVERLAPS({0},COALESCE(JSON_EXTRACT({1},'$.*'),'[]'))",
-                    externalArray, getField(TrackerItemEntity.Fields.values)).eq(true));
-        }
-        return find(query.getSQL(ParamType.INLINED),null, TrackerItemEntity.class);
-    }
-
-    public Map<Long,List<TrackerItemEntity>> findLinkedTrackerItems(Collection<Long> targetIds, Long trackerId,
-                                                                    Long linkTypeId){
-        List<TrackerLinkEntity> links = findLinksByTarget(targetIds, linkTypeId);
-        Collection<Long> sourceItemIds = ObjectUtils.ids(links,
-                                                   TrackerLinkEntity.Fields.sourceItemId);
-
+        Collection<Long> trackerItemIds = ObjectUtils.ids(trackerItems);
+        Map<Long, ItemVo> mainTrackerItemMap = trackerItems.stream()
+                .collect(Collectors.toMap(
+                        ItemVo::getId,
+                        item -> item,
+                        (existing, replacement) -> existing // 处理重复key的情况
+                ));
         Criteria criteria = Criteria.empty();
         criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
-        criteria = criteria.and(Criteria.where(TrackerItemEntity.Fields.trackerId).is(trackerId));
-        criteria = criteria.and(Criteria.where(BaseEntity.Fields.id).in(sourceItemIds));
-        Query query =Query.query(criteria);
-        query.columns(BaseEntity.Fields.id,BaseEntity.Fields.name,BaseEntity.Fields.description,TrackerItemEntity.Fields.itemNo,
-                               TrackerItemEntity.Fields.trackerId);
-        List<TrackerItemEntity> sourceItems = find(query,TrackerItemEntity.class);
-        Map<Long,List<TrackerItemEntity>> result = new HashMap<>();
-        for(TrackerLinkEntity link : links) {
-            List<TrackerItemEntity> items = new ArrayList<>();
-            for (TrackerItemEntity item : sourceItems) {
-                if (Objects.requireNonNull(item.getId()).equals(link.getSourceItemId())) {
-                    items.add(item);
-                }
-            }
-            result.put(link.getTargetItemId(), items);
+        if (linkDirection == 0){
+            criteria = criteria.and(Criteria.where(TrackerLinkEntity.Fields.targetItemId).in(trackerItemIds));
+        }else{
+            criteria = criteria.and(Criteria.where(TrackerLinkEntity.Fields.sourceItemId).in(trackerItemIds));
         }
-        return result;
-    }
-
-    private List<TrackerLinkEntity> findLinksByTarget(Collection<Long> sourceIds, Long linkTypeId){
-
-        Criteria criteria = Criteria.empty();
-        criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
-        criteria = criteria.and(Criteria.where(TrackerLinkEntity.Fields.targetItemId).in(sourceIds));
         criteria = criteria.and(Criteria.where(TrackerLinkEntity.Fields.linkTypeId).is(linkTypeId));
         Query query = Query.query(criteria);
-        return find(query, TrackerLinkEntity.class);
-    }
+        List<TrackerLinkEntity> linkEntities =  find(query, TrackerLinkEntity.class);
+        if (linkDirection == 0){
+            Collection<Long> linkedItemIds = ObjectUtils.ids(linkEntities, TrackerLinkEntity.Fields.sourceItemId);
 
-    private Collection<Long> findSprintByTargetVersion(Long targetVersionId){
-        Criteria criteria = Criteria.empty();
-        criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
-        criteria = criteria.and(Criteria.where(SprintEntity.Fields.targetVersionId).is(targetVersionId));
-        Query query = Query.query(criteria);
-        query.columns(BaseEntity.Fields.id);
-        List<SprintEntity> sprints = find(query, SprintEntity.class);
-        return ObjectUtils.ids(sprints);
+            List<ItemVo> linkedTrackerItems = DataUtils.toVo(findByIds(linkedItemIds, TrackerItemEntity.class), ItemVo.class);
+            Map<Long, ItemVo> linkedTrackerItemMap = linkedTrackerItems.stream().collect(Collectors.toMap(
+                    ItemVo::getId,
+                    item -> item,
+                    (existing, replacement) -> existing
+            ));
+
+            for (TrackerLinkEntity firstLink : linkEntities) {
+                ItemVo mainTrackerItem = mainTrackerItemMap.get(firstLink.getTargetItemId());
+                if (mainTrackerItem != null) {
+                    ItemVo linkedTrackerItem = linkedTrackerItemMap.get(firstLink.getSourceItemId());
+                    if (linkedTrackerItem != null) {
+                        mainTrackerItem.getChildren().add(linkedTrackerItem);
+                    }
+                }
+            }
+            return linkedTrackerItems;
+        }else{
+            Collection<Long> linkedItemIds = ObjectUtils.ids(linkEntities, TrackerLinkEntity.Fields.targetItemId);
+            List<ItemVo> linkedTrackerItems = DataUtils.toVo(findByIds(linkedItemIds, TrackerItemEntity.class), ItemVo.class);
+            Map<Long, ItemVo> linkedTrackerItemMap = linkedTrackerItems.stream().collect(Collectors.toMap(
+                    ItemVo::getId,
+                    item -> item,
+                    (existing, replacement) -> existing
+            ));
+
+            for (TrackerLinkEntity firstLink : linkEntities) {
+                ItemVo mainTrackerItem = mainTrackerItemMap.get(firstLink.getSourceItemId());
+                if (mainTrackerItem != null) {
+                    ItemVo linkedTrackerItem = linkedTrackerItemMap.get(firstLink.getTargetItemId());
+                    if (linkedTrackerItem != null) {
+                        mainTrackerItem.getChildren().add(linkedTrackerItem);
+                    }
+                }
+            }
+            return linkedTrackerItems;
+        }
     }
 }

@@ -19,8 +19,11 @@ package com.harbortek.helm.tracker.vo.plan;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.harbortek.helm.common.vo.BaseVo;
 import com.harbortek.helm.common.vo.IdNameReference;
+import com.harbortek.helm.system.vo.EnumItemVo;
 import com.harbortek.helm.system.vo.UserVo;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
+import com.harbortek.helm.tracker.vo.tracker.TrackerVo;
+import com.harbortek.helm.tracker.vo.tracker.stateTransition.TrackerStatus;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -50,6 +53,18 @@ public class PlanVo extends BaseVo {
 
     String itemNo;
 
+    IdNameReference<TrackerVo> tracker;
+
+    EnumItemVo priority;
+
+    EnumItemVo severity;
+
+    Long revision;
+
+    TrackerStatus status;
+    Long statusId;
+
+    EnumItemVo meaning;
     /**
      * 项目ID
      */
@@ -114,15 +129,15 @@ public class PlanVo extends BaseVo {
      * 交付物ID
      */
 
-    List<DeliverableVo> deliverables = new ArrayList<>();
+//    List<DeliverableVo> deliverables = new ArrayList<>();
 
     /**
      * 关联的迭代ID
      */
-    List<SprintVo> sprints = new ArrayList<>();
+//    List<SprintVo> sprints = new ArrayList<>();
 
     /**
      * 关联的工作项ID
      */
-    List<TrackerItemVo> items = new ArrayList<>();
+//    List<TrackerItemVo> items = new ArrayList<>();
 }

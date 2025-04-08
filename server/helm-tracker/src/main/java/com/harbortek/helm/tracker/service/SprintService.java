@@ -33,7 +33,7 @@ public interface SprintService {
 
     SprintVo convertSprint(SprintVo sprintVo, String undone, Long sprintId);
 
-    Collection<SprintVo> findUnPlanedSprints(Long projectId);
+//    Collection<SprintVo> findUnPlanedSprints(Long projectId);
 
     void syncSprintWorkingHours(Long projectId, Long parentId);
 }

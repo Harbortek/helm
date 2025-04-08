@@ -111,7 +111,7 @@ import {
 import {
     findEnumsByCode,
 } from "@/services/system/EnumService";
-import TIcon from '@/components/icon/T-Icon.vue';
+import TIcon from '@/components/icon/ItemIcon.vue';
 
 export default {
     name: "TrackerConfigMainPage",

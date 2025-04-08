@@ -21,6 +21,7 @@ import com.harbortek.helm.common.entity.BaseEntity;
 import com.harbortek.helm.tracker.entity.plan.PlanEntity;
 import com.harbortek.helm.tracker.entity.plan.SprintEntity;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -65,28 +66,28 @@ public class SprintDao extends BaseJdbcDao {
         return findById(id, SprintEntity.class);
     }
 
-    public List<SprintEntity> findUnPlanedSprints(Long projectId) {
-        Criteria criteria = Criteria.empty();
-        criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
-        criteria = criteria.and(Criteria.where(PlanEntity.Fields.projectId).is(projectId));
-        Query query = Query.query(criteria);
-        query.columns(PlanEntity.Fields.sprints);
-        List<PlanEntity> planEntities = find(query, PlanEntity.class);
-        List<Long> plannedSprints =
-                planEntities.stream().flatMap(plan -> plan.getSprints().stream()).collect(Collectors.toList());
+//    public List<SprintEntity> findUnPlanedSprints(Long projectId) {
+//        Criteria criteria = Criteria.empty();
+//        criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
+//        criteria = criteria.and(Criteria.where(PlanEntity.Fields.projectId).is(projectId));
+//        Query query = Query.query(criteria);
+//        query.columns(PlanEntity.Fields.sprints);
+//        List<PlanEntity> planEntities = find(query, PlanEntity.class);
+//        List<Long> plannedSprints =
+//                planEntities.stream().flatMap(plan -> plan.getSprints().stream()).collect(Collectors.toList());
+//
+//
+//        Criteria criteria2 = Criteria.empty();
+//        criteria2 = criteria2.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
+//        criteria2 = criteria2.and(Criteria.where(SprintEntity.Fields.projectId).is(projectId));
+//        criteria2 = criteria2.and(Criteria.where(BaseEntity.Fields.id).notIn(plannedSprints));
+//        Query query2 = Query.query(criteria2);
+//        return find(query2, SprintEntity.class);
+//    }
 
-
-        Criteria criteria2 = Criteria.empty();
-        criteria2 = criteria2.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
-        criteria2 = criteria2.and(Criteria.where(SprintEntity.Fields.projectId).is(projectId));
-        criteria2 = criteria2.and(Criteria.where(BaseEntity.Fields.id).notIn(plannedSprints));
-        Query query2 = Query.query(criteria2);
-        return find(query2, SprintEntity.class);
-    }
-
-    public void batchCreateSprints(Collection<SprintEntity> sprints) {
-        saveAll(sprints);
-    }
+//    public void batchCreateSprints(Collection<SprintEntity> sprints) {
+//        saveAll(sprints);
+//    }
 
     public List<SprintEntity> findSprintByProjectId(Long projectId) {
         Criteria criteria = Criteria.empty();
@@ -102,6 +103,7 @@ public class SprintDao extends BaseJdbcDao {
         criteria = criteria.and(Criteria.where(SprintEntity.Fields.projectId).is(projectId));
         criteria = criteria.and(Criteria.where(SprintEntity.Fields.targetVersionId).is(targetVersionId));
         Query query = Query.query(criteria);
+        query.sort(Sort.by(Sort.Direction.ASC, SprintEntity.Fields.targetVersionId));
         return find(query, SprintEntity.class);
     }
 }

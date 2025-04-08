@@ -69,7 +69,7 @@ import {
     findTrackerItems,findTrackerLinksByItemIds, updateMatrixLinks
 } from "@/services/tracker/TrackerItemService";
 import { findLinkTypes } from "@/services/tracker/TrackerLinkTypeService"
-import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
+import HItemNo from '@/components/table/itemNo/ItemNo.vue';
 
 export default {
     name: 'MatrixLayout',

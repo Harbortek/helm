@@ -2,49 +2,96 @@
     <div ref="tableContainer" :style="bg_class" style="padding: 8px;width: 100%;height: 100%;overflow: hidden;">
         <TitleComponent ref="title" :component="componentData" :readOnly="readOnly" @change="onTitleChange" />
         <a-row style="display: flex;flex-direction: column;" :style="cssVars">
+            <vxe-toolbar>
+                <template #buttons>
+
+                    <a-form ref="searchForm" layout="inline">
+                        <a-form-item label="目标版本">
+                            <TargetVersionSelect v-model="targetVersionId" :projectId="projectId" :selectFirst="true"
+                                style="width: 200px;" @change="loadData" />
+                        </a-form-item>
+                        <a-form-item label="显示方式">
+                            <a-select v-model="showType" style="width: 200px;" @change="loadData">
+                                <a-select-option value="SHOW_ALL">显示全部</a-select-option>
+                                <a-select-option value="SHOW_LINKS">仅显示有追溯关系的工作项</a-select-option>
+                                <a-select-option value="SHOW_UNLINK">仅显示无追溯关系的工作项</a-select-option>
+                            </a-select>
+                        </a-form-item>
+                    </a-form>
+                </template>
+            </vxe-toolbar>
             <div style="flex: 1 1 auto;">
-                <vxe-table ref="xtable" class="table-class" :border="true" resizable show-header-overflow height="auto"
+                <vxe-table ref="xtable" class="table-class" :border="true" resizable show-header-overflow height="100%"
                     :data="tableData" :style="tableStyle" :column-config="{ resizable: true }"
                     :header-cell-style="table_header_class" :cell-style="table_item_class"
                     :footer-cell-style="table_header_class" :header-align="tableHeaderAlign" :align="tableItemAlign"
-                    :span-method="mergeRowMethod">
-                    <vxe-column field="name1" :title="mainTrackerTitle">
+                    :expand-config="{ expandAll: true,showIcon:false,visibleMethod:()=>{return false} }">
+                    <vxe-column field="hasLink" title="" width="40" align="center">
                         <template #default="{ row }">
-                            <div class="tracker-container">
-                                <div class="tracker-icon"><h-icon :component="row?.icon1" /></div>
-                                <div class="tracker-no">{{ row.itemNo1 }}</div>
-                                <div class="tracker-title" :title="row.name1">
-                                    <span>{{ row.name1 }}</span>
-                                </div>
-                            </div>
+                            <a-icon v-if="row.children && row.children.length > 0" type="check" style="color: green;" />
+                            <a-icon v-else type="close" style="color: red;" />
                         </template>
                     </vxe-column>
-                    <vxe-column field="name2" :title="linkTrackerTitle">
+                    <vxe-column field="mainTrackerTitle" type="expand" :title="mainTrackerTitle" :showOverflow="true">
                         <template #default="{ row }">
                             <div class="tracker-container">
-                                <div class="tracker-icon"><h-icon :component="row?.icon2" /></div>
-                                <div class="tracker-no">{{ row.itemNo2 }}</div>
-                                <div class="tracker-title" :title="row.name2">
-                                    <span>{{ row.name2 }}</span>
+                                <div class="tracker-no" @click="showTrackerItem(row)">
+                                    <ItemNo :trackerItem="row" />
+                                </div>
+                                <div class="tracker-title" :title="row.name" @click="showTrackerItem(row)">
+                                    {{ row.name }}
                                 </div>
                             </div>
+                        </template>
+                        <template #content="{ row: parentRow, rowIndex: parentRowIndex }">
+                            <vxe-table v-if="parentRow.children && parentRow.children.length > 0"
+                                :data="parentRow.children" :show-header="false" :min-height="58"
+                                :row-config="{ keyField: 'id', isCurrent: true }">
+                                <vxe-column field="hasLink" title="" width="40" align="center">
+                                </vxe-column>
+                                <vxe-column field="mainTrackerTitle" :title="mainTrackerTitle">
+                                </vxe-column>
+                                <vxe-column field="linkTracker" :title="linkTrackerTitle" :showOverflow="true">
+                                    <template #default="{ row }">
+                                        <div class="tracker-container">
+                                            <div class="tracker-no" @click="showTrackerItem(row)">
+                                                <ItemNo :trackerItem="row" />
+                                            </div>
+                                            <div class="tracker-title" :title="row.name" @click="showTrackerItem(row)">
+                                                {{ row.name }}
+                                            </div>
+                                        </div>
+                                    </template>
+                                </vxe-column>
+                                <vxe-column field="secondLinkTracker" :title="secondLinkTrackerTitle" :show-overflow="true" v-if="chart?.secondLinkTrackerId">
+                                    <template #default="{ row }">
+                                        <div style="display: flex;flex-direction: column;"
+                                            v-for="subItem in row.children" :key="subItem.id">
+                                            <div class="tracker-container">
+                                                <div class="tracker-no" @click="showTrackerItem(subItem)">
+                                                    <ItemNo :trackerItem="subItem" />
+                                                </div>
+                                                <div class="tracker-title" :title="subItem.name"
+                                                    @click="showTrackerItem(subItem)">
+                                                    {{ subItem.name }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </vxe-column>
+                            </vxe-table>
                         </template>
                     </vxe-column>
-                    <vxe-column field="name3" :title="secondLinkTrackerTitle" v-if="chart?.secondLinkTrackerId">
-                        <template #default="{ row }">
-                            <div class="tracker-container">
-                                <div class="tracker-icon"><h-icon :component="row?.icon3" /></div>
-                                <div class="tracker-no">{{ row.itemNo3 }}</div>
-                                <div class="tracker-title" :title="row.name3">
-                                    <span>{{ row.name3 }}</span>
-                                </div>
-                            </div>
-
-                        </template>
+                    <vxe-column field="linkTracker" :title="linkTrackerTitle">
+                    </vxe-column>
+                    <vxe-column field="secondLinkTracker" :title="secondLinkTrackerTitle" v-if="chart?.secondLinkTrackerId">
                     </vxe-column>
                 </vxe-table>
             </div>
         </a-row>
+        <edit-tracker-item-dialog :is-show-dialog="isShowEditTrackerItemDialog" :projectId="projectId"
+            :tracker="trackerEdit" :itemId="itemId" @ok="onEditTrackerItemOK" @cancel="onEditTrackerItemCancel" />
+
     </div>
 </template>
 
@@ -55,11 +102,17 @@ import { getData } from '@/services/smart-page/PageComponentService'
 import { deepCopy } from '@/pages/smart-page/util/canvasUtils'
 import XEUtils from 'xe-utils'
 import TitleComponent from '../title/TitleComponent.vue'
+import TargetVersionSelect from '@/components/select/TargetVersionSelect.vue'
+import ItemNo from '@/components/table/itemNo/ItemNo.vue'
+import HAvatar from '@/components/avatar/h-avatar.vue';
+import EditTrackerItemDialog from '@/pages/tracker/items/EditTrackerItemDialog.vue'
+import { findTrackers, findOneTracker } from "@/services/tracker/TrackerService";
+
 
 export default {
     name: 'TraceabilityTable',
     components: {
-        TitleComponent
+        TitleComponent, TargetVersionSelect, ItemNo, HAvatar, EditTrackerItemDialog
     },
     props: {
         pageId: {
@@ -140,6 +193,11 @@ export default {
             mainTrackerTitle: '主工作项',
             linkTrackerTitle: '关联工作项',
             secondLinkTrackerTitle: '二级关联工作项',
+            targetVersionId: '',
+            showType: 'SHOW_ALL',
+            isShowEditTrackerItemDialog: false,
+            itemId: '',
+            trackerEdit: {},
         }
     },
     computed: {
@@ -164,6 +222,9 @@ export default {
                 '--text-overflow': this.cssStyleParams.textOverflow,
                 '--white-space': this.cssStyleParams.whiteSpace
             }
+        },
+        projectId() {
+            return this.$route.params.projectId
         }
     },
     watch: {
@@ -201,21 +262,24 @@ export default {
 
             const data_config = {
                 type: this.chart.type,
+                projectId: this.projectId,
+                targetVersionId: this.targetVersionId,
                 mainTrackerId: this.chart.mainTrackerId,
                 linkTrackerId: this.chart.linkTrackerId,
                 secondLinkTrackerId: this.chart.secondLinkTrackerId,
                 linkTypeId: this.chart.linkTypeId,
                 secondLinkTypeId: this.chart.secondLinkTypeId,
-                showType: getBindingParameterValue(this.chart, this.params.pageParameters, 'showType') || this.chart.showType,
+                showType: this.showType,
             }
             const data = {
                 config: JSON.stringify(data_config),
                 params: this.params
             }
             console.log('reload component' + this.chart.title + ' data', data)
-            if (data_config.mainTrackerId && data_config.linkTrackerId && data_config.linkTypeId) {
+            if (data_config.targetVersionId && data_config.mainTrackerId && data_config.linkTrackerId && data_config.linkTypeId) {
                 getData(this.pageId, this.chart.id, data).then(resp => {
                     this.chart.data = JSON.parse(resp) || []
+                    console.log(this.chart.data)
                     this.init()
                 })
             } else {
@@ -259,12 +323,14 @@ export default {
         initData() {
 
             if (this.chart.data) {
-                this.data = this.chart.data.data || []
-                const treeData = XEUtils.toArrayTree(this.data)
-                this.toColTreeData(treeData)
-
+                this.tableData = this.chart.data.data || []
+                // const treeData = XEUtils.toArrayTree(this.data)
+                // this.toColTreeData(treeData)
+                this.$nextTick(() => {
+                    this.$refs.xtable.setAllRowExpand(true)
+                })
             } else {
-                this.data = []
+                this.tableData = []
                 this.tableColumns = []
             }
 
@@ -315,83 +381,104 @@ export default {
                 }
             }
         },
-        mergeRowMethod({ row, _rowIndex, column, visibleData }) {
-            const fields = []
-            for (let i = 0; i < this.rowFields.length; i++) {
-                const field = this.tableColumns[i]
-                if (!field.children) {
-                    fields.push(field.field)
-                }
-            }
+        // mergeRowMethod({ row, _rowIndex, column, visibleData }) {
+        //     const fields = []
+        //     for (let i = 0; i < this.rowFields.length; i++) {
+        //         const field = this.tableColumns[i]
+        //         if (!field.children) {
+        //             fields.push(field.field)
+        //         }
+        //     }
 
-            const cellValue = row[column.field]
-            if (cellValue && fields.includes(column.field)) {
-                const prevRow = visibleData[_rowIndex - 1]
-                let nextRow = visibleData[_rowIndex + 1]
-                if (prevRow && prevRow[column.field] === cellValue) {
-                    return { rowspan: 0, colspan: 0 }
-                } else {
-                    let countRowspan = 1
-                    while (nextRow && nextRow[column.field] === cellValue) {
-                        nextRow = visibleData[++countRowspan + _rowIndex]
-                    }
-                    if (countRowspan > 1) {
-                        return { rowspan: countRowspan, colspan: 1 }
-                    }
-                }
-            }
-        },
-        toColTreeData(treeData) {
-            const options = { children: 'children' }
-            const list = []
-            const keyMap = {}
-            XEUtils.eachTree(treeData, (item, index, result, paths, parent) => {
-                keyMap[item.id] = item
-                item.keys = parent ? parent.keys.concat([item.id]) : [item.id]
-                if (!item.children || !item.children.length) {
-                    const row = {}
-                    item.keys.forEach((key, index) => {
-                        const level = index + 1
-                        const obj = keyMap[key]
-                        row[`check${level}`] = false
-                        row[`id${level}`] = obj.id
-                        row[`itemNo${level}`] = obj.itemNo
-                        row[`name${level}`] = obj.name
-                        row[`icon${level}`] = obj.icon
-                    })
-                    list.push(row)
-                }
-            }, options)
-            this.keyMap = keyMap
-            this.tableData = list
-            console.log(this.tableData)
-        },
-        // 通用行合并函数（将相同多列数据合并为一行）
-        rowspanMethod({ row, _rowIndex, column, visibleData }) {
-            const fields = ['name1', 'name2', 'name3']
-            const cellValue = row[column.property]
-            if (cellValue && fields.includes(column.property)) {
-                const prevRow = visibleData[_rowIndex - 1]
-                let nextRow = visibleData[_rowIndex + 1]
-                if (prevRow && prevRow[column.property] === cellValue) {
-                    return { rowspan: 0, colspan: 0 }
-                } else {
-                    let countRowspan = 1
-                    while (nextRow && nextRow[column.property] === cellValue) {
-                        nextRow = visibleData[++countRowspan + _rowIndex]
-                    }
-                    if (countRowspan > 1) {
-                        return { rowspan: countRowspan, colspan: 1 }
-                    }
-                }
-            }
-        },
+        //     const cellValue = row[column.field]
+        //     if (cellValue && fields.includes(column.field)) {
+        //         const prevRow = visibleData[_rowIndex - 1]
+        //         let nextRow = visibleData[_rowIndex + 1]
+        //         if (prevRow && prevRow[column.field] === cellValue) {
+        //             return { rowspan: 0, colspan: 0 }
+        //         } else {
+        //             let countRowspan = 1
+        //             while (nextRow && nextRow[column.field] === cellValue) {
+        //                 nextRow = visibleData[++countRowspan + _rowIndex]
+        //             }
+        //             if (countRowspan > 1) {
+        //                 return { rowspan: countRowspan, colspan: 1 }
+        //             }
+        //         }
+        //     }
+        // },
+        // toColTreeData(treeData) {
+        //     const options = { children: 'children' }
+        //     const list = []
+        //     const keyMap = {}
+        //     XEUtils.eachTree(treeData, (item, index, result, paths, parent) => {
+        //         keyMap[item.id] = item
+        //         item.keys = parent ? parent.keys.concat([item.id]) : [item.id]
+        //         if (!item.children || !item.children.length) {
+        //             const row = {}
+        //             item.keys.forEach((key, index) => {
+        //                 const level = index + 1
+        //                 const obj = keyMap[key]
+        //                 row[`check${level}`] = false
+        //                 row[`id${level}`] = obj.id
+        //                 row[`itemNo${level}`] = obj.itemNo
+        //                 row[`name${level}`] = obj.name
+        //                 row[`icon${level}`] = obj.icon
+        //             })
+        //             list.push(row)
+        //         }
+        //     }, options)
+        //     this.keyMap = keyMap
+        //     this.tableData = list
+        //     console.log(this.tableData)
+        // },
+        // // 通用行合并函数（将相同多列数据合并为一行）
+        // rowspanMethod({ row, _rowIndex, column, visibleData }) {
+        //     const fields = ['name1', 'name2', 'name3']
+        //     const cellValue = row[column.property]
+        //     if (cellValue && fields.includes(column.property)) {
+        //         const prevRow = visibleData[_rowIndex - 1]
+        //         let nextRow = visibleData[_rowIndex + 1]
+        //         if (prevRow && prevRow[column.property] === cellValue) {
+        //             return { rowspan: 0, colspan: 0 }
+        //         } else {
+        //             let countRowspan = 1
+        //             while (nextRow && nextRow[column.property] === cellValue) {
+        //                 nextRow = visibleData[++countRowspan + _rowIndex]
+        //             }
+        //             if (countRowspan > 1) {
+        //                 return { rowspan: countRowspan, colspan: 1 }
+        //             }
+        //         }
+        //     }
+        // },
         onTitleChange(title) {
             let chart = deepCopy(this.chart)
             chart.title = title
             this.$emit('change', chart)
         },
-
+        showTrackerItem(item) {
+            this.itemId = item.id
+            if (item.tracker?.id) {
+                findOneTracker(item.tracker.id).then(resp => {
+                    this.trackerEdit = resp;
+                }).finally(() => {
+                    this.isShowEditTrackerItemDialog = true
+                })
+            }
+        },
+        onEditTrackerItemOK() {
+            this.isShowEditTrackerItemDialog = false
+        },
+        onEditTrackerItemCancel() {
+            this.isShowEditTrackerItemDialog = false
+        },
+        onClapseAll() {
+            this.$refs.xtable.setAllRowExpand(false)
+        },
+        onExpandAll() {
+            this.$refs.xtable.setAllRowExpand(true)
+        }
     },
 }
 </script>
@@ -400,7 +487,7 @@ export default {
 .tracker-container {
     display: inline-flex;
     flex-direction: row;
-    width: 100%;
+    width: 90%;
 
     .tracker-icon {
         flex: 0;
@@ -410,7 +497,7 @@ export default {
     .tracker-no {
         margin-left: 5px;
         flex: 0;
-        min-width: 60px;
+        min-width: 80px;
     }
 
     .tracker-title {

@@ -245,7 +245,7 @@ import TrackerTestCases from './TrackerTestCases.vue';
 import TrackerRelatedTest from './TrackerRelatedTest.vue';
 import { Graph, Vector } from "@antv/x6";
 import TrackerItemKeyFields from '../../../components/select/TrackerItemKeyFields.vue';
-import TIcon from '@/components/icon/T-Icon.vue';
+import TIcon from '@/components/icon/ItemIcon.vue';
 
 export default {
     name: "EditTrackerItemDialog",

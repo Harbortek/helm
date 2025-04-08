@@ -13,7 +13,7 @@ import {
   findTrackers
 } from "@/services/tracker/TrackerService";
 import { getTrackerPermissionIds } from "@/utils/permission";
-import TIcon from '@/components/icon/T-Icon.vue';
+import TIcon from '@/components/icon/ItemIcon.vue';
 
 export default ({
   name: "TrackerSelect",

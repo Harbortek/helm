@@ -186,11 +186,11 @@ public class SprintServiceImpl implements SprintService {
         return DataUtils.toVo(entity, SprintVo.class);
     }
 
-    @Override
-    public Collection<SprintVo> findUnPlanedSprints(Long projectId) {
-        List<SprintEntity> sprintEntities = sprintDao.findUnPlanedSprints(projectId);
-        return DataUtils.toVo(sprintEntities, SprintVo.class);
-    }
+//    @Override
+//    public Collection<SprintVo> findUnPlanedSprints(Long projectId) {
+//        List<SprintEntity> sprintEntities = sprintDao.findUnPlanedSprints(projectId);
+//        return DataUtils.toVo(sprintEntities, SprintVo.class);
+//    }
 
     @Override
     public void syncSprintWorkingHours(Long projectId, Long sprintId) {

@@ -76,11 +76,11 @@ public class SprintApi {
         return ResponseEntity.ok(result);
     }
 
-    @Parameter(name="查询未关联计划的迭代")
-    @RequestMapping(value = "/unPlaned", method = RequestMethod.GET)
-    ResponseEntity<Collection<SprintVo>> findUnPlanedSprints(@RequestParam(value = "projectId") Long projectId) {
-        Collection<SprintVo> result = sprintService.findUnPlanedSprints(projectId);
-        return ResponseEntity.ok(result);
-    }
+//    @Parameter(name="查询未关联计划的迭代")
+//    @RequestMapping(value = "/unPlaned", method = RequestMethod.GET)
+//    ResponseEntity<Collection<SprintVo>> findUnPlanedSprints(@RequestParam(value = "projectId") Long projectId) {
+//        Collection<SprintVo> result = sprintService.findUnPlanedSprints(projectId);
+//        return ResponseEntity.ok(result);
+//    }
 
 }

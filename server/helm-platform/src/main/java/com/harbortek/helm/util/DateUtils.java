@@ -407,6 +407,9 @@ public class DateUtils {
 	 * @return
 	 */
 	public static int daysBetween(Date date1, Date date2) {
+		if (date1==null || date2 == null){
+			return 0;
+		}
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date1);
 		long time1 = cal.getTimeInMillis();
