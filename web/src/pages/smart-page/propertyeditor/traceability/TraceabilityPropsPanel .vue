@@ -24,22 +24,6 @@
             </div>
 
             <div>
-                <div class="prop-name"><parameter-binding :pageId="pageId" :component="component" title="显示方式"
-                        bindingProperty="showType" @binding="onBinding" />
-                </div>
-
-                <div class="prop-value">
-                    <a-select v-model="formData.showType" style="width: 100%;" size="small"
-                        :disabled="hasBinding('showType')" @change="emitDataChange">
-                        <a-select-option value="SHOW_ALL">显示所有</a-select-option>
-                        <a-select-option value="SHOW_LINKS">仅显示关联项</a-select-option>
-                        <a-select-option value="SHOW_UNLINK">仅显示未关联项</a-select-option>
-                        <a-select-option value="SHOW_PROBLEMS">仅显示问题项</a-select-option>
-                    </a-select>
-                </div>
-            </div>
-
-            <div>
                 <div class="prop-name"><span>第二链接工作项</span></div>
                 <div class="prop-value">
                     <tracker-select :projectId="projectId" v-model="formData.secondLinkTrackerId" style="width: 100%;"

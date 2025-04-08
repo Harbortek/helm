@@ -108,7 +108,7 @@ import VXETable from 'vxe-table';
 import { mapGetters } from "vuex";
 import ProjectUserSelect from '../../../components/select/ProjectUserSelect.vue';
 import { remainingRegistrableTime } from "@/services/tracker/TrackerItemService"
-import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
+import HItemNo from '@/components/table/itemNo/ItemNo.vue';
 
 export default {
     name: "RegisterHourDialog",

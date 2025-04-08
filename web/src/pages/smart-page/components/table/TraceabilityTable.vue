@@ -2,64 +2,79 @@
     <div ref="tableContainer" :style="bg_class" style="padding: 8px;width: 100%;height: 100%;overflow: hidden;">
         <TitleComponent ref="title" :component="componentData" :readOnly="readOnly" @change="onTitleChange" />
         <a-row style="display: flex;flex-direction: column;" :style="cssVars">
+            <vxe-toolbar>
+                <template #buttons>
+
+                    <a-form ref="searchForm" layout="inline">
+                        <a-form-item label="目标版本">
+                            <TargetVersionSelect v-model="targetVersionId" :projectId="projectId" :selectFirst="true"
+                                style="width: 200px;" @change="loadData" />
+                        </a-form-item>
+                        <a-form-item label="显示方式">
+                            <a-select v-model="showType" style="width: 200px;" @change="loadData">
+                                <a-select-option value="SHOW_ALL">显示全部</a-select-option>
+                                <a-select-option value="SHOW_LINKS">仅显示有追溯关系的工作项</a-select-option>
+                                <a-select-option value="SHOW_UNLINK">仅显示无追溯关系的工作项</a-select-option>
+                            </a-select>
+                        </a-form-item>
+                    </a-form>
+                </template>
+            </vxe-toolbar>
             <div style="flex: 1 1 auto;">
-                <vxe-toolbar>
-                    <template #buttons>
-                        <a-form ref="searchForm" layout="inline">
-                            <a-form-item label="目标版本">
-                                <TargetVersionSelect v-model="targetVersionId" :projectId="projectId"
-                                    :selectFirst="true" style="width: 200px;" @change="loadData" />
-                            </a-form-item>
-                            <a-form-item label="目标版本">
-                                <a-select v-model="showType" style="width: 200px;" @change="loadData">
-                                    <a-select-option value="SHOW_ALL">显示全部</a-select-option>
-                                    <a-select-option value="SHOW_LINKS">仅显示有追溯关系的工作项</a-select-option>
-                                    <a-select-option value="SHOW_PROBLEMS">仅显示无追溯关系的工作项</a-select-option>
-                                </a-select>
-                            </a-form-item>
-                        </a-form>
-                    </template>
-                </vxe-toolbar>
-                <vxe-table ref="xtable" class="table-class" :border="true" resizable show-header-overflow height="auto"
+                <vxe-table ref="xtable" class="table-class" :border="true" resizable show-header-overflow height="100%"
                     :data="tableData" :style="tableStyle" :column-config="{ resizable: true }"
                     :header-cell-style="table_header_class" :cell-style="table_item_class"
-                    :footer-cell-style="table_header_class" :header-align="tableHeaderAlign" :align="tableItemAlign">
-                    <vxe-column field="mainTrackerTitle" type="expand" :title="mainTrackerTitle">
+                    :footer-cell-style="table_header_class" :header-align="tableHeaderAlign" :align="tableItemAlign"
+                    :expand-config="{ expandAll: true,showIcon:false,visibleMethod:()=>{return false} }">
+                    <vxe-column field="hasLink" title="" width="40" align="center">
+                        <template #default="{ row }">
+                            <a-icon v-if="row.children && row.children.length > 0" type="check" style="color: green;" />
+                            <a-icon v-else type="close" style="color: red;" />
+                        </template>
+                    </vxe-column>
+                    <vxe-column field="mainTrackerTitle" type="expand" :title="mainTrackerTitle" :showOverflow="true">
                         <template #default="{ row }">
                             <div class="tracker-container">
-                                <div class="tracker-no">
+                                <div class="tracker-no" @click="showTrackerItem(row)">
                                     <ItemNo :trackerItem="row" />
                                 </div>
-                                <div class="tracker-title" :title="row.name">
-                                    <span>{{ row.name }}</span>
+                                <div class="tracker-title" :title="row.name" @click="showTrackerItem(row)">
+                                    {{ row.name }}
                                 </div>
                             </div>
                         </template>
                         <template #content="{ row: parentRow, rowIndex: parentRowIndex }">
-                            <vxe-table :data="parentRow.children" :show-header="false" size="mini" :min-height="58"
+                            <vxe-table v-if="parentRow.children && parentRow.children.length > 0"
+                                :data="parentRow.children" :show-header="false" :min-height="58"
                                 :row-config="{ keyField: 'id', isCurrent: true }">
-                                <vxe-column field="mainTrackerTitle" :title="mainTrackerTitle">                                    
+                                <vxe-column field="hasLink" title="" width="40" align="center">
                                 </vxe-column>
-                                <vxe-column field="linkTracker" :title="linkTrackerTitle">
+                                <vxe-column field="mainTrackerTitle" :title="mainTrackerTitle">
+                                </vxe-column>
+                                <vxe-column field="linkTracker" :title="linkTrackerTitle" :showOverflow="true">
                                     <template #default="{ row }">
                                         <div class="tracker-container">
-                                            <div class="tracker-no">
+                                            <div class="tracker-no" @click="showTrackerItem(row)">
                                                 <ItemNo :trackerItem="row" />
                                             </div>
-                                            <div class="tracker-title" :title="row.name">
-                                                <span>{{ row.name }}</span>
+                                            <div class="tracker-title" :title="row.name" @click="showTrackerItem(row)">
+                                                {{ row.name }}
                                             </div>
                                         </div>
                                     </template>
                                 </vxe-column>
-                                <vxe-column field="secondLinkTracker" :title="secondLinkTrackerTitle">
+                                <vxe-column field="secondLinkTracker" :title="secondLinkTrackerTitle" :show-overflow="true">
                                     <template #default="{ row }">
-                                        <div style="display: flex;flex-direction: column;" v-for="subItem in row.childnren" :key="subItem.id">
-                                            <div class="tracker-no">
-                                                <ItemNo :trackerItem="subItem" />
-                                            </div>
-                                            <div class="tracker-title" :title="subItem.name">
-                                                <span>{{ subItem.name }}</span>
+                                        <div style="display: flex;flex-direction: column;"
+                                            v-for="subItem in row.childnren" :key="subItem.id">
+                                            <div class="tracker-container">
+                                                <div class="tracker-no" @click="showTrackerItem(subItem)">
+                                                    <ItemNo :trackerItem="subItem" />
+                                                </div>
+                                                <div class="tracker-title" :title="subItem.name"
+                                                    @click="showTrackerItem(subItem)">
+                                                    {{ subItem.name }}
+                                                </div>
                                             </div>
                                         </div>
                                     </template>
@@ -67,9 +82,9 @@
                             </vxe-table>
                         </template>
                     </vxe-column>
-                    <vxe-column field="linkTracker"  :title="linkTrackerTitle">
+                    <vxe-column field="linkTracker" :title="linkTrackerTitle">
                     </vxe-column>
-                    <vxe-column field="secondLinkTracker"  :title="secondLinkTrackerTitle">                        
+                    <vxe-column field="secondLinkTracker" :title="secondLinkTrackerTitle">
                     </vxe-column>
                     <!-- <vxe-column field="priority" title="优先级" width="100" header-align="center">
                         <template #default="{ row }">
@@ -101,6 +116,9 @@
                 </vxe-table>
             </div>
         </a-row>
+        <edit-tracker-item-dialog :is-show-dialog="isShowEditTrackerItemDialog" :projectId="projectId"
+            :tracker="trackerEdit" :itemId="itemId" @ok="onEditTrackerItemOK" @cancel="onEditTrackerItemCancel" />
+
     </div>
 </template>
 
@@ -114,11 +132,14 @@ import TitleComponent from '../title/TitleComponent.vue'
 import TargetVersionSelect from '@/components/select/TargetVersionSelect.vue'
 import ItemNo from '@/components/table/itemNo/ItemNo.vue'
 import HAvatar from '@/components/avatar/h-avatar.vue';
+import EditTrackerItemDialog from '@/pages/tracker/items/EditTrackerItemDialog.vue'
+import { findTrackers, findOneTracker } from "@/services/tracker/TrackerService";
+
 
 export default {
     name: 'TraceabilityTable',
     components: {
-        TitleComponent, TargetVersionSelect, ItemNo, HAvatar
+        TitleComponent, TargetVersionSelect, ItemNo, HAvatar, EditTrackerItemDialog
     },
     props: {
         pageId: {
@@ -201,6 +222,9 @@ export default {
             secondLinkTrackerTitle: '二级关联工作项',
             targetVersionId: '',
             showType: 'SHOW_ALL',
+            isShowEditTrackerItemDialog: false,
+            itemId: '',
+            trackerEdit: {},
         }
     },
     computed: {
@@ -458,7 +482,28 @@ export default {
             chart.title = title
             this.$emit('change', chart)
         },
-
+        showTrackerItem(item) {
+            this.itemId = item.id
+            if (item.tracker?.id) {
+                findOneTracker(item.tracker.id).then(resp => {
+                    this.trackerEdit = resp;
+                }).finally(() => {
+                    this.isShowEditTrackerItemDialog = true
+                })
+            }
+        },
+        onEditTrackerItemOK() {
+            this.isShowEditTrackerItemDialog = false
+        },
+        onEditTrackerItemCancel() {
+            this.isShowEditTrackerItemDialog = false
+        },
+        onClapseAll() {
+            this.$refs.xtable.setAllRowExpand(false)
+        },
+        onExpandAll() {
+            this.$refs.xtable.setAllRowExpand(true)
+        }
     },
 }
 </script>
@@ -477,7 +522,7 @@ export default {
     .tracker-no {
         margin-left: 5px;
         flex: 0;
-        min-width: 60px;
+        min-width: 80px;
     }
 
     .tracker-title {

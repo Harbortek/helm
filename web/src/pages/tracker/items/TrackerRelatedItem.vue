@@ -245,8 +245,8 @@ import TrackerItemSelectModal from '@/components/dialog/TrackerItemSelectModal'
 import { hasPermission } from '@/utils/permission'
 import VXETable from "vxe-table";
 import { mapGetters } from "vuex";
-import TIcon from '@/components/icon/T-Icon.vue';
-import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
+import TIcon from '@/components/icon/ItemIcon.vue';
+import HItemNo from '@/components/table/itemNo/ItemNo.vue';
 
 export default {
     name: 'TrackerRelatedItem',

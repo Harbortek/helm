@@ -534,7 +534,7 @@ import KanbanLayout from './trackerItemTableLayout/KanbanLayout.vue';
 import CalendarLayout from './trackerItemTableLayout/CalendarLayout.vue';
 import TreeLayout from './trackerItemTableLayout/TreeLayout.vue';
 import MatrixLayout from './trackerItemTableLayout/MatrixLayout.vue';
-import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
+import HItemNo from '@/components/table/itemNo/ItemNo.vue';
 import SeveritySelect from '@/components/select/SeveritySelect.vue';
 
 

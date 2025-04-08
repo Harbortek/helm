@@ -835,7 +835,7 @@ import { findSprints } from '@/services/plan/SprintService'
 import { findWaitExecutePlans } from '@/services/plan/PlanService'
 import { findMilestones } from '@/services/plan/PlanService'
 import { findByProjectId } from '@/services/tracker/ProjectPageService'
-import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
+import HItemNo from '@/components/table/itemNo/ItemNo.vue';
 
 export default {
   name: 'TableItemSelectView',

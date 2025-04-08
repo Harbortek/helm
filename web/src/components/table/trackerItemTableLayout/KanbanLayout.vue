@@ -127,8 +127,8 @@ import {
     findTrackerItems
 } from "@/services/tracker/TrackerItemService";
 import { roundToNearestMinutesWithOptions } from "date-fns/fp";
-import TIcon from '@/components/icon/T-Icon.vue';
-import HItemNo from '@/components/table/itemNo/H-ItemNo.vue';
+import TIcon from '@/components/icon/ItemIcon.vue';
+import HItemNo from '@/components/table/itemNo/ItemNo.vue';
 
 export default {
     name: 'KanbanLayout',
