@@ -18,7 +18,9 @@ package com.harbortek.helm.tracker.entity.plan;
 
 import com.harbortek.helm.common.annotation.EntityReference;
 import com.harbortek.helm.common.entity.BaseEntity;
+import com.harbortek.helm.system.entity.EnumItemEntity;
 import com.harbortek.helm.system.entity.UserEntity;
+import com.harbortek.helm.tracker.entity.tracker.TrackerEntity;
 import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
 import lombok.Builder;
 import lombok.Data;
@@ -49,6 +51,21 @@ public class PlanEntity extends BaseEntity implements Planable{
     String seqNumber;
 
     String itemNo;
+
+    @EntityReference(TrackerEntity.class)
+    Long trackerId;
+
+    Long statusId;
+
+    @EntityReference(EnumItemEntity.class)
+    Long meaningId;
+
+    @EntityReference(EnumItemEntity.class)
+    Long priorityId;
+
+    @EntityReference(EnumItemEntity.class)
+    Long severityId;
+
     /**
      * 项目ID
      */
@@ -93,21 +110,21 @@ public class PlanEntity extends BaseEntity implements Planable{
     /**
      * 交付物ID
      */
-    @EntityReference(DeliverableEntity.class)
-    @Builder.Default
-    List<Long> deliverables = new ArrayList<>();
+//    @EntityReference(DeliverableEntity.class)
+//    @Builder.Default
+//    List<Long> deliverables = new ArrayList<>();
 
     /**
      * 关联的迭代ID
      */
-    @EntityReference(SprintEntity.class)
-    @Builder.Default
-    List<Long> sprints = new ArrayList<>();
+//    @EntityReference(SprintEntity.class)
+//    @Builder.Default
+//    List<Long> sprints = new ArrayList<>();
 
     /**
      * 关联的工作项ID
      */
-    @EntityReference(TrackerItemEntity.class)
-    @Builder.Default
-    List<Long> items = new ArrayList<>();
+//    @EntityReference(TrackerItemEntity.class)
+//    @Builder.Default
+//    List<Long> items = new ArrayList<>();
 }

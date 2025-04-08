@@ -77,17 +77,12 @@ public class TrackerItemDao extends BaseJdbcDao {
                 .and(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
                 .and("tracker_id<0 or tracker_item_has_permission(id," + SecurityUtils.getCurrentUser().getId() + ",'ITEM_VIEW') ");
         return findFirst(query.getSQL(ParamType.INLINED),new HashMap<>(), TrackerItemEntity.class);
-//        return findById(id, TrackerItemEntity.class);
     }
 
     public List<TrackerItemEntity> findByIds(List<Long> itemIds) {
         if (ObjectUtils.isEmpty(itemIds)){
             return new ArrayList<>();
         }
-//        Criteria criteria = Criteria.empty();
-//        criteria = criteria.and(Criteria.where(BaseEntity.Fields.id).in(itemIds));
-//        Query query = Query.query(criteria);
-//        return find(query, TrackerItemEntity.class);
         SelectConditionStep<?> query = getDslContext().selectFrom(getTable(TrackerItemEntity.class))
                 .where(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
                 .and(getField(BaseEntity.Fields.id).in(itemIds))
@@ -256,15 +251,6 @@ public class TrackerItemDao extends BaseJdbcDao {
         incRevision(item.getId());
     }
 
-//    public void updateAttachments(TrackerItemEntity item) {
-//        getMongoTemplate().update(TrackerItemEntity.class)
-//                     .matching(Query.query(Criteria.where(BaseEntity.Fields.id).is(item.getId())))
-//                     .apply(new Update().set(TrackerItemEntity.Fields.attachments,item.getAttachments()))
-//                     .first();
-//        CacheUtils.evict(item.getId(),TrackerItemEntity.class);
-//        incRevision(item.getId());
-//    }
-
     public void incRevision(Long itemId) {
         String sql = "update tracker_items set revision = revision + 1 where id = :id";
         Map<String, Object> params = new HashMap<>();
@@ -279,12 +265,13 @@ public class TrackerItemDao extends BaseJdbcDao {
         }
 
         Field<JSON> externalArray = DSL.jsonArray(sprintIds.stream().map(t->DSL.inline(String.valueOf(t))).toList());
-        SelectConditionStep<?> query = getDslContext().selectFrom(getTable(TrackerItemEntity.class))
+        Select<?> query = getDslContext().selectFrom(getTable(TrackerItemEntity.class))
                 .where(getField(TrackerItemEntity.Fields.projectId).eq(projectId))
                 .and(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
                 .and(DSL.field("JSON_OVERLAPS({0},COALESCE(JSON_EXTRACT({1},'$.*'),'[]'))",
                         externalArray,getField(TrackerItemEntity.Fields.values)).eq(true))
-                .and("tracker_item_has_permission(id," + SecurityUtils.getCurrentUser().getId() + ",'ITEM_VIEW') ");
+                .and("tracker_item_has_permission(id," + SecurityUtils.getCurrentUser().getId() + ",'ITEM_VIEW') ")
+                .orderBy(getField(TrackerItemEntity.Fields.trackerId).asc(),getField(TrackerItemEntity.Fields.itemNo).asc());
         return find(query.getSQL(ParamType.INLINED),null, TrackerItemEntity.class);
 
     }
@@ -324,12 +311,6 @@ public class TrackerItemDao extends BaseJdbcDao {
     }
 
     public TrackerItemEntity findOneByItemNo(Long projectId, String itemNo) {
-//        Criteria criteria = Criteria.empty();
-//        criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
-//        criteria = criteria.and(Criteria.where(TrackerItemEntity.Fields.projectId).in(projectId));
-//        criteria = criteria.and(Criteria.where(TrackerItemEntity.Fields.itemNo).in(itemNo));
-//        Query query = Query.query(criteria);
-//        return findOne(query, TrackerItemEntity.class);
         SelectConditionStep<?> query = getDslContext().selectFrom(getTable(TrackerItemEntity.class))
                 .where(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
                 .and(getField(TrackerItemEntity.Fields.projectId).eq(projectId))
@@ -339,13 +320,6 @@ public class TrackerItemDao extends BaseJdbcDao {
     }
 
     public void deleteByTrackerIds(List<Long> trackerIds) {
-//        Criteria criteria = Criteria.empty();
-//        criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
-//        criteria.and(Criteria.where(TrackerItemEntity.Fields.trackerId).in(trackerIds));
-//
-//        Query query = Query.query(criteria);
-//        updateMulti(query, Update.update(BaseEntity.Fields.deleted, Boolean.TRUE), TrackerItemEntity.class);
-
         getDslContext().update(getTable(TrackerItemEntity.class))
                 .set(getField(BaseEntity.Fields.deleted), Boolean.TRUE)
                 .where(getField(TrackerItemEntity.Fields.trackerId).in(trackerIds))
@@ -388,18 +362,6 @@ public class TrackerItemDao extends BaseJdbcDao {
     }
 
     public Date findLastModified(Long projectId) {
-//        Criteria criteria = Criteria.empty();
-//        criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE)
-//                             .and(TrackerItemEntity.Fields.projectId).is(projectId));
-//        Query query = Query.query(criteria);
-//        query.columns(BaseEntity.Fields.lastModifiedDate);
-//        query.sort(Sort.by(Sort.Direction.DESC, BaseEntity.Fields.lastModifiedDate));
-//        query.limit(1);
-//        List<TrackerItemEntity> list = find(query, TrackerItemEntity.class);
-//        if (list.isEmpty()) {
-//            return null;
-//        }
-//        return list.stream().findFirst().get().getLastModifiedDate();
         SelectLimitPercentStep<Record1<Object>> limit = getDslContext().select(getField(BaseEntity.Fields.lastModifiedDate))
                 .from(getTable(TrackerItemEntity.class))
                 .where(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
@@ -458,16 +420,6 @@ public class TrackerItemDao extends BaseJdbcDao {
     }
 
     public List<Long> findItemIdsByTrackerId(Long trackerId, Long statusId) {
-//        Criteria criteria = Criteria.empty();
-//        criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
-//        criteria = criteria.and(Criteria.where(TrackerItemEntity.Fields.trackerId).is(trackerId));
-//        if (statusId != null) {
-//            criteria = criteria.and(Criteria.where(TrackerItemEntity.Fields.statusId).is(statusId));
-//        }
-//        Query query = Query.query(criteria);
-//        query.columns(BaseEntity.Fields.id);
-//        return find(query, TrackerItemEntity.class);
-
         SelectConditionStep<?> query = getDslContext().selectDistinct(getField(BaseEntity.Fields.id))
                 .from(getTable(TrackerItemEntity.class))
                 .where(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
@@ -479,14 +431,6 @@ public class TrackerItemDao extends BaseJdbcDao {
     }
 
     public List<TrackerItemEntity> findItemByTrackerIds(Long projectId, List<Long> trackerIds) {
-//        Criteria criteria = Criteria.empty();
-//        criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
-//        if (ObjectUtils.isValid(projectId)) {
-//            criteria = criteria.and(Criteria.where(TrackerItemEntity.Fields.projectId).is(projectId));
-//        }
-//        criteria = criteria.and(Criteria.where(TrackerItemEntity.Fields.trackerId).in(trackerIds));
-//        Query query = Query.query(criteria);
-//        return find(query, TrackerItemEntity.class);
         SelectConditionStep<?> query = getDslContext().selectFrom(getTable(TrackerItemEntity.class))
                 .where(getField(BaseEntity.Fields.deleted).eq(Boolean.FALSE))
                 .and(getField(TrackerItemEntity.Fields.projectId).eq(projectId))
@@ -496,7 +440,6 @@ public class TrackerItemDao extends BaseJdbcDao {
     }
 
     public void batchDeleteTrackerItem(List<Long> itemIds) {
-//        delete(itemIds, TrackerItemEntity.class);
         Condition condition = DSL.noCondition();
         condition = condition.and(getField(BaseEntity.Fields.id).in(itemIds));
         getDslContext().update(getTable(TrackerItemEntity.class))
@@ -506,15 +449,6 @@ public class TrackerItemDao extends BaseJdbcDao {
 
     public void replaceWorkItemStatus(Long trackerId, TrackerStatus oldTrackerStatus,
                                       TrackerStatus newTrackerStatus) {
-
-//        Query query =
-//                Query.query(Criteria.where(TrackerItemEntity.Fields.trackerId).is(trackerId)
-//                                    .and(Criteria.where(TrackerItemEntity.Fields.statusId).is(oldTrackerStatus.getId())));
-//        Update update = Update.from(new HashMap<>());
-//        update.set(TrackerItemEntity.Fields.statusId, newTrackerStatus.getId())
-//              .set(TrackerItemEntity.Fields.statusName, newTrackerStatus.getName())
-//              .set(TrackerItemEntity.Fields.meaningId, newTrackerStatus.getMeaning().getId());
-//        updateMulti(query, update,TrackerItemEntity.class);
 
         getDslContext().update(getTable(TrackerItemEntity.class))
                 .set(getField(TrackerItemEntity.Fields.statusId), newTrackerStatus.getId())

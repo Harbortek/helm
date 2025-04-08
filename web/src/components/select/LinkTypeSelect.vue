@@ -1,6 +1,6 @@
 <template>
     <a-select v-model="selectItem" placeholder="请选择" @change="onChange" :disabled="disabled">
-        <a-select-option v-for="item in versions" :key="item.id" :title="item.name" :value="item.id">
+        <a-select-option v-for="item in data" :key="item.id" :title="item.name" :value="item.id">
             {{ item.name }}
         </a-select-option>
     </a-select>
@@ -35,8 +35,8 @@ export default ({
             if (curVal) {
                 this.selectItem = curVal;
             } else {
-                if (this.selectFirst && this.versions.length > 0) {
-                    this.selectItem = this.versions[0].id;
+                if (this.selectFirst && this.data.length > 0) {
+                    this.selectItem = this.data[0].id;
                     this.onChange(this.selectItem);
                 }
             }
@@ -49,16 +49,27 @@ export default ({
     data() {
         return {
             selectItem: "",
-            versions: []
+            data: []
         };
     },
     methods: {
         loadData() {
             let that = this;
             findLinkTypes(this.projectId).then(resp => {
-                that.versions = resp;
-                if (this.selectFirst && this.versions.length > 0) {
-                    this.selectItem = this.versions[0].id;
+                that.data = []
+                for (let item of resp){
+                    that.data.push({
+                        id: item.id+'-0',
+                        name: item.name
+                    });
+                    that.data.push({
+                        id: item.id+'-1',
+                        name: item.oppositeName
+                    })
+                }
+
+                if (this.selectFirst && this.data.length > 0) {
+                    this.selectItem = this.data[0].id;
                     this.onChange(this.selectItem);
                 }
             });

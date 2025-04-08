@@ -63,10 +63,10 @@
                                         </div>
                                     </template>
                                 </vxe-column>
-                                <vxe-column field="secondLinkTracker" :title="secondLinkTrackerTitle" :show-overflow="true">
+                                <vxe-column field="secondLinkTracker" :title="secondLinkTrackerTitle" :show-overflow="true" v-if="chart?.secondLinkTrackerId">
                                     <template #default="{ row }">
                                         <div style="display: flex;flex-direction: column;"
-                                            v-for="subItem in row.childnren" :key="subItem.id">
+                                            v-for="subItem in row.children" :key="subItem.id">
                                             <div class="tracker-container">
                                                 <div class="tracker-no" @click="showTrackerItem(subItem)">
                                                     <ItemNo :trackerItem="subItem" />
@@ -84,35 +84,8 @@
                     </vxe-column>
                     <vxe-column field="linkTracker" :title="linkTrackerTitle">
                     </vxe-column>
-                    <vxe-column field="secondLinkTracker" :title="secondLinkTrackerTitle">
+                    <vxe-column field="secondLinkTracker" :title="secondLinkTrackerTitle" v-if="chart?.secondLinkTrackerId">
                     </vxe-column>
-                    <!-- <vxe-column field="priority" title="优先级" width="100" header-align="center">
-                        <template #default="{ row }">
-                            <a-tag style="border:none"
-                                :style="{ color: row.priority?.color, backgroundColor: row.priority?.backgroundColor }">{{
-                                    row.priority?.name }}</a-tag>
-                        </template>
-                    </vxe-column>
-                    <vxe-column field="status" title="状态" width="100" header-align="center">
-                        <template #default="{ row }">
-                            <div style="cursor: pointer" class="transition-status">
-                                <span class="ui-tag-status"
-                                    :style="{ color: row.status?.meaning?.color, 'border-color': row.status?.meaning?.color }">{{
-                                        row.status?.name }}</span>
-                            </div>
-                        </template>
-                    </vxe-column>
-                    <vxe-column field="severity" title="严重级别" width="100" header-align="center">
-                        <template #default="{ row }">
-                            <a-tag
-                                :style="{ color: row.severity?.color, backgroundColor: row.severity?.backgroundColor }">{{ row.severity?.name }}</a-tag>
-                        </template>
-                    </vxe-column>
-                    <vxe-column field="owner" title="负责人" width="100" header-align="center">
-                        <template #default="{ row }">
-                            <h-avatar :name="row.owner.name" :icon="row.owner.icon"></h-avatar>
-                        </template>
-                    </vxe-column> -->
                 </vxe-table>
             </div>
         </a-row>
@@ -353,7 +326,9 @@ export default {
                 this.tableData = this.chart.data.data || []
                 // const treeData = XEUtils.toArrayTree(this.data)
                 // this.toColTreeData(treeData)
-
+                this.$nextTick(() => {
+                    this.$refs.xtable.setAllRowExpand(true)
+                })
             } else {
                 this.tableData = []
                 this.tableColumns = []

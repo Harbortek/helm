@@ -25,7 +25,7 @@ public class TableTraceabilityRequest {
     Long mainTrackerId;
     Long linkTrackerId;
     Long secondLinkTrackerId;
-    Long linkTypeId;
-    Long secondLinkTypeId;
+    String linkTypeId;
+    String secondLinkTypeId;
     String showType;
 }
