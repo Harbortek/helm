@@ -161,8 +161,9 @@ public class TestRunApi {
 
     @Parameter(name="移除测试结果关联工作项")
     @RequestMapping(value = "/trackerTestResultLink/unlink", method = RequestMethod.POST)
-    ResponseEntity<Void> unlinkTestResultWithDownstreamTrackerItems(@RequestParam Long testResultId) {
-        testRunService.unlinkTestResultWithDownstreamTrackerItems(testResultId);
+    ResponseEntity<Void> unlinkTestResultWithDownstreamTrackerItems(@RequestParam Long testResultId,
+                                                                    @RequestParam Long trackerItemId) {
+        testRunService.unlinkTestResultWithDownstreamTrackerItems(testResultId,trackerItemId);
         return ResponseEntity.ok().build();
     }
 

@@ -171,14 +171,14 @@ export function linkTestResultWithDownstreamTrackerItems(
 
 export function unlinkTestResultWithDownstreamTrackerItems(
   testResultId,
-  trackerItemIds
+  trackerItemId
 ) {
   return request({
     url: `/test/run/trackerTestResultLink/unlink`,
     method: METHOD.POST,
     params: {
       testResultId,
-      trackerItemIds,
+      trackerItemId,
     },
   });
 }

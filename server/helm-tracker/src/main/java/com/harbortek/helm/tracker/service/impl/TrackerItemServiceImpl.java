@@ -175,6 +175,9 @@ public class TrackerItemServiceImpl implements TrackerItemService {
 
     private List<Long> getFilterTrackerId(Long projectId, Long trackerId, Long sprintId, Boolean isTest) {
 
+        if(ObjectUtils.isNotEmpty(trackerId)){
+            return Collections.singletonList(trackerId);
+        }
         List<Long> trackerIds = new ArrayList<>();
         List<TrackerEntity> trackerList = trackerDao.findByProject(projectId);
         if (isTest != null && isTest) {//测试用例
@@ -186,9 +189,7 @@ public class TrackerItemServiceImpl implements TrackerItemService {
                     t.getTrackerFields().stream().anyMatch(field -> field instanceof SprintField&&!field.getSystem())
             ).map(TrackerEntity::getId).collect(Collectors.toList());
         }
-        if(ObjectUtils.isNotEmpty(trackerId)){
-            trackerIds.add(trackerId);
-        }
+
         return trackerIds;
     }
 

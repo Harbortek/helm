@@ -61,8 +61,8 @@
                 <a-col :span="3">影响工作项</a-col>
               </a-row>
               <a-row style="font-size: 14px;font-weight: 500;padding:0 10px;margin-top:10px;height: 40px;line-height: 40px;">
-                <a-col :span="4">【示例】敏捷式研发管理</a-col>
-                <a-col :span="4">需求</a-col>
+                <a-col :span="4">{{this.selectedRows[0]?.project.name}}</a-col>
+                <a-col :span="4">{{this.selectedRows[0]?.tracker.name}}</a-col>
                 <a-col :span="13">
                   <a-form-model ref="fieldsForm" layout="horizontal" :model="formData" :rules="rules">
                     <div class="order-row" :key="field.id"

@@ -32,6 +32,7 @@ import com.harbortek.helm.tracker.service.SprintService;
 import com.harbortek.helm.tracker.service.TargetVersionService;
 import com.harbortek.helm.tracker.service.TrackerItemService;
 import com.harbortek.helm.tracker.vo.plan.SprintVo;
+import com.harbortek.helm.tracker.vo.plan.TargetVersionVo;
 import com.harbortek.helm.tracker.vo.tracker.fields.SprintField;
 import com.harbortek.helm.util.*;
 import lombok.extern.slf4j.Slf4j;
@@ -170,18 +171,27 @@ public class SprintServiceImpl implements SprintService {
                 trackerItemService.updateTrackerItemSprint(sprintId, itemIds);
             }
         }
-
+        if(ProjectStatusMeaning.NOT_STARTED.equals(entity.getMeaning())&&
+            ObjectUtils.isNotEmpty(sprintVo.getTargetVersion())&&
+            ObjectUtils.isNotEmpty(sprintVo.getTargetVersion().getId())){
+            //更新目标版本开始时间
+            TargetVersionVo targetVersionVo = targetVersionService.findOneTargetVersion(sprintVo.getTargetVersion().getId());
+            if(ObjectUtils.isEmpty(targetVersionVo.getRealStartDate())){
+                targetVersionVo.setRealStartDate(sprintVo.getRealStartDate());
+                targetVersionService.updateTargetVersion(targetVersionVo);
+            }
+        }
         if(ProjectStatusMeaning.NOT_STARTED.equals(sprintVo.getMeaning())){
             entity.setStatusId(enumService.findOneEnumItemByCode(sprintVo.getProjectId(), EnumCodes.PROJECT_STATUS_MEANING,
                     ProjectStatusMeaning.ONGOING).getId());
             entity.setMeaning(ProjectStatusMeaning.ONGOING);
+            entity.setRealStartDate(sprintVo.getRealStartDate());
         } else if (ProjectStatusMeaning.ONGOING.equals(sprintVo.getMeaning())) {
             entity.setStatusId(enumService.findOneEnumItemByCode(sprintVo.getProjectId(), EnumCodes.PROJECT_STATUS_MEANING,
                     ProjectStatusMeaning.ENDED).getId());
             entity.setMeaning(ProjectStatusMeaning.ENDED);
+            entity.setRealEndDate(sprintVo.getRealEndDate());
         }
-        entity.setRealStartDate(sprintVo.getRealStartDate());
-        entity.setRealEndDate(sprintVo.getRealEndDate());
         entity = sprintDao.createSprint(entity);
         return DataUtils.toVo(entity, SprintVo.class);
     }

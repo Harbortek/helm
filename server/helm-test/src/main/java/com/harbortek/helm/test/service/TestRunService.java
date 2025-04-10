@@ -55,7 +55,7 @@ public interface TestRunService {
     TestResultVo saveResult(Long testRunId, Long testResultId, Long resultId, String resultDesc,
                             List<TestStepResult> testStepResults);
 
-    void unlinkTestResultWithDownstreamTrackerItems(Long testResultId);
+    void unlinkTestResultWithDownstreamTrackerItems(Long testResultId,Long trackerItemId);
 
     void linkTestResultWithDownstreamTrackerItems(Long testResultId, List<Long> trackerItemIds);
 

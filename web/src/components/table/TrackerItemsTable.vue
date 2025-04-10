@@ -158,11 +158,11 @@
                                     <vxe-button @click="onClickExport" type="text"
                                         :content="'导出' + (tracker.name || '工作项')"></vxe-button>
                                 </div>
-                                <div style="height:30px;margin-right:10px;">
+                                <div v-if="!pageId && !sprintId && trackerId" style="height:30px;margin-right:10px;">
                                     <vxe-button @click="onClickBatchModifigleStart()" type="text"
                                         :content="'批量修改工作项属性'"></vxe-button>
                                 </div>
-                                <div style="height:30px;margin-right:10px;">
+                                <div v-if="!pageId && !sprintId && trackerId" style="height:30px;margin-right:10px;">
                                     <vxe-button @click="onClickBatchDeleteStart()" type="text"
                                         :content="'批量删除工作项'"></vxe-button>
                                 </div>
@@ -682,11 +682,8 @@ export default {
     watch: {
         trackerId: {
             handler: function (newVal, oldVal) {
-                if (newVal === "" && this.sprintId) {
+                if (newVal != "code") {
                     this.loadData();
-                }else if (newVal != "code") {
-                    this.loading=true;
-                    this.initTracker();
                 }
             }
         },
@@ -929,14 +926,14 @@ export default {
                     field: '', type: 'checkbox', width: 60, visible: (this.sprintType || this.isBatchModfigle || this.sprintId)
                         && (!this.proejctPageId || hasPermission("PAGE_WRITE",this.proejctPageId)) ? true : false
                 },
-                { field: 'itemNo', title: '编号', width:100, slots: { default: 'itemNo_default', } },
+                { field: 'itemNo', title: '编号', width:120, slots: { default: 'itemNo_default', },align:"center" },
                 { field: 'name', title: '标题', editRender: {}, minWidth: 300, slots: { default: 'name_default', edit: 'name_edit' } },
-                { field: 'priority', title: '优先级', editRender: {}, width: 100, slots: { default: 'priority_default', edit: 'priority_edit' } },
-                { field: 'status', title: '状态', width: 100, slots: { default: 'status_default', header: 'status_header' } },
-                { field: 'ownerId', title: '负责人', width: 100, slots: { default: 'owner_default', header: 'owner_header' } },
-                { field: 'planEndDate', title: '计划结束时间', editRender: {}, width: 130, formatter:this.formatDate, showHeaderOverflow: "tooltip", slots: { edit: 'plan_end_time_edit' } },
-                { field: 'createBy', title: '创建者', width: 100, slots: { default: 'createBy_default' } },
-                { field: 'createDate', title: '创建日期', formatter:this.formatDate, width: 100 }, //width: 150
+                { field: 'priority', title: '优先级', editRender: {}, width: 100,align:"center", slots: { default: 'priority_default', edit: 'priority_edit' } },
+                { field: 'status', title: '状态', width: 100,align:"center", slots: { default: 'status_default', header: 'status_header' } },
+                { field: 'ownerId', title: '负责人', width: 100,align:"center", slots: { default: 'owner_default', header: 'owner_header' } },
+                { field: 'planEndDate', title: '计划结束时间',align:"center", editRender: {}, width: 130, formatter:this.formatDate, showHeaderOverflow: "tooltip", slots: { edit: 'plan_end_time_edit' } },
+                { field: 'createBy', title: '创建者', width: 100,align:"center", slots: { default: 'createBy_default' } },
+                { field: 'createDate', title: '创建日期',align:"center", formatter:this.formatDate, width: 110 }, //width: 150
             ]
         },
         initTableColumnTail() {
@@ -945,15 +942,15 @@ export default {
                 { field: 'estimateWorkingHours', title: '预计花费工时', align: "right", editRender: {}, width: 130, showHeaderOverflow: "tooltip", slots: { edit: 'estimate_working_hours_edit' } },
                 { field: 'registeredWorkingHours', title: '已登记工时', align: "right", width: 130, showHeaderOverflow: "tooltip", slots: { default: 'registered_working_hours_default', header: 'registered_working_hours_header' } },
                 { field: 'remainingWorkingHours', title: '剩余工时', align: "right", editRender: {}, width: 100, slots: { edit: 'remaining_working_hours_edit' } },
-                { field: 'assignedToId', title: '分配给', width: 100, slots: { default: 'assigned_to_default', header: 'assigned_to_header' } },
-                { field: 'assignedDate', title: '分配日期', editRender: {}, formatter:this.formatDate, width: 100, slots: { edit: 'assigned_date_edit' } },
-                { field: 'planStartDate', title: '计划开始时间', editRender: {}, formatter:this.formatDate, width: 130, showHeaderOverflow: "tooltip", slots: { edit: 'plan_start_date_edit' } },
-                { field: 'realStartDate', title: '实际开始时间', editRender: {}, formatter:this.formatDate, width: 130, showHeaderOverflow: "tooltip", slots: { edit: 'real_start_date_edit' } },
-                { field: 'realEndDate', title: '实际结束时间', editRender: {}, formatter:this.formatDate, width: 130, showHeaderOverflow: "tooltip", slots: { edit: 'real_end_date_edit' } },
-                { field: 'progress', title: '进度', editRender: {}, width: 100, slots: { edit: 'progress_edit' } },
-                { field: 'closeDate', title: '关闭时间', editRender: {}, formatter:this.formatDate, width: 100, slots: { edit: 'close_date_edit' } },
-                { field: 'severity', title: '严重级别', editRender: {}, width: 150, slots: { default: 'severity_default',edit: 'severity_edit' } },
-                { field: 'sprintId', title: '迭代', width: 150, slots: { default: 'sprint_default',} },
+                { field: 'assignedToId', title: '分配给', width: 100,align:"center", slots: { default: 'assigned_to_default', header: 'assigned_to_header' } },
+                { field: 'assignedDate', title: '分配日期',align:"center", editRender: {}, formatter:this.formatDate, width: 100, slots: { edit: 'assigned_date_edit' } },
+                { field: 'planStartDate', title: '计划开始时间',align:"center", editRender: {}, formatter:this.formatDate, width: 130, showHeaderOverflow: "tooltip", slots: { edit: 'plan_start_date_edit' } },
+                { field: 'realStartDate', title: '实际开始时间',align:"center", editRender: {}, formatter:this.formatDate, width: 130, showHeaderOverflow: "tooltip", slots: { edit: 'real_start_date_edit' } },
+                { field: 'realEndDate', title: '实际结束时间',align:"center", editRender: {}, formatter:this.formatDate, width: 130, showHeaderOverflow: "tooltip", slots: { edit: 'real_end_date_edit' } },
+                { field: 'progress', title: '进度', editRender: {}, width: 100,align:"right", slots: { edit: 'progress_edit' } },
+                { field: 'closeDate', title: '关闭时间', editRender: {},align:"center", formatter:this.formatDate, width: 100, slots: { edit: 'close_date_edit' } },
+                { field: 'severity', title: '严重级别', editRender: {},align:"center", width: 150, slots: { default: 'severity_default',edit: 'severity_edit' } },
+                { field: 'sprintId', title: '迭代', width: 150,align:"center", slots: { default: 'sprint_default',} },
 
             ]
         },
@@ -1007,7 +1004,7 @@ export default {
                                 columnField = columnField.slice(0, columnField.length - 2)
                                 columnField += ".name"
                             }
-                            newTableColumn.push({ field: columnField, title: field.name, minWidth: field.name.length * 25, showOverflow: "tooltip", showHeaderOverflow: "tooltip" });
+                            newTableColumn.push({ field: columnField, title: field.name, minWidth: field.name.length * 25, showOverflow: "tooltip", showHeaderOverflow: "tooltip",align:"center" });
                         }
                     } else {
                         newTableColumn.push({
@@ -1639,7 +1636,6 @@ export default {
                         }
                     })
                 });
-                console.log("aabc",this.sprintFields)
             })
 
             findEnumsByCode('TRACKER_PRIORITY').then((resp) => {
@@ -1748,10 +1744,12 @@ export default {
 
 .transition-status {
     min-width: 40px;
+    // width: 40px;
     display: flex;
     align-items: center;
     // margin-right: 20px;
     white-space: nowrap;
+    justify-content: center;
 
     .ui-tag-status {
         max-width: 110px;

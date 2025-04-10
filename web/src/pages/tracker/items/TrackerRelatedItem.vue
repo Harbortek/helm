@@ -288,6 +288,7 @@ export default {
             immediate: true,
             handler: function (newVal, oldVal) {
                 if (newVal) {
+                    console.log("relatedworkItems",newVal)
                     this.loadItemData();
                 }
             }
@@ -324,7 +325,7 @@ export default {
 
             if (this.itemId) {
                 createTrackerLink(this.itemId, items).then(resp => {
-                    // this.relatedWorkItems.push(...items)
+                    this.relatedWorkItems.push(...items)
                     this.refresh()
                 })
             } else {
@@ -399,6 +400,16 @@ export default {
             this.$emit("refresh")
         },
         loadItemData() {
+            this.relatedWorkItems?.forEach(item => {
+                if(item.linkType.id&&item.linkType.id[0]!='S'&&item.linkType.id[0]!='T'){
+                    if (item.sourceItem && item.sourceItem.id === this.itemId) {
+                        item.linkType.id = 'S' + item.linkType.id;
+                    } else {
+                        item.linkType.id = 'T' + item.linkType.id;
+                    }
+                }
+            })
+
             // this.loading=true;
             let ids = this.getRelatedItems.map(item => item.id)
             if (ids.length != 0 && this.itemId) {

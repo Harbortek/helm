@@ -71,9 +71,9 @@
                         </div>
                     </div>
                 </template>
-                <quick-picker :title="getFieldsDataValue(item) || '未设置'" :sub-title="item.name">                    
+                <quick-picker :title="getFieldsDataValue(item)?.name || '未设置'" :sub-title="item.name">                    
                     <template slot="icon">
-                        <a-avatar :style="{ color: '#606060', backgroundColor: '#e8e8e8' }">
+                        <a-avatar :style="{ color: getFieldsDataValue(item)?.color||'#606060', backgroundColor: getFieldsDataValue(item)?.backgroundColor||'#e8e8e8' }">
                             <a-icon type="book" />
                         </a-avatar>
                     </template>
@@ -99,7 +99,7 @@
                         </div>
                     </div>
                 </template>
-                <quick-picker v-if="trackerItem?.values" :title="getFieldsDataValue(item) || '未设置'" :sub-title="item.name">                    <template slot="icon">
+                <quick-picker v-if="trackerItem?.values" :title="getFieldsDataValue(item)?.name || '未设置'" :sub-title="item.name">                    <template slot="icon">
                         <a-avatar :style="{ color: '#606060', backgroundColor: '#e8e8e8' }">
                             <a-icon type="book" />
                         </a-avatar>
@@ -264,7 +264,7 @@ export default ({
         getFieldsDataValue(field){
             let value= this.getFieldsData(field);
             let item = field.items.find(i => i.id === value);
-            return item ? item.name : '';
+            return item;
         },
         getDateValue(field){
             if(field.system){
