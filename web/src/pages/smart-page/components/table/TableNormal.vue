@@ -266,10 +266,12 @@ export default {
             })
           }
           this.fields.forEach(f => {
+            const columnWidth =  this.maxWidths(f)
             columns.push({
-              width: this.maxWidths(f),
+              width: columnWidth,
               field: f.name,
               title: f.title,
+              align: columnWidth==='' ? 'left' : this.tableItemAlign,
               resizable: true,
               fixed: false,
               type: f.type,
@@ -302,9 +304,33 @@ export default {
       }
     },
     maxWidths(field){
-        const contentLengths = this.chart.data.data.map(item => String(item[field.name]).length);
-        const maxLength = Math.max(...contentLengths, field.title.length);
-        return maxLength * 8 + 20; // 根据字符数估算宽度（单位：px）
+        let maxLengthStr = ''
+        //获得最长的字符串
+        this.chart.data.data.forEach(item=>{
+          if ( String(item[field.name]).length > maxLengthStr.length){
+            maxLengthStr = item[field.name]+''
+          }
+        })
+        if (field.title.length>maxLengthStr.length){
+          maxLengthStr = field.title
+        }
+        let width = this.getTextWidth(maxLengthStr)
+        if (width>200){
+          return ''
+        }
+        return width
+    },
+    // 获取文本宽度
+    getTextWidth(str) {      
+      let width = 0;
+      let span = document.createElement("span");
+      span.style="font-size:14px;"
+      span.innerText = str;
+      document.querySelector("body").appendChild(span);
+      width =  Math.ceil(span.getBoundingClientRect().width)+30;
+      span.remove();
+      console.log('getTextWith',str,width)
+      return width > 80 ? width: 80;
     },
     sumNum(list, field) {
       let total = new Decimal(0)
