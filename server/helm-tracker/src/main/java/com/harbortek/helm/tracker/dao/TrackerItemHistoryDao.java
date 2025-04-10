@@ -79,11 +79,8 @@ public class TrackerItemHistoryDao extends BaseJdbcDao {
      */
     public List<TrackerItemHistoryEntity> copyMany(List<TrackerItemEntity> source) {
 
-//        AtomicInteger count = new AtomicInteger();
-//        List<String> ids = new ArrayList<>();
         List<Long> itemIds = source.stream().map(BaseEntity::getId).toList();
-        Map<Long, TrackerItemHistoryEntity> historyMap = findByObjectIds(itemIds).stream().collect(Collectors
-                .toMap(HistoryBaseEntity::getObjectId, Function.identity()));//过滤已存在history
+        Map<Long, List<TrackerItemHistoryEntity>> historyMap = findByObjectIds(itemIds).stream().collect(Collectors.groupingBy(TrackerItemHistoryEntity::getObjectId));
         List<TrackerItemHistoryEntity> existItems=new ArrayList<>();
 
         List<TrackerItemHistoryEntity> historyList = new ArrayList<>();
@@ -93,9 +90,11 @@ public class TrackerItemHistoryDao extends BaseJdbcDao {
             history.setId(IDUtils.getId());
             history.setObjectId(item.getId());
             history.setCreateDate(null);
-            if(ObjectUtils.isNotEmpty(historyMap.get(item.getId()))
-                && item.getRevision().equals(historyMap.get(item.getId()).getRevision())){
-                existItems.add(historyMap.get(item.getId()));
+            if(ObjectUtils.isNotEmpty(historyMap.get(item.getId()))){
+                boolean exist= historyMap.get(item.getId()).stream().anyMatch(historyEntity -> historyEntity.getRevision().equals(item.getRevision()));
+                if (exist) {
+                    historyList.add(history);
+                }
             }else{
                 historyList.add(history);
             }

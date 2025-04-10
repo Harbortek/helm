@@ -20,7 +20,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONArray;
 import com.harbortek.helm.smartdoc.editor.operation.util.SlateParser;
 import com.harbortek.helm.tracker.entity.block.DocBlock;
-import com.harbortek.helm.tracker.entity.block.DocEntity;
+import com.harbortek.helm.tracker.entity.block.DocumentEntity;
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.Block2Node;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
@@ -61,9 +61,9 @@ public class Operator {
     public DocVo get(Long docId) {
         DocVo docVo = docVoMap.get(docId);
         if (docVo == null) {
-            DocEntity docEntity = docService.findOneDoc(docId);
-            docEntity.setBlocks(new ArrayList<>(docEntity.getBlocks()));
-            docVo = DataUtils.toVo(docEntity, DocVo.class);
+            DocumentEntity documentEntity = docService.findOneDoc(docId);
+            documentEntity.setBlocks(new ArrayList<>(documentEntity.getBlocks()));
+            docVo = DataUtils.toVo(documentEntity, DocVo.class);
             List<SlateNode> newElements = new ArrayList<>();
             docVo.getElements().forEach(slateNode -> newElements.add(slateNode));
             docVo.setElements(newElements);
@@ -133,8 +133,8 @@ public class Operator {
     public void tryToSave(Long k) {
         DocVo v = docVoMap.get(k);
         if (v != null) {
-            DocEntity newDocEntity = DataUtils.toEntity(v, DocEntity.class);
-            docService.saveDoc(newDocEntity);
+            DocumentEntity newDocumentEntity = DataUtils.toEntity(v, DocumentEntity.class);
+            docService.saveDoc(newDocumentEntity);
 
             docVoMap.remove(k);
 
@@ -147,8 +147,8 @@ public class Operator {
     public void tryToSave() {
         docVoMap.forEach((k, v) -> {
             if (docVoStatusMap.get(k) == null || DocVoStatus.UNUSED.equals(docVoStatusMap.get(k))) {
-                DocEntity newDocEntity = DataUtils.toEntity(v, DocEntity.class);
-                docService.saveDoc(newDocEntity);
+                DocumentEntity newDocumentEntity = DataUtils.toEntity(v, DocumentEntity.class);
+                docService.saveDoc(newDocumentEntity);
                 docVoMap.put(k, null);
                 DocVo newDocVo = new DocVo();
                 BeanUtil.copyProperties(v, newDocVo, true);

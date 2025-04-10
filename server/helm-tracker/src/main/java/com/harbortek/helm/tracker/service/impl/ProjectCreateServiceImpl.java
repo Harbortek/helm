@@ -330,7 +330,7 @@ public class ProjectCreateServiceImpl implements ProjectCreateService {
             docVo.setBlocks(docVo.getBlocks().stream()
                     .filter(block -> ObjectUtils.isNotEmpty(block.getData().getRefId())).collect(Collectors.toList()));
         });
-        Collection<DocEntity> docEntities = DataUtils.toEntity(templateVo.getDocs(), DocEntity.class);
+        Collection<DocumentEntity> docEntities = DataUtils.toEntity(templateVo.getDocs(), DocumentEntity.class);
         docDao.batchSave(docEntities);
 
         //重排item_no

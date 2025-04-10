@@ -254,6 +254,18 @@ export default {
           this.tableHeaderAlign = customAttr.size.tableHeaderAlign || 'left'
           this.tableItemAlign = customAttr.size.tableItemAlign || 'left'
 
+          this.tableColumns.forEach(item => {
+            if (this.rowFields.some(field => field.field === item.field)) {
+              item.width = ''
+              item.align = 'center'
+              return
+            }
+            const columnWidth = this.maxWidths(item)
+            item.width = columnWidth
+            item.align = columnWidth==='' ? 'left' : this.tableItemAlign
+          })
+          this.$refs.xtable.reloadColumn(this.tableColumns)
+
           const autoBreakLine = customAttr.size.tableAutoBreakLine ? customAttr.size.tableAutoBreakLine : DEFAULT_SIZE.tableAutoBreakLine
           if (autoBreakLine) {
             this.cssStyleParams.overflow = 'hidden'
@@ -277,6 +289,35 @@ export default {
           this.bg_class.background = hexColorToRGBA(customStyle.background.color, customStyle.background.alpha)
         }
       }
+    },
+    maxWidths(field){
+        let maxLengthStr = ''
+        //获得最长的字符串
+        this.chart.data.data.forEach(item=>{
+          if ( String(item[field.name]).length > maxLengthStr.length){
+            maxLengthStr = item[field.name]+''
+          }
+        })
+        if (field.title.length>maxLengthStr.length){
+          maxLengthStr = field.title
+        }
+        let width = this.getTextWidth(maxLengthStr)
+        if (width>200){
+          return ''
+        }
+        return width
+    },
+    // 获取文本宽度
+    getTextWidth(str) {      
+      let width = 0;
+      let span = document.createElement("span");
+      span.style="font-size:14px;"
+      span.innerText = str;
+      document.querySelector("body").appendChild(span);
+      width =  Math.ceil(span.getBoundingClientRect().width)+30;
+      span.remove();
+      console.log('getTextWith',str,width)
+      return width > 80 ? width: 80;
     },
     mergeRowMethod({ row, _rowIndex, column, visibleData }) {
       const fields = []

@@ -1,5 +1,5 @@
 <template>
-  <a-modal :visible="visible" :v-if="visible" width="800px" title="关联Wiki页面" ok-text="确认" cancel-text="取消" @ok="onOk"
+  <a-modal :visible="visible" :v-if="visible" width="800px" title="关联文档" ok-text="确认" cancel-text="取消" @ok="onOk"
     @cancel="onCancel">
     <a-row style="margin-bottom: 15px">
       <a-col :span="12">

@@ -17,6 +17,7 @@
 package com.harbortek.helm.tracker.vo.plan;
 
 import com.harbortek.helm.common.vo.BaseVo;
+import com.harbortek.helm.system.vo.EnumItemVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -32,7 +33,8 @@ import java.util.Date;
 @FieldNameConstants
 public class TargetVersionVo extends BaseVo {
     Long projectId;
-    Long statusId;
+
+    EnumItemVo status;
     /**
      * 计划开始时间
      */
@@ -52,7 +54,10 @@ public class TargetVersionVo extends BaseVo {
      */
     Date realEndDate;
 
+    Integer progress;
+
     Double totalWorkingHours;
     Double completedWorkingHours;
     Double remainingWorkingHours;
+
 }

@@ -69,8 +69,8 @@ public class BaselineDao extends BaseJdbcDao {
     public List<BaselineEntity> findBaselinesByDocumentId(Long projectId,Long documentId) {
         Result<Record1<Object>> historyIds =
                 getDslContext().selectDistinct(getField(BaseEntity.Fields.id)).from(getTable(DocumentHistoryEntity.class))
-                       .where(getField(DocumentHistoryEntity.Fields.projectId).eq(projectId))
-                       .and(getField(HistoryBaseEntity.Fields.objectId).eq(documentId)).fetch();
+//                       .where(getField(DocumentHistoryEntity.Fields.projectId).eq(projectId))
+                       .where(getField(HistoryBaseEntity.Fields.objectId).eq(documentId)).fetch();
 
         String sql = """
                 select *

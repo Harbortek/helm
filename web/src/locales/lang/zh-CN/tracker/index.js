@@ -123,8 +123,8 @@ export default {
   "tracker.event.desc.CHANGE_ITEM_PLAN_END_DATE":
     "修改计划结束日期日期时发送通知",
 
-  "tracker.event.CHANGE_ITEM_WIKI": "设置关联WiKi页面",
-  "tracker.event.desc.CHANGE_ITEM_WIKI": "关联/移除 Wiki 页面时发送通知",
+  "tracker.event.CHANGE_ITEM_WIKI": "设置关联文档",
+  "tracker.event.desc.CHANGE_ITEM_WIKI": "关联/移除 文档时发送通知",
 
   "tracker.event.CHANGE_ITEM_SPRINT": "设置所属迭代",
   "tracker.event.desc.CHANGE_ITEM_SPRINT": "添加/修改所属迭代时发送通知",

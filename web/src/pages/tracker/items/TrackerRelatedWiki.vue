@@ -1,7 +1,7 @@
 <template>
     <div style="height:100%" :class="!isToolBar ? 'task-detail-module' : ''">
         <!-- <vxe-button type="text" style="float:right;z-index: 1;" 
-            @click="onSelectTrackerWiki" icon="vxe-icon-paste">关联Wiki文档</vxe-button> -->
+            @click="onSelectTrackerWiki" icon="vxe-icon-paste">关联文档</vxe-button> -->
         <a-form-model-item label="关联文档" prop="relatedWorkItems" :span="24">
             <vxe-table ref="optionsTable" :show-header="false" :data="tableData" :row-config="{ isHover: true }" stripe>
                 <vxe-column type="seq" width="60" />

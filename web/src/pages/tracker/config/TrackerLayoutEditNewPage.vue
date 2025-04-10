@@ -241,7 +241,7 @@ export default {
                 // { value: "TEST_CASES", name: "测试情况", desc: "显示当前工作项作为测试用例的测试信息。" },
                 { value: "RELATED_ITEMS", name: "关联工作项", desc: "显示当前工作项关联的工作项列表。" },
                 // {value:"RELATED_CODE",name:"代码关联",desc:"显示当前工作项关联的代码提交、合并请求、代码分支信息。"},
-                { value: "RELATED_WIKI", name: "关联Wiki页面", desc: "显示当前工作项关联的Wiki页面。" },
+                { value: "RELATED_WIKI", name: "关联文档", desc: "显示当前工作项关联的文档。" },
                 { value: "ATTACHMENTS", name: "文件", desc: "显示当前工作项关联的文件；支持通过上传添加关联文件。" },
                 { value: "HYPERLINKS", name: "链接", desc: "显示当前工作项关联的链接；包括内部链接和外部链接" },
                 // { value: "RELATED_TESTS", name: "关联测试结果", desc: "显示当前工作项关联的用例测试结果。"}

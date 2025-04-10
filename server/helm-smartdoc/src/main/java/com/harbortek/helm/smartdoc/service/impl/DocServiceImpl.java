@@ -18,7 +18,6 @@ package com.harbortek.helm.smartdoc.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HtmlUtil;
-import cn.hutool.json.JSONArray;
 import com.harbortek.helm.common.vo.IdNameReference;
 import com.harbortek.helm.system.service.EnumService;
 import com.harbortek.helm.system.vo.EnumItemVo;
@@ -51,7 +50,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Struct;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -85,7 +83,7 @@ public class DocServiceImpl implements DocService {
     TrackerDao trackerDao;
 
     @Override
-    public DocEntity saveBlocksAndTrackerItems(Long projectId, Long pageId, List<SlateNode> docBlocks) {
+    public DocumentEntity saveBlocksAndTrackerItems(Long projectId, Long pageId, List<SlateNode> docBlocks) {
         /**
          * docBlockLinks 为 null ，自动构建工作项目关系
          */
@@ -208,11 +206,11 @@ public class DocServiceImpl implements DocService {
 //        return docEntity;
 //    }
     @Override
-    public DocEntity saveDoc(DocEntity docEntity) {
+    public DocumentEntity saveDoc(DocumentEntity documentEntity) {
         /**
          * docBlockLinks 为 null ，自动构建工作项目关系
          */
-        return docDao.saveDoc(docEntity);
+        return docDao.saveDoc(documentEntity);
     }
 
 //    @Override
@@ -250,7 +248,7 @@ public class DocServiceImpl implements DocService {
         return docBlock;
     }
 
-    private void buildLinks(Long projectId, DocEntity entity, Map<Long, TrackerItemVo> id2TrackerItemVo) {
+    private void buildLinks(Long projectId, DocumentEntity entity, Map<Long, TrackerItemVo> id2TrackerItemVo) {
         Map<String, TrackerLinkTypeVo> trackerLinkTypeMap = trackerLinkTypeService.findLinkTypes(projectId).stream()
                 .collect(Collectors.toMap(TrackerLinkTypeVo::getCode, Function.identity()));
 
@@ -337,7 +335,7 @@ public class DocServiceImpl implements DocService {
      */
     @Override
     @Transactional
-    public DocEntity saveBlocksAndTrackerItems(Long projectId, Long pageId, List<SlateNode> docBlocks, List<DocBlockLink> docBlockLinks) {
+    public DocumentEntity saveBlocksAndTrackerItems(Long projectId, Long pageId, List<SlateNode> docBlocks, List<DocBlockLink> docBlockLinks) {
         //删除该文档相关的历史工作项
         trackerItemService.deleteTrackerItemsByPageId(pageId);
 
@@ -386,23 +384,23 @@ public class DocServiceImpl implements DocService {
 
         //删除
         ProjectPageVo oneProjectPage = projectPageService.findOneProjectPage(pageId);
-        DocEntity docEntity = docDao.findById(oneProjectPage.getSmartDocId(), DocEntity.class);
-        if (ObjectUtils.isEmpty(docEntity)) {
-            docEntity = DocEntity.builder().id(IDUtils.getId()).name(oneProjectPage.getName()).build();
-            oneProjectPage.setSmartDocId(docEntity.getId());
+        DocumentEntity documentEntity = docDao.findById(oneProjectPage.getSmartDocId(), DocumentEntity.class);
+        if (ObjectUtils.isEmpty(documentEntity)) {
+            documentEntity = DocumentEntity.builder().id(IDUtils.getId()).name(oneProjectPage.getName()).build();
+            oneProjectPage.setSmartDocId(documentEntity.getId());
             projectPageService.updateProjectPageBasicInfo(oneProjectPage);
         }
 
         //save
-        docEntity.setElements(docBlocks);
+        documentEntity.setElements(docBlocks);
 //        docEntity.setPageId(pageId);
-        docEntity.setVersion(docEntity.getVersion() == null ? 0L : docEntity.getVersion() + 1);
-        docEntity.setBlocks(new ArrayList<>());
+        documentEntity.setRevision(documentEntity.getRevision() == null ? 0L : documentEntity.getRevision() + 1);
+        documentEntity.setBlocks(new ArrayList<>());
 //        ProjectPageVo projectPageVo = projectPageService.findOneProjectPage(pageId);
 //        docEntity.setName(projectPageVo.getName());
 
-        docEntity = docDao.saveDoc(docEntity);
-        return docEntity;
+        documentEntity = docDao.saveDoc(documentEntity);
+        return documentEntity;
 
     }
 
@@ -435,8 +433,8 @@ public class DocServiceImpl implements DocService {
     @Override
     public DocVo findDocByPageId(Long pageId) {
         //SQL 1
-        DocEntity docEntity = docDao.findDocByPageId(pageId);
-        DocVo doc = DataUtils.toVo(docEntity, DocVo.class);
+        DocumentEntity documentEntity = docDao.findDocByPageId(pageId);
+        DocVo doc = DataUtils.toVo(documentEntity, DocVo.class);
         if (doc == null) {
             return null;
         }
@@ -519,15 +517,15 @@ public class DocServiceImpl implements DocService {
         return trackerItemVo2;
     }
 
-    public DocEntity findOneDoc(Long docId) {
-        return docDao.findById(docId, DocEntity.class);
+    public DocumentEntity findOneDoc(Long docId) {
+        return docDao.findById(docId, DocumentEntity.class);
     }
 
     @Override
     public List<DocVo> findDocByIds(List<Long> docIds) {
-        List<DocEntity> docEntities = docDao.findByIds(docIds);
+        List<DocumentEntity> docEntities = docDao.findByIds(docIds);
         List<DocVo> docVos = DataUtils.toVo(docEntities, DocVo.class);
-        List<Long> refIds = docEntities.stream().map(DocEntity::getBlocks).flatMap(
+        List<Long> refIds = docEntities.stream().map(DocumentEntity::getBlocks).flatMap(
                 blocks -> blocks.stream().map(block -> block.getData().getRefId())).collect(Collectors.toList());
         List<TrackerItemVo> trackerItemVos = trackerItemService.findTrackerItemByIds(refIds);
         Map<Long, TrackerItemVo> trackerItemVoMap = trackerItemVos.stream().collect(Collectors.toMap(TrackerItemVo::getId, Function.identity()));
@@ -555,7 +553,7 @@ public class DocServiceImpl implements DocService {
 
     @Override
     public void createDoc(DocVo doc) {
-        DocEntity entity = DataUtils.toEntity(doc, DocEntity.class);
+        DocumentEntity entity = DataUtils.toEntity(doc, DocumentEntity.class);
         docDao.save(entity);
     }
 

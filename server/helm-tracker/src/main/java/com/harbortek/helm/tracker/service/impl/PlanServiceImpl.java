@@ -28,10 +28,12 @@ import com.harbortek.helm.tracker.entity.plan.SprintEntity;
 import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
 import com.harbortek.helm.tracker.service.PlanService;
 import com.harbortek.helm.tracker.service.SprintService;
+import com.harbortek.helm.tracker.service.TrackerService;
 import com.harbortek.helm.tracker.vo.plan.GanttVo;
 import com.harbortek.helm.tracker.vo.plan.LinkVo;
 import com.harbortek.helm.tracker.vo.plan.PlanDependencyVo;
 import com.harbortek.helm.tracker.vo.plan.PlanVo;
+import com.harbortek.helm.util.CompareUtils;
 import com.harbortek.helm.util.DataUtils;
 import com.harbortek.helm.util.DateUtils;
 import com.harbortek.helm.util.ObjectUtils;
@@ -40,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -82,6 +85,9 @@ public class PlanServiceImpl implements PlanService {
     @Autowired
     EnumService enumService;
 
+    @Autowired
+    TrackerService trackerService;
+
     @Override
     public GanttVo buildGantt(Long projectId, Long versionId) {
         GanttVo ganttVo = new GanttVo();
@@ -101,8 +107,23 @@ public class PlanServiceImpl implements PlanService {
             planEntities.add(plan);
 
             List<TrackerItemEntity> trackerItems = trackerItemDao.findBySprintIds(projectId, List.of(sprint.getId()));
+            Collection<Long> trackerIds = trackerItems.stream().map(TrackerItemEntity::getTrackerId).distinct().toList();
+            trackerService.findByProject(projectId).forEach(tracker -> {
+                if (trackerIds.contains(tracker.getId())) {
+                    PlanEntity group = PlanEntity.builder().parentId(plan.getId()).id(tracker.getId()).name(tracker.getName()).icon(tracker.getIcon()).trackerId(tracker.getId()).projectId(tracker.getProjectId()).type(PlanTypes.TYPE_GROUP).build();
+                    List<TrackerItemEntity> childItems = trackerItems.stream().filter(item -> Objects.equals(item.getTrackerId(), tracker.getId())).toList();
+                    if (!childItems.isEmpty()) {
+                        group.setPlanStartDate(calcPlanStartDateForParent(childItems));
+                        group.setPlanEndDate(calcPlanEndDateForParent(childItems));
+                        group.setDuration(DateUtils.daysBetween(group.getPlanStartDate(), group.getPlanEndDate()));
+                        group.setProgress(calcProgressForParent(childItems));
+                    }
+                    planEntities.add(group);
+                }
+            });
+
             trackerItems.forEach(item -> {
-                PlanEntity task = PlanEntity.builder().parentId(plan.getId()).id(item.getId()).name(item.getName()).trackerId(item.getTrackerId()).projectId(item.getProjectId())
+                PlanEntity task = PlanEntity.builder().parentId(item.getTrackerId()).id(item.getId()).name(item.getName()).trackerId(item.getTrackerId()).projectId(item.getProjectId())
                         .statusId(item.getStatusId()).meaningId(item.getMeaningId()).priorityId(item.getPriorityId()).severityId(item.getSeverityId())
                         .itemNo(item.getItemNo()).planStartDate(item.getPlanStartDate()).planEndDate(item.getPlanEndDate())
                         .realStartDate(sprint.getRealStartDate()).realEndDate(item.getRealEndDate())
@@ -172,5 +193,33 @@ public class PlanServiceImpl implements PlanService {
             sprintService.syncSprintWorkingHours(planVo.getProjectId(), planVo.getParentId());
         }
         return planVo;
+    }
+
+    private Date calcPlanStartDateForParent(List<TrackerItemEntity> children) {
+        return children.stream()
+                .min((a, b) -> {return CompareUtils.compare(a.getPlanStartDate(), b.getPlanStartDate());}).get()
+                .getPlanStartDate();
+    }
+
+    private Date calcPlanEndDateForParent(List<TrackerItemEntity> children) {
+        return children.stream().max((a, b) -> {return CompareUtils.compare(a.getPlanEndDate(), b.getPlanEndDate());})
+                .get()
+                .getPlanEndDate();
+    }
+
+    private Integer calcProgressForParent(List<TrackerItemEntity> children) {
+        double sum = 0.0;
+        double totalDays = 0.0;
+        for (TrackerItemEntity child : children) {
+
+            double progress = child.getProgress() != null ? child.getProgress() : 0;
+            int duration = DateUtils.daysBetween(child.getPlanStartDate(), child.getPlanEndDate());
+            sum += progress / 100 * duration;
+            totalDays += duration;
+        }
+        if (totalDays > 0) {
+            return Long.valueOf(Math.round(sum / totalDays * 100)).intValue();
+        }
+        return null;
     }
 }

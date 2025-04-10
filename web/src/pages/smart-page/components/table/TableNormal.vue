@@ -9,7 +9,7 @@
           :header-align="tableHeaderAlign" :align="tableItemAlign" :footer-align="tableHeaderAlign"
           :footerMethod="footerMethod">
           <vxe-column v-for="config in fields" :key="config.name" :type="config.type" :field="config.name"
-            :title="config.title" :fixed="config.fixed" :width="columnWidth" :filters="config.filters">
+            :title="config.title" :fixed="config.fixed" :width="config.width" :filters="config.filters">
             <template #header="{ column }">
               {{ column.title }}
             </template>
@@ -266,15 +266,18 @@ export default {
             })
           }
           this.fields.forEach(f => {
+            const columnWidth =  this.maxWidths(f)
             columns.push({
-              width: this.columnWidth,
+              width: columnWidth,
               field: f.name,
               title: f.title,
+              align: columnWidth==='' ? 'left' : this.tableItemAlign,
               resizable: true,
               fixed: false,
               type: f.type,
             })
           })
+          console.log(columns)
           this.$refs.xtable.reloadColumn(columns)
 
           const autoBreakLine = customAttr.size.tableAutoBreakLine ? customAttr.size.tableAutoBreakLine : DEFAULT_SIZE.tableAutoBreakLine
@@ -299,6 +302,35 @@ export default {
           this.bg_class.background = hexColorToRGBA(customStyle.background.color, customStyle.background.alpha)
         }
       }
+    },
+    maxWidths(field){
+        let maxLengthStr = ''
+        //获得最长的字符串
+        this.chart.data.data.forEach(item=>{
+          if ( String(item[field.name]).length > maxLengthStr.length){
+            maxLengthStr = item[field.name]+''
+          }
+        })
+        if (field.title.length>maxLengthStr.length){
+          maxLengthStr = field.title
+        }
+        let width = this.getTextWidth(maxLengthStr)
+        if (width>200){
+          return ''
+        }
+        return width
+    },
+    // 获取文本宽度
+    getTextWidth(str) {      
+      let width = 0;
+      let span = document.createElement("span");
+      span.style="font-size:14px;"
+      span.innerText = str;
+      document.querySelector("body").appendChild(span);
+      width =  Math.ceil(span.getBoundingClientRect().width)+30;
+      span.remove();
+      console.log('getTextWith',str,width)
+      return width > 80 ? width: 80;
     },
     sumNum(list, field) {
       let total = new Decimal(0)

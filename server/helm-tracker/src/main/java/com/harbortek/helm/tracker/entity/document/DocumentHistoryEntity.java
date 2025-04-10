@@ -18,6 +18,7 @@ package com.harbortek.helm.tracker.entity.document;
 
 import com.harbortek.helm.common.entity.HistoryBaseEntity;
 import com.harbortek.helm.tracker.entity.block.DocBlock;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -35,7 +36,6 @@ import java.util.List;
 @NoArgsConstructor
 @Table(value = "document_history")
 public class DocumentHistoryEntity extends HistoryBaseEntity {
-    private Long projectId;
-    private Long pageId;
     private List<DocBlock> blocks = new ArrayList<>();
+    private List<SlateNode> elements = new ArrayList<>();
 }

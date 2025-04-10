@@ -26,21 +26,27 @@ import com.harbortek.helm.smartpage.utils.DataTypeUtils;
 import com.harbortek.helm.smartpage.utils.ExpressionUtils;
 import com.harbortek.helm.smartpage.vo.DataRequest;
 import com.harbortek.helm.smartpage.vo.DatasetPreviewRequest;
+import com.harbortek.helm.system.service.UserService;
+import com.harbortek.helm.system.vo.UserVo;
 import com.harbortek.helm.tracker.constants.FieldTypes;
 import com.harbortek.helm.tracker.dao.SmartPageDao;
+import com.harbortek.helm.tracker.service.SprintService;
+import com.harbortek.helm.tracker.service.TargetVersionService;
 import com.harbortek.helm.tracker.service.TrackerService;
+import com.harbortek.helm.tracker.vo.plan.SprintVo;
+import com.harbortek.helm.tracker.vo.plan.TargetVersionVo;
 import com.harbortek.helm.tracker.vo.smartpage.DatasetField;
 import com.harbortek.helm.tracker.vo.smartpage.DatasetVo;
 import com.harbortek.helm.tracker.vo.smartpage.PageDefinitionVo;
 import com.harbortek.helm.tracker.vo.smartpage.filter.DataFilter;
 import com.harbortek.helm.tracker.vo.tracker.TrackerVo;
-import com.harbortek.helm.tracker.vo.tracker.fields.MultiOptionsField;
-import com.harbortek.helm.tracker.vo.tracker.fields.OptionsField;
-import com.harbortek.helm.tracker.vo.tracker.fields.TrackerField;
+import com.harbortek.helm.tracker.vo.tracker.fields.*;
 import com.harbortek.helm.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
 import org.springframework.stereotype.Service;
@@ -62,6 +68,15 @@ public class DatasetServiceImpl implements DatasetService {
 
     @Autowired
     TrackerService trackerService;
+
+    @Autowired
+    TargetVersionService targetVersionService;
+
+    @Autowired
+    SprintService sprintService;
+
+    @Autowired
+    UserService userService;
 
     @Override
     public DatasetVo preview(Long pageId, DatasetPreviewRequest request) {
@@ -415,6 +430,8 @@ public class DatasetServiceImpl implements DatasetService {
         String sql = """
                 select tv.name               as '目标版本',
                        tv.description           '版本描述',
+                       status.name           as '状态',
+                       tv.progress           as '进度',
                        tv.plan_start_date    as '计划开始日期',
                        tv.plan_end_date      as '计划完成日期',
                        tv.real_start_date    as '实际开始日期',
@@ -429,6 +446,7 @@ public class DatasetServiceImpl implements DatasetService {
                 from target_versions tv
                          left join users u1 on tv.create_by = u1.id
                          left join users u2 on tv.last_modified_by = u2.id
+                         left join enum_items status on (tv.status_id = status.id)
                 """;
         sb.append(sql);
         sb.append(" WHERE tv.deleted =0");
@@ -492,7 +510,6 @@ public class DatasetServiceImpl implements DatasetService {
                                    else tracker.name
                                    end                                               as '工作项类型',
                                items.name                                            AS '标题',
-                               items.description                                     as '描述',
                                status.name                                           as '状态',
                                status.meaning                                        as '状态分类',
                                priority_enum.name                                    as '优先级',
@@ -547,7 +564,6 @@ public class DatasetServiceImpl implements DatasetService {
                                else tracker.name
                                end                                               as '工作项类型',
                            items.name                                            AS '标题',
-                           items.description                                     as '描述',
                            status.name                                           as '状态',
                            status.meaning                                        as '状态分类',
                            priority_enum.name                                    as '优先级',
@@ -593,7 +609,11 @@ public class DatasetServiceImpl implements DatasetService {
             List<TrackerField> trackerFields = tracker.getTrackerFields();
             for (TrackerField trackerField : trackerFields) {
                 if (!trackerField.isSystem()) {
-                    if (Objects.equals(trackerField.getInputType(), FieldTypes.SINGLE_OPTIONS) || Objects.equals(trackerField.getInputType(), FieldTypes.MULTI_OPTIONS)) {
+                    if (Objects.equals(trackerField.getInputType(), FieldTypes.SINGLE_OPTIONS) ||
+                            Objects.equals(trackerField.getInputType(), FieldTypes.MULTI_OPTIONS) ||
+                            Objects.equals(trackerField.getInputType(),FieldTypes.TARGET_VERSION) ||
+                            Objects.equals(trackerField.getInputType(),FieldTypes.SPRINT) ||
+                            Objects.equals(trackerField.getInputType(),FieldTypes.USER)) {
                         sb.append(",\n");
                         final List<OptionsField.OptionItem> optionItems = new ArrayList<>();
                         if (trackerField instanceof OptionsField) {
@@ -604,13 +624,37 @@ public class DatasetServiceImpl implements DatasetService {
                                     }
                                 });
                             }
-                        } else {
+                        } else if (trackerField instanceof MultiOptionsField){
                             if (ObjectUtils.isNotEmpty(((MultiOptionsField) trackerField).getItems())) {
                                 ((MultiOptionsField) trackerField).getItems().forEach(item -> {
                                     if (ObjectUtils.isNotEmpty(item.getName())) {
                                         optionItems.add(item);
                                     }
                                 });
+                            }
+                        }else if (trackerField instanceof TargetVersionField) {
+                            Collection<TargetVersionVo> targetVersionVos = targetVersionService.findTargetVersions(currentProjectId);
+                            for (TargetVersionVo targetVersionVo : targetVersionVos) {
+                                OptionsField.OptionItem item = new OptionsField.OptionItem();
+                                item.setId(targetVersionVo.getId());
+                                item.setName(targetVersionVo.getName());
+                                optionItems.add(item);
+                            }
+                        }else if (trackerField instanceof SprintField) {
+                            Collection<SprintVo> sprintVos = sprintService.findSprints(currentProjectId);
+                            for (SprintVo sprintVo : sprintVos) {
+                                OptionsField.OptionItem item = new OptionsField.OptionItem();
+                                item.setId(sprintVo.getId());
+                                item.setName(sprintVo.getName());
+                                optionItems.add(item);
+                            }
+                        }else if (trackerField instanceof UserField) {
+                            Page<UserVo> userVos = userService.findUsers(null, PageRequest.of(0,10000),null);
+                            for (UserVo userVo : userVos.getContent()) {
+                                OptionsField.OptionItem item = new OptionsField.OptionItem();
+                                item.setId(userVo.getId());
+                                item.setName(userVo.getName());
+                                optionItems.add(item);
                             }
                         }
                         JSONArray jsonArray = new JSONArray();
@@ -624,15 +668,15 @@ public class DatasetServiceImpl implements DatasetService {
                         String jsonString = jsonArray.toStringPretty();
                         String innerTable = "f" + trackerField.getId();
 
-                        sb.append("(select ").append(innerTable).append(".name from  json_table('").append(jsonString)
+                        sb.append("(select JSON_UNQUOTE(").append(innerTable).append(".name) from  json_table('").append(jsonString)
                                 .append("','$[*]' COLUMNS (id bigint path '$.id', name varchar(200) path '$.name')) ")
                                 .append(" as ").append(innerTable).append(" where ")
-                                .append(innerTable).append(".id").append("=").append("json_extract(items.values,'$.\"").append(trackerField.getId()).append("\"')) ")
+                                .append(innerTable).append(".id").append("=").append("JSON_UNQUOTE(json_extract(items.values,'$.\"").append(trackerField.getId()).append("\"'))) ")
                                 .append(" as '").append(trackerField.getName()).append("' ");
                     } else if (!Objects.equals(trackerField.getInputType(), FieldTypes.TABLE) &&
                             !Objects.equals(trackerField.getInputType(), FieldTypes.TEST_STEP)) {
                         sb.append(",\n");
-                        sb.append("json_extract(items.values,'$.\"").append(trackerField.getId()).append("\"') as '")
+                        sb.append("JSON_UNQUOTE(json_extract(items.values,'$.\"").append(trackerField.getId()).append("\"')) as '")
                                 .append(trackerField.getName()).append("'");
                     }
                 }

@@ -40,10 +40,9 @@ import java.util.List;
 @FieldNameConstants
 @NoArgsConstructor
 @Table(value = "documents")
-public class DocEntity extends BaseEntity {
+public class DocumentEntity extends BaseEntity {
 
-//    private Long pageId;
-    private Long version;
+    private Long revision;
     private List<DocBlock> blocks = new ArrayList<>();
 
     private List<SlateNode> elements = new ArrayList<>();
