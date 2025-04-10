@@ -18,22 +18,21 @@ package com.harbortek.helm.tracker.service;
 
 import com.harbortek.helm.tracker.entity.block.DocBlock;
 import com.harbortek.helm.tracker.entity.block.DocBlockLink;
-import com.harbortek.helm.tracker.entity.block.DocEntity;
+import com.harbortek.helm.tracker.entity.block.DocumentEntity;
 import com.harbortek.helm.tracker.entity.block.TrackerItemBlockData;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.vo.block.DocVo;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
 
-import javax.print.Doc;
 import java.util.List;
 
 public interface DocService {
 
     public DocBlock saveBlockAndTrackerItem(Long docId, DocBlock docBlock);
 
-    DocEntity saveBlocksAndTrackerItems(Long projectId, Long pageId, List<SlateNode> elements);
+    DocumentEntity saveBlocksAndTrackerItems(Long projectId, Long pageId, List<SlateNode> elements);
 
-    DocEntity saveBlocksAndTrackerItems(Long projectId, Long pageId, List<SlateNode> elements, List<DocBlockLink> docBlockLinks);
+    DocumentEntity saveBlocksAndTrackerItems(Long projectId, Long pageId, List<SlateNode> elements, List<DocBlockLink> docBlockLinks);
 
     DocVo findDocByPageId(Long pageId);
 
@@ -45,9 +44,9 @@ public interface DocService {
 
     void createDoc(DocVo doc);
 
-    DocEntity findOneDoc(Long docId);
+    DocumentEntity findOneDoc(Long docId);
 
-    public DocEntity saveDoc(DocEntity docEntity);
+    public DocumentEntity saveDoc(DocumentEntity documentEntity);
 
 //    void saveBlockAndTrackerItemV2(Long projectId, DocEntity doc, List<DocBlock> toAdd, List<DocBlock> toUpdate, List<DocBlock> toDelete);
 }

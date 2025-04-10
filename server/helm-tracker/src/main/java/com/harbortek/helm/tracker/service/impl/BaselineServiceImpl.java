@@ -23,7 +23,7 @@ import com.harbortek.helm.tracker.constants.BlockTypes;
 import com.harbortek.helm.tracker.dao.*;
 import com.harbortek.helm.tracker.entity.baseline.BaselineEntity;
 import com.harbortek.helm.tracker.entity.block.DocBlockData;
-import com.harbortek.helm.tracker.entity.block.DocEntity;
+import com.harbortek.helm.tracker.entity.block.DocumentEntity;
 import com.harbortek.helm.tracker.entity.block.TrackerItemBlockData;
 import com.harbortek.helm.tracker.entity.collection.CollectionEntity;
 import com.harbortek.helm.tracker.entity.document.DocumentHistoryEntity;
@@ -89,7 +89,7 @@ public class BaselineServiceImpl implements BaselineService {
             List<Long> docIds = projectPageDao.findDocumentsByProject(baseline.getProjectId())
                                               .stream().map(ProjectPageEntity::getSmartDocId)
                                               .collect(Collectors.toList());
-            List<DocEntity> docEntities = docDao.findByIds(docIds);
+            List<DocumentEntity> docEntities = docDao.findByIds(docIds);
 
             //根据 tracker保存item
             List<TrackerEntity> trackerEntities = trackerDao.findByProject(projectId);
@@ -120,7 +120,7 @@ public class BaselineServiceImpl implements BaselineService {
             Map<Long, Long> itemMaps = new HashMap<>();//itemId-historyId
             CollectionEntity oneCollection = collectionDao.findOneCollection(baseline.getCollectionId());
             //获取doc中标题等工作项id
-            List<DocEntity> docEntities = docDao.findByIds(oneCollection.getDocuments());
+            List<DocumentEntity> docEntities = docDao.findByIds(oneCollection.getDocuments());
             docEntities.forEach(doc -> {
                 doc.getBlocks().forEach(block -> {
                     itemIds.add(block.getData().getRefId());
@@ -139,8 +139,8 @@ public class BaselineServiceImpl implements BaselineService {
             List<Long> itemIds = new ArrayList<>();
             Map<Long, Long> itemMaps = new HashMap<>();//itemId-version
             //获取doc中标题等工作项id
-            DocEntity docEntity = docDao.findDocByPageId(baseline.getDocumentId());
-            docEntity.getBlocks().forEach(block -> {
+            DocumentEntity documentEntity = docDao.findDocByPageId(baseline.getDocumentId());
+            documentEntity.getBlocks().forEach(block -> {
                 itemIds.add(block.getData().getRefId());
             });
 
@@ -150,7 +150,7 @@ public class BaselineServiceImpl implements BaselineService {
                 itemMaps.put(trackerItemHistory.getObjectId(), trackerItemHistory.getId());
             });
             List<DocumentHistoryEntity> documentHistoryEntities =
-                    documentHistoryDao.copyMany(List.of(docEntity), projectId, itemMaps);
+                    documentHistoryDao.copyMany(List.of(documentEntity), projectId, itemMaps);
             entity.setDocumentHistoryIds(ObjectUtils.ids(documentHistoryEntities));
         }
         entity = baselineDao.createBaseline(entity);
@@ -162,7 +162,7 @@ public class BaselineServiceImpl implements BaselineService {
         List<Long> itemIds = new ArrayList<>();
         Map<Long, Long> itemMaps = new HashMap<>();//itemId-version
         //获取doc中标题等工作项id
-        List<DocEntity> docEntities = docDao.findByIds(Collections.singletonList(documentId));
+        List<DocumentEntity> docEntities = docDao.findByIds(Collections.singletonList(documentId));
         docEntities.forEach(doc -> {
             doc.getBlocks().forEach(block -> {
                 itemIds.add(block.getData().getRefId());
@@ -327,7 +327,7 @@ public class BaselineServiceImpl implements BaselineService {
         byHistoryIds.forEach(document -> {
             if (document != null) {
                 List<Long> refIds = new ArrayList<>();
-                document.setPageId(docMap.get(document.getObjectId()));
+//                document.setPageId(docMap.get(document.getObjectId()));
                 document.getBlocks().forEach(block -> {
                     DocBlockData data = block.getData();
                     if (ObjectUtils.isValid(data.getRefHistoryId())) {

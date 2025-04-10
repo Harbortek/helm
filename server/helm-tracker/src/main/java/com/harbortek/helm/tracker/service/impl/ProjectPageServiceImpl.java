@@ -33,7 +33,7 @@ import com.harbortek.helm.tracker.constants.ProjectPageTypes;
 import com.harbortek.helm.tracker.dao.ChangeLogDao;
 import com.harbortek.helm.tracker.dao.DocDao;
 import com.harbortek.helm.tracker.dao.ProjectPageDao;
-import com.harbortek.helm.tracker.entity.block.DocEntity;
+import com.harbortek.helm.tracker.entity.block.DocumentEntity;
 import com.harbortek.helm.tracker.entity.project.ProjectPageEntity;
 import com.harbortek.helm.tracker.service.ProjectPageService;
 import com.harbortek.helm.tracker.service.SmartPageService;
@@ -205,10 +205,10 @@ public class ProjectPageServiceImpl implements ProjectPageService {
             smartPage = smartPageService.createSmartPage(smartPage);
             page.setSmartPageId(smartPage.getId());
         }else{
-            DocEntity doc = new DocEntity();
+            DocumentEntity doc = new DocumentEntity();
             doc.setId(IDUtils.getId());
             doc.setName(pageVo.getName());
-            doc.setVersion(1L);
+            doc.setRevision(1L);
             doc.setBlocks(new ArrayList<>());
             docDao.saveDoc(doc);
             page.setSmartDocId(doc.getId());

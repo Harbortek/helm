@@ -20,12 +20,8 @@ import com.harbortek.helm.common.dao.BaseJdbcDao;
 import com.harbortek.helm.common.entity.BaseEntity;
 import com.harbortek.helm.common.entity.HistoryBaseEntity;
 import com.harbortek.helm.tracker.entity.block.DocBlockData;
-import com.harbortek.helm.tracker.entity.block.DocEntity;
-import com.harbortek.helm.tracker.entity.block.TemplateBlockData;
-import com.harbortek.helm.tracker.entity.block.TrackerItemBlockData;
+import com.harbortek.helm.tracker.entity.block.DocumentEntity;
 import com.harbortek.helm.tracker.entity.document.DocumentHistoryEntity;
-import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
-import com.harbortek.helm.tracker.entity.tracker.TrackerItemHistoryEntity;
 import com.harbortek.helm.util.BeanCopyUtils;
 import com.harbortek.helm.util.IDUtils;
 import com.harbortek.helm.util.ObjectUtils;
@@ -49,27 +45,25 @@ public class DocumentHistoryDao extends BaseJdbcDao {
     /**
      * 往历史表中复制revision不同的Doc
      */
-    public List<DocumentHistoryEntity> copyMany(List<DocEntity> source, Long projectId, Map<Long, Long> itemMaps) {
+    public List<DocumentHistoryEntity> copyMany(List<DocumentEntity> source, Long projectId, Map<Long, Long> itemMaps) {
 
-//        AtomicInteger count = new AtomicInteger();
-//        List<String> ids = new ArrayList<>();
         List<Long> objectIds = source.stream().map(BaseEntity::getId).toList();
-        Map<Long, DocumentHistoryEntity> historyMap = findByObjectIds(objectIds).stream().collect(Collectors
-                .toMap(HistoryBaseEntity::getObjectId, Function.identity()));//过滤已存在版本
+        Map<Long, List<DocumentHistoryEntity>> historyMap = findByObjectIds(objectIds).stream().collect(Collectors.groupingBy(DocumentHistoryEntity::getObjectId));
         List<DocumentHistoryEntity> existDocuments=new ArrayList<>();
 
         List<DocumentHistoryEntity> historyEntities = new ArrayList<>();
-        for (DocEntity item : source) {
+        for (DocumentEntity item : source) {
             DocumentHistoryEntity history = new DocumentHistoryEntity();
             BeanCopyUtils.copyWithoutNullProperties(item, history);
             history.setObjectId(item.getId());
             history.setId(IDUtils.getId());
-            history.setProjectId(projectId);
             history.setName(item.getName());
-            history.setRevision(item.getVersion());
-            if(ObjectUtils.isNotEmpty(historyMap.get(item.getId()))
-                    && item.getVersion().equals(historyMap.get(item.getId()).getRevision())){
-                existDocuments.add(historyMap.get(item.getId()));
+            history.setRevision(item.getRevision());
+            if(ObjectUtils.isNotEmpty(historyMap.get(item.getId()))){
+                boolean exist= historyMap.get(item.getId()).stream().anyMatch(historyEntity -> historyEntity.getRevision().equals(item.getRevision()));
+                if (exist) {
+                    existDocuments.add(history);
+                }
             }else{
                 historyEntities.add(history);
                 history.getBlocks().forEach(block -> {
@@ -78,21 +72,6 @@ public class DocumentHistoryDao extends BaseJdbcDao {
                 });
                 history.setCreateDate(null);
             }
-
-//            Update update = Update.from(new HashMap<>());
-//            List<String> properties = DataUtils.getAllProperties(DocumentHistoryEntity.class);
-//            properties.forEach(p -> {
-//                Object propertyValue = DataUtils.getProperty(history, p);
-//                if (propertyValue != null) {
-//                    update.set(p, propertyValue);
-//                }
-//            });
-//
-//            updateFirst(Query.query(
-//                                Criteria.where(HistoryBaseEntity.Fields.historyId).is(history.getHistoryId())),
-//                        update, DocumentHistoryEntity.class);
-//
-//            count.getAndIncrement();
         }
         saveAll(historyEntities);
 
@@ -106,29 +85,15 @@ public class DocumentHistoryDao extends BaseJdbcDao {
         criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
         criteria = criteria.and(Criteria.where(BaseEntity.Fields.id).is(documentId));
         Query query = Query.query(criteria);
-        DocEntity item = findOne(query, DocEntity.class);
+        DocumentEntity item = findOne(query, DocumentEntity.class);
         Assert.notNull(item, "document item must not be null!");
         DocumentHistoryEntity history = new DocumentHistoryEntity();
         BeanCopyUtils.copyWithoutNullProperties(item, history);
         history.setObjectId(item.getId());
         history.setId(IDUtils.getId());
-        history.setProjectId(projectId);
         history.setCreateDate(null);
         save(history);
 
-//        Map<String, Object> itemMaps = new HashMap<>();
-//        List<String> properties = DataUtils.getAllProperties(DocumentHistoryEntity.class);
-//        properties.forEach(p -> {
-//            Object propertyValue = DataUtils.getProperty(history, p);
-//            if (propertyValue != null) {
-//                itemMaps.put(p, propertyValue);
-//            }
-//        });
-//        Update update = Update.from(new HashMap<>());
-//
-//        updateFirst(
-//                Query.query(Criteria.where(HistoryBaseEntity.Fields.historyId).is(history.getHistoryId())),
-//                update, DocumentHistoryEntity.class);
         return List.of(history);
     }
 
@@ -160,15 +125,15 @@ public class DocumentHistoryDao extends BaseJdbcDao {
         return find(query, DocumentHistoryEntity.class);
     }
 
-    public List<DocumentHistoryEntity> findByProjectId(Long projectId) {
-        Criteria criteria = Criteria.empty();
-        criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
-        criteria = criteria.and(Criteria.where(DocumentHistoryEntity.Fields.projectId).is(projectId));
-        Query query = Query.query(criteria);
-        return find(query, DocumentHistoryEntity.class);
-    }
-
-    public void createDocumentHistories(List<DocumentHistoryEntity> documentHistoryList) {
-        saveAll(documentHistoryList);
-    }
+//    public List<DocumentHistoryEntity> findByProjectId(Long projectId) {
+//        Criteria criteria = Criteria.empty();
+//        criteria = criteria.and(Criteria.where(BaseEntity.Fields.deleted).is(Boolean.FALSE));
+//        criteria = criteria.and(Criteria.where(DocumentHistoryEntity.Fields.projectId).is(projectId));
+//        Query query = Query.query(criteria);
+//        return find(query, DocumentHistoryEntity.class);
+//    }
+//
+//    public void createDocumentHistories(List<DocumentHistoryEntity> documentHistoryList) {
+//        saveAll(documentHistoryList);
+//    }
 }
