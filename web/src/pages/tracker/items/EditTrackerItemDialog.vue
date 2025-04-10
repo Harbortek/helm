@@ -503,13 +503,7 @@ export default {
                 remainHour: this.trackerItem.remainingWorkingHours || 0,
                 registeredHour: this.trackerItem.registeredWorkingHours || 0,
             }
-            this.formData.relatedWorkItems?.forEach(item => {
-                if (item.sourceItem && item.sourceItem.id === this.trackerItem.id) {
-                    item.linkType.id = 'S' + item.linkType.id;
-                } else {
-                    item.linkType.id = 'T' + item.linkType.id;
-                }
-            })
+            
         },
         clearValidates() {
             this.$nextTick(() => {

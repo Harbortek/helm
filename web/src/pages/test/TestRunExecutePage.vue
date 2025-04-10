@@ -498,6 +498,7 @@ export default {
                 this.loading = false;
                 this.$nextTick(() => {
                     let caseId = this.$route.params.caseId;
+                    console.log("aaaaa",caseId,this.testCaseList)
                     let index = 0;
                     if (caseId) {
                         index = this.testCaseList.findIndex(item => item.id == caseId);

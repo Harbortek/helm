@@ -41,8 +41,8 @@
                                                     {{ sprint.status.name }}
                                                 </a-tag>
                                             </div>
-                                            <div class="sprint-start-time">{{ sprint.planStartDate }}</div>
-                                            <div class="sprint-end-time">{{ sprint.planEndDate }}</div>
+                                            <div class="sprint-start-time">{{ formatDate(sprint.planStartDate) }}</div>
+                                            <div class="sprint-end-time">{{ formatDate(sprint.planEndDate) }}</div>
                                         </div>                            
                                     </vxe-radio>
                                 </div>
@@ -62,6 +62,8 @@ import { findSprints } from '@/services/plan/SprintService'
 import { findEnumsByCode, } from "@/services/system/EnumService";
 import { updateTrackerItemSprint } from "@/services/tracker/TrackerItemService"
 import VXETable from "vxe-table";
+import { formatDate } from '@/utils/DateUtils'
+
 export default {
     name: "SprintOperateDialog",
     components: {HAvatar},
@@ -149,6 +151,13 @@ export default {
         },
         onCancel: function () {
             this.$emit("cancel");
+        },
+        formatDate(value) {
+            if (value) {
+                return formatDate(value, 'yyyy-MM-dd');
+            } else {
+                return '';
+            }
         },
     },
     created() { }

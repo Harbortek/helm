@@ -97,7 +97,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { findTestResultsByTrackerItemId, unlinkTestResultWithDownstreamTrackerItems } from '@/services/test/TestRunService'
+import { findTestResultsByTrackerItemId, unlinkTestResultWithDownstreamTrackerItems,findUpstreamTrackerTestResultsByTrackerItemId } from '@/services/test/TestRunService'
 import TrackerItemSelectModal from '@/components/dialog/TrackerItemSelectModal'
 import VXETable from "vxe-table";
 import { findEnumsByCode, } from "@/services/system/EnumService";
@@ -147,7 +147,8 @@ export default {
     methods: {
         loadTestResult() {
             if (this.itemId) {
-                findTestResultsByTrackerItemId(this.itemId).then(res => {
+                findUpstreamTrackerTestResultsByTrackerItemId(this.itemId).then(res => {
+                console.log("linkTestResultWithDownstreamTrackerItems",res)
                     this.testResult = res
                     res.forEach(result => {
                         result.testRun.items?.forEach(item => {
@@ -169,14 +170,15 @@ export default {
         },
 
         onEditItem(row) {
-            const routeData = this.$router.resolve({
-                path: `/tracker/project/${this.projectId}/testRun/testRunCase/${row.testRun.id}/testRunExecute/${row.testCase.id}`
-            });
-            window.open(routeData.href, '_blank');
+            this.onClickTestResult(row)
+            // const routeData = this.$router.resolve({
+            //     path: `/tracker/project/${this.projectId}/testRun/testRunCase/${row.testRun.id}/testRunExecute/${row.testCase.id}`
+            // });
+            // window.open(routeData.href, '_blank');
         },
         onDeleteItem(row) {
             if (this.itemId) {
-                unlinkTestResultWithDownstreamTrackerItems(row.id).then(resp => {
+                unlinkTestResultWithDownstreamTrackerItems(row.id,this.itemId).then(resp => {
                     VXETable.modal.message({ content: '删除成功', status: 'success' })
                     this.loadTestResult();
                 })
@@ -184,6 +186,43 @@ export default {
         },
         refresh() {
             this.$emit("refresh")
+        },
+        onClickTestResult(row) {
+            let testResultMenu=this.findTestResultPath();
+            if(testResultMenu&&testResultMenu.path){
+                const routeData = this.$router.resolve({
+                    path: testResultMenu.path+`/testRunCase/${row.testRun.id}/testRunExecute/${row.id}`
+                });
+                window.open(routeData.href, '_blank');
+            }else{
+                // 提示用户配置测试运行页面
+                this.$message.warning("请先在系统中配置测试运行页面。")
+            }
+        },
+        findTestResultPath() {
+            // 递归查找包含testRun的菜单项
+            let sideMenu=this.$store.getters['account/sideMenu']
+            const findTestResultMenu = (menu) => {
+                if (menu.path && menu.path.includes('testRun')) {
+                    return menu;
+                }
+                if (menu.children) {
+                    for (const child of menu.children) {
+                        const found = findTestResultMenu(child);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            }
+
+            // 遍历菜单数组查找testRunExecute
+            for (const menu of sideMenu) {
+                const testResultMenu = findTestResultMenu(menu);
+                if (testResultMenu) {
+                    return testResultMenu;
+                }
+            }
+            return null;
         },
     },
 }
