@@ -16,7 +16,10 @@
 
 package com.harbortek.helm.tracker.entity.plan;
 
+import com.harbortek.helm.common.annotation.EntityReference;
 import com.harbortek.helm.common.entity.BaseEntity;
+import com.harbortek.helm.system.entity.EnumItemEntity;
+import com.harbortek.helm.system.vo.EnumItemVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -35,6 +38,7 @@ import java.util.Date;
 public class TargetVersionEntity extends BaseEntity {
     Long projectId;
 
+    @EntityReference(EnumItemEntity.class)
     Long statusId;
     /**
      * 计划开始时间

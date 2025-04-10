@@ -67,8 +67,11 @@
                                         <h-icon type="plan-tasks" v-else-if="row.type === 'TASK'" />
                                         <h-icon type="flag" v-else-if="row.type === 'MILE_STONE'" />
                                     </div>  -->
-                                    <div style="margin-left: 5px;margin-right: 5px;">
+                                    <div style="margin-left: 5px;margin-right: 5px;" v-if="row.type === 'TASK'">
                                         <ItemNo :trackerItem="row"/>
+                                    </div>
+                                    <div style="margin-left: 5px;margin-right: 5px;" v-else>
+                                        <h-icon :type="row.icon" />
                                     </div>
                                     {{ row.name }}
                                 </div>
@@ -560,7 +563,7 @@ export default {
         },
         beforeEditMethod({ row, rowIndex, column, columnIndex }) {
             if (!hasPermission("PAGE_WRITE", this.pageId)) return false;
-            if (row.type === 'GROUP') return column.field === 'owner.name' || column.field === 'name'
+            if (row.type === 'GROUP') return false
             else if (row.type === 'TASK') return !row.finished
             else if (row.type === 'MILE_STONE') return column.field === 'planEndDate' || column.field === 'owner.name' || column.field === 'name'
         },

@@ -18,6 +18,12 @@
                     </template>
                 </vxe-column>
 
+                <vxe-column field="status" title="状态" width="80">
+                    <template #default="{ row }">
+                        <a-tag :style="{color:row.status?.color,backgroundColor:row.status?.backgroundColor}">{{row.status?.name}}</a-tag>
+                    </template>
+                </vxe-column>
+
                 <vxe-column field="progress" title="进度" header-align="center" align="center" width="100px">
                     <template #default="{ row }">
                         {{ formatProgress(row.progress) }}

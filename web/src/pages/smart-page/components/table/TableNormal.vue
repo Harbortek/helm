@@ -9,7 +9,7 @@
           :header-align="tableHeaderAlign" :align="tableItemAlign" :footer-align="tableHeaderAlign"
           :footerMethod="footerMethod">
           <vxe-column v-for="config in fields" :key="config.name" :type="config.type" :field="config.name"
-            :title="config.title" :fixed="config.fixed" :width="columnWidth" :filters="config.filters">
+            :title="config.title" :fixed="config.fixed" :width="config.width" :filters="config.filters">
             <template #header="{ column }">
               {{ column.title }}
             </template>
@@ -267,7 +267,7 @@ export default {
           }
           this.fields.forEach(f => {
             columns.push({
-              width: this.columnWidth,
+              width: this.maxWidths(f),
               field: f.name,
               title: f.title,
               resizable: true,
@@ -275,6 +275,7 @@ export default {
               type: f.type,
             })
           })
+          console.log(columns)
           this.$refs.xtable.reloadColumn(columns)
 
           const autoBreakLine = customAttr.size.tableAutoBreakLine ? customAttr.size.tableAutoBreakLine : DEFAULT_SIZE.tableAutoBreakLine
@@ -299,6 +300,11 @@ export default {
           this.bg_class.background = hexColorToRGBA(customStyle.background.color, customStyle.background.alpha)
         }
       }
+    },
+    maxWidths(field){
+        const contentLengths = this.chart.data.data.map(item => String(item[field.name]).length);
+        const maxLength = Math.max(...contentLengths, field.title.length);
+        return maxLength * 8 + 20; // 根据字符数估算宽度（单位：px）
     },
     sumNum(list, field) {
       let total = new Decimal(0)

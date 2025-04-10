@@ -467,7 +467,7 @@ export default {
             }else if(item==="RELATED_CODE"){
                 return "代码关联"
             }else if(item==="RELATED_WIKI"){
-                return "关联Wiki文档"
+                return "关联文档"
             }else if(item==="ATTACHMENTS"){
                 return "文件"
             }else if(item==="HYPERLINKS"){
