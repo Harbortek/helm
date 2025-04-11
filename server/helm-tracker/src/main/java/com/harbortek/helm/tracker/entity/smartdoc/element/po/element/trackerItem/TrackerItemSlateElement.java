@@ -34,6 +34,7 @@ public class TrackerItemSlateElement<SlateText> extends SlateElement {
     }
 
     private String ref;
+    private String refHistoryId;
     @Transient
     private TrackerItemVo trackerItem;
 
@@ -48,7 +49,7 @@ public class TrackerItemSlateElement<SlateText> extends SlateElement {
     @JsonTypeName(SlateElements.TRACKER_ITEM_TITLE)
     public static class TrackerItemTitleSlateElement extends SlateElement {
         private String ref;
-
+        private String refHistoryId;
         public TrackerItemTitleSlateElement() {
             super();
             type = SlateElements.TRACKER_ITEM_TITLE;
@@ -65,7 +66,7 @@ public class TrackerItemSlateElement<SlateText> extends SlateElement {
     @JsonTypeName(SlateElements.TRACKER_ITEM_DESCRIPTION)
     public static class TrackerItemDescriptionSlateElement extends SlateElement {
         private String ref;
-
+        private String refHistoryId;
         public TrackerItemDescriptionSlateElement() {
             super();
             type = SlateElements.TRACKER_ITEM_DESCRIPTION;
@@ -83,7 +84,7 @@ public class TrackerItemSlateElement<SlateText> extends SlateElement {
     @JsonTypeName(SlateElements.TRACKER_ITEM_EXTRA)
     public static class TrackerItemExtraSlateElement extends SlateElement {
         private String ref;
-
+        private String refHistoryId;
         public TrackerItemExtraSlateElement() {
             super();
             type = SlateElements.TRACKER_ITEM_EXTRA;
