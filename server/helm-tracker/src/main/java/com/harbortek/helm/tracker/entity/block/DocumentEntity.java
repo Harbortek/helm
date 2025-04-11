@@ -42,7 +42,7 @@ import java.util.List;
 @Table(value = "documents")
 public class DocumentEntity extends BaseEntity {
 
-    private Long revision;
+    private Long revision = 0L;
     private List<DocBlock> blocks = new ArrayList<>();
 
     private List<SlateNode> elements = new ArrayList<>();

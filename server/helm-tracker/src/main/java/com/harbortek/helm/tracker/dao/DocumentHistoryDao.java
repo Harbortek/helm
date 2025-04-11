@@ -21,7 +21,12 @@ import com.harbortek.helm.common.entity.BaseEntity;
 import com.harbortek.helm.common.entity.HistoryBaseEntity;
 import com.harbortek.helm.tracker.entity.block.DocBlockData;
 import com.harbortek.helm.tracker.entity.block.DocumentEntity;
+import com.harbortek.helm.tracker.entity.block.TrackerItemBlockData;
 import com.harbortek.helm.tracker.entity.document.DocumentHistoryEntity;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
 import com.harbortek.helm.util.BeanCopyUtils;
 import com.harbortek.helm.util.IDUtils;
 import com.harbortek.helm.util.ObjectUtils;
@@ -49,7 +54,7 @@ public class DocumentHistoryDao extends BaseJdbcDao {
 
         List<Long> objectIds = source.stream().map(BaseEntity::getId).toList();
         Map<Long, List<DocumentHistoryEntity>> historyMap = findByObjectIds(objectIds).stream().collect(Collectors.groupingBy(DocumentHistoryEntity::getObjectId));
-        List<DocumentHistoryEntity> existDocuments=new ArrayList<>();
+        List<DocumentHistoryEntity> existDocuments = new ArrayList<>();
 
         List<DocumentHistoryEntity> historyEntities = new ArrayList<>();
         for (DocumentEntity item : source) {
@@ -59,19 +64,59 @@ public class DocumentHistoryDao extends BaseJdbcDao {
             history.setId(IDUtils.getId());
             history.setName(item.getName());
             history.setRevision(item.getRevision());
-            if(ObjectUtils.isNotEmpty(historyMap.get(item.getId()))){
-                boolean exist= historyMap.get(item.getId()).stream().anyMatch(historyEntity -> historyEntity.getRevision().equals(item.getRevision()));
+            if (ObjectUtils.isNotEmpty(historyMap.get(item.getId()))) {
+                boolean exist = historyMap.get(item.getId()).stream().anyMatch(historyEntity -> historyEntity.getRevision().equals(item.getRevision()));
                 if (exist) {
                     existDocuments.add(history);
                 }
-            }else{
+            } else {
                 historyEntities.add(history);
-                history.getBlocks().forEach(block -> {
-                    DocBlockData data = block.getData();
-                    data.setRefHistoryId(itemMaps.get(data.getRefId()));
-                });
+                for (SlateNode element : history.getElements()) {
+                    if (element instanceof TrackerItemSlateElement<?>) {
+                        TrackerItemSlateElement data = (TrackerItemSlateElement) element;
+                        String hisRefId = itemMaps.get(Long.parseLong(data.getRef())).toString();
+                        data.setRefHistoryId(hisRefId);
+                        data.getChildren().forEach(child -> {
+                            if (child instanceof TrackerItemSlateElement.TrackerItemTitleSlateElement) {
+                                TrackerItemSlateElement.TrackerItemTitleSlateElement title = ((TrackerItemSlateElement.TrackerItemTitleSlateElement) child);
+                                title.setRefHistoryId(hisRefId);
+
+                            } else if (child instanceof TrackerItemSlateElement.TrackerItemDescriptionSlateElement) {
+                                TrackerItemSlateElement.TrackerItemDescriptionSlateElement desc = ((TrackerItemSlateElement.TrackerItemDescriptionSlateElement) child);
+                                desc.setRefHistoryId(hisRefId);
+                            } else if (child instanceof TrackerItemSlateElement.TrackerItemExtraSlateElement) {
+                                TrackerItemSlateElement.TrackerItemExtraSlateElement extra = ((TrackerItemSlateElement.TrackerItemExtraSlateElement) child);
+                                extra.setRefHistoryId(hisRefId);
+                            }
+                        });
+                    }
+                }
+//                history.getBlocks().forEach(block -> {
+//                    DocBlockData data = block.getData();
+//                    data.setRefHistoryId(itemMaps.get(data.getRefId()));
+//                });
                 history.setCreateDate(null);
             }
+//            for (SlateNode element : history.getElements()) {
+//                if (element instanceof TrackerItemSlateElement<?>) {
+//                    TrackerItemSlateElement data = (TrackerItemSlateElement) element;
+//                    String hisRefId = itemMaps.get(Long.parseLong(data.getRef())).toString();
+//                    data.setRefHistoryId(hisRefId);
+//                    data.getChildren().forEach(child -> {
+//                        if (child instanceof TrackerItemSlateElement.TrackerItemTitleSlateElement) {
+//                            TrackerItemSlateElement.TrackerItemTitleSlateElement title = ((TrackerItemSlateElement.TrackerItemTitleSlateElement) child);
+//                            title.setRefHistoryId(hisRefId);
+//
+//                        } else if (child instanceof TrackerItemSlateElement.TrackerItemDescriptionSlateElement) {
+//                            TrackerItemSlateElement.TrackerItemDescriptionSlateElement desc = ((TrackerItemSlateElement.TrackerItemDescriptionSlateElement) child);
+//                            desc.setRefHistoryId(hisRefId);
+//                        } else if (child instanceof TrackerItemSlateElement.TrackerItemExtraSlateElement) {
+//                            TrackerItemSlateElement.TrackerItemExtraSlateElement extra = ((TrackerItemSlateElement.TrackerItemExtraSlateElement) child);
+//                            extra.setRefHistoryId(hisRefId);
+//                        }
+//                    });
+//                }
+//            }
         }
         saveAll(historyEntities);
 
@@ -103,7 +148,7 @@ public class DocumentHistoryDao extends BaseJdbcDao {
         criteria = criteria.and(Criteria.where(HistoryBaseEntity.Fields.objectId).in(objectIds));
         Query query = Query.query(criteria);
         query.columns(BaseEntity.Fields.id, BaseEntity.Fields.name, BaseEntity.Fields.icon,
-                HistoryBaseEntity.Fields.objectId,HistoryBaseEntity.Fields.revision);
+                HistoryBaseEntity.Fields.objectId, HistoryBaseEntity.Fields.revision);
         return find(query, DocumentHistoryEntity.class);
     }
 
@@ -113,7 +158,7 @@ public class DocumentHistoryDao extends BaseJdbcDao {
         criteria = criteria.and(Criteria.where(BaseEntity.Fields.id).in(diffHistoryIds));
         Query query = Query.query(criteria);
         query.columns(BaseEntity.Fields.id, BaseEntity.Fields.name, BaseEntity.Fields.icon,
-                      HistoryBaseEntity.Fields.objectId);
+                HistoryBaseEntity.Fields.objectId);
         return find(query, DocumentHistoryEntity.class);
     }
 

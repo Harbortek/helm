@@ -28,6 +28,7 @@ import com.harbortek.helm.tracker.entity.block.TrackerItemBlockData;
 import com.harbortek.helm.tracker.entity.collection.CollectionEntity;
 import com.harbortek.helm.tracker.entity.document.DocumentHistoryEntity;
 import com.harbortek.helm.tracker.entity.project.ProjectPageEntity;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
 import com.harbortek.helm.tracker.entity.tracker.TrackerEntity;
 import com.harbortek.helm.tracker.entity.tracker.TrackerItemHistoryEntity;
 import com.harbortek.helm.tracker.service.BaselineService;
@@ -76,6 +77,7 @@ public class BaselineServiceImpl implements BaselineService {
 
     @Autowired
     DocService docService;
+
     @Override
     public BaselineVo createBaseline(BaselineVo baseline) {
         Long projectId = baseline.getProjectId();
@@ -87,8 +89,8 @@ public class BaselineServiceImpl implements BaselineService {
 
             //获取doc中标题等工作项id
             List<Long> docIds = projectPageDao.findDocumentsByProject(baseline.getProjectId())
-                                              .stream().map(ProjectPageEntity::getSmartDocId)
-                                              .collect(Collectors.toList());
+                    .stream().map(ProjectPageEntity::getSmartDocId)
+                    .collect(Collectors.toList());
             List<DocumentEntity> docEntities = docDao.findByIds(docIds);
 
             //根据 tracker保存item
@@ -122,8 +124,11 @@ public class BaselineServiceImpl implements BaselineService {
             //获取doc中标题等工作项id
             List<DocumentEntity> docEntities = docDao.findByIds(oneCollection.getDocuments());
             docEntities.forEach(doc -> {
-                doc.getBlocks().forEach(block -> {
-                    itemIds.add(block.getData().getRefId());
+                doc.getElements().forEach(block -> {
+                    if (block instanceof TrackerItemSlateElement) {
+                        TrackerItemSlateElement block1 = (TrackerItemSlateElement) block;
+                        itemIds.add(Long.parseLong(block1.getRef()));
+                    }
                 });
             });
 
@@ -140,8 +145,11 @@ public class BaselineServiceImpl implements BaselineService {
             Map<Long, Long> itemMaps = new HashMap<>();//itemId-version
             //获取doc中标题等工作项id
             DocumentEntity documentEntity = docDao.findDocByPageId(baseline.getDocumentId());
-            documentEntity.getBlocks().forEach(block -> {
-                itemIds.add(block.getData().getRefId());
+            documentEntity.getElements().forEach(element -> {
+                if (element instanceof TrackerItemSlateElement) {
+                    TrackerItemSlateElement block = (TrackerItemSlateElement) element;
+                    itemIds.add(Long.parseLong(block.getRef()));
+                }
             });
 
             //根据itemIds保存item
@@ -164,8 +172,11 @@ public class BaselineServiceImpl implements BaselineService {
         //获取doc中标题等工作项id
         List<DocumentEntity> docEntities = docDao.findByIds(Collections.singletonList(documentId));
         docEntities.forEach(doc -> {
-            doc.getBlocks().forEach(block -> {
-                itemIds.add(block.getData().getRefId());
+            doc.getElements().forEach(block -> {
+                if (block instanceof TrackerItemSlateElement) {
+                    TrackerItemSlateElement block1 = (TrackerItemSlateElement) block;
+                    itemIds.add(Long.parseLong(block1.getRef()));
+                }
             });
         });
 
@@ -244,12 +255,12 @@ public class BaselineServiceImpl implements BaselineService {
             List<Long> rightDocumentHistoryIds = rightBaseline.getDocumentHistoryIds();
 
             List<Long> diffHistoryIds = new ArrayList<>(CollectionUtils.disjunction(leftDocumentHistoryIds,
-                                                                                    rightDocumentHistoryIds));
+                    rightDocumentHistoryIds));
             Collections.sort(diffHistoryIds);
             List<? extends HistoryBaseEntity> historyEntities = documentHistoryDao.find(diffHistoryIds);
             List<BaselineCompare> diffItems = buildBaselineCompare(docFolder, leftDocumentHistoryIds,
-                                                                   rightDocumentHistoryIds,
-                                                                   historyEntities);
+                    rightDocumentHistoryIds,
+                    historyEntities);
             diffItems.forEach(item -> item.setType("wiki"));
             if (!diffItems.isEmpty()) {
                 result.addAll(diffItems);
@@ -271,7 +282,7 @@ public class BaselineServiceImpl implements BaselineService {
                 Objects.requireNonNullElse(rightBaseline.getTrackerItemHistoryIds(), new ArrayList<>());
 
         List<Long> diffHistoryIds = new ArrayList<>(CollectionUtils.disjunction(leftHistoryIds,
-                                                                                rightHistoryIds));
+                rightHistoryIds));
 
         Collections.sort(diffHistoryIds);
 
@@ -286,21 +297,21 @@ public class BaselineServiceImpl implements BaselineService {
         for (TrackerEntity tracker : trackers) {
             BaselineCompare trackerFolder =
                     BaselineCompare.builder().id(tracker.getId()).parentId(workItemFolder.getId())
-                                   .name(tracker.getName()).icon(tracker.getIcon())
-                                   .folder(true).build();
+                            .name(tracker.getName()).icon(tracker.getIcon())
+                            .folder(true).build();
 
             List<Long> leftHistoryUnderTrackerIds =
                     leftItems.stream().filter(item -> item.getTrackerId().equals(tracker.getId()))
-                             .map(TrackerItemHistoryEntity::getId).toList();
+                            .map(TrackerItemHistoryEntity::getId).toList();
             ;
             List<Long> rightHistoryUnderTrackerIds =
                     rightItems.stream().filter(item -> item.getTrackerId().equals(tracker.getId()))
-                              .map(TrackerItemHistoryEntity::getId).toList();
+                            .map(TrackerItemHistoryEntity::getId).toList();
             ;
 
             List<BaselineCompare> diffItems =
                     buildBaselineCompare(trackerFolder, leftHistoryUnderTrackerIds, rightHistoryUnderTrackerIds,
-                                         historyEntities);
+                            historyEntities);
             diffItems.forEach(item -> item.setType("tracker"));
             if (!diffItems.isEmpty()) {
                 result.add(trackerFolder);
@@ -328,18 +339,25 @@ public class BaselineServiceImpl implements BaselineService {
             if (document != null) {
                 List<Long> refIds = new ArrayList<>();
 //                document.setPageId(docMap.get(document.getObjectId()));
-                document.getBlocks().forEach(block -> {
-                    DocBlockData data = block.getData();
-                    if (ObjectUtils.isValid(data.getRefHistoryId())) {
-                        refIds.add( data.getRefHistoryId());
+                document.getElements().forEach(block -> {
+                    if (block instanceof TrackerItemSlateElement) {
+                        TrackerItemSlateElement data = (TrackerItemSlateElement) block;
+                        if (ObjectUtils.isValid(Long.parseLong(data.getRefHistoryId()))) {
+                            refIds.add(Long.parseLong(data.getRefHistoryId()));
+                        }
                     }
+
                 });
                 //List<TrackerItemVo> trackerItemVos = trackerItemService.findTrackerItemByIds(refIds);
                 List<TrackerItemHistoryVo> trackerItemVos = DataUtils.toVo(trackerItemHistoryDao.findByHistoryIds(refIds), TrackerItemHistoryVo.class);
                 Map<Long, TrackerItemHistoryVo> trackerItemVoMap = trackerItemVos.stream().collect(Collectors.toMap(TrackerItemHistoryVo::getId, Function.identity()));
-                document.getBlocks().forEach(block -> {
-                    TrackerItemHistoryVo trackerItemVo = trackerItemVoMap.get(block.getData().getRefId());
-                    if(ObjectUtils.isNotEmpty(trackerItemVo)){
+                document.getElements().forEach(block -> {
+                    if (!(block instanceof TrackerItemSlateElement)) {
+                        return;
+                    }
+                    TrackerItemSlateElement data = (TrackerItemSlateElement) block;
+                    TrackerItemHistoryVo trackerItemVo = trackerItemVoMap.get(data.getRef());
+                    if (ObjectUtils.isNotEmpty(trackerItemVo)) {
                         if (BlockTypes.TITLE.equals(block.getType())) {
 
                         } else if (BlockTypes.HEADING.equals(block.getType())) {
@@ -348,19 +366,20 @@ public class BaselineServiceImpl implements BaselineService {
 
                         } else {
                             //BlockTypes.TRACKER_ITEM
-                            TrackerItemBlockData trackerItemBlockData = ((TrackerItemBlockData)block.getData());
-                            trackerItemBlockData.setName(trackerItemVo.getName());
-                            trackerItemBlockData.setTrackerId(trackerItemVo.getTracker().getId());
+//                            TrackerItemBlockData trackerItemBlockData = ((TrackerItemBlockData) block.getData());
+//                            trackerItemBlockData.setName(trackerItemVo.getName());
+//                            trackerItemBlockData.setTrackerId(trackerItemVo.getTracker().getId());
                             TrackerItemVo trackerItem = TrackerItemVo.builder()
                                     .id(trackerItemVo.getId()).itemNo(trackerItemVo.getItemNo())
                                     .name(trackerItemVo.getName()).tracker(trackerItemVo.getTracker())
                                     .project(trackerItemVo.getProject()).owner(trackerItemVo.getOwner()).build();
 //                        BeanCopyUtils.copyWithoutNullProperties(trackerItemVo, trackerItem);
-                            trackerItemBlockData.setTrackerItem(docService.fillTrackerItemVo(trackerItem));
-                            block.setData(trackerItemBlockData);
+//                            trackerItemBlockData.setTrackerItem(docService.fillTrackerItemVo(trackerItem));
+                            data.setTrackerItem(trackerItem);
+//                            block.setData(trackerItemBlockData);
                         }
-                        block.getData().setText(trackerItemVo.getDescription());
-                    }else{
+//                        block.getData().setText(trackerItemVo.getDescription());
+                    } else {
                         log.info("trackerItemVo is null");
                     }
                 });
@@ -417,10 +436,10 @@ public class BaselineServiceImpl implements BaselineService {
             } else if (row.getLeft() == null && row.getRight() != null) {
                 row.setMode("DELETE");
             } else if (!Objects.equals(Objects.requireNonNull(row.getLeft()).getRevision(),
-                                       Objects.requireNonNull(row.getRight().getRevision()))) {
+                    Objects.requireNonNull(row.getRight().getRevision()))) {
                 row.setMode("UPDATE");
             } else if (Objects.equals(Objects.requireNonNull(row.getLeft()).getRevision(),
-                                      Objects.requireNonNull(row.getRight().getRevision()))) {
+                    Objects.requireNonNull(row.getRight().getRevision()))) {
                 sameIds.add(objectId);
             }
         });
