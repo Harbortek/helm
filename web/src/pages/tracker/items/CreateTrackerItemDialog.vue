@@ -29,7 +29,7 @@
             <!-- </a-row>
 
             <a-row :gutter="15"> -->
-                <a-col :span="f.inputType == 'WIKI' ? 24 : 12" v-for="(f) in customerFields" :key="f.id">
+                <a-col :span="isTable(f) ? 24 : 12" v-for="(f) in customerFields" :key="f.id">
                     <a-form-model-item :label="f.name" :prop="f.name" :required="f.required">
                         <TrackerItemFields :fields="f" v-model="formData.values[f.id]" :projectId="projectId" 
                         :trackerId="trackerCopy?.id"></TrackerItemFields>
@@ -250,8 +250,6 @@ export default {
                     this.trackerCopy = cloneDeep(this.tracker)
                     this.loadData();
                     this.initData();
-                    console.log("adfasdfa",this.formData.description)
-
                 }
             }
         },
@@ -551,6 +549,9 @@ export default {
                 })
             ]
         },
+        isTable(field){
+            return field.inputType === 'TABLE' || field.inputType === 'TEST_STEP' || field.inputType === 'DURATION'
+        }
     },
     created() { }
 };

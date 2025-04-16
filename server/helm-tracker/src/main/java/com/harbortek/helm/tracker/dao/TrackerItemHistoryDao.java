@@ -93,6 +93,9 @@ public class TrackerItemHistoryDao extends BaseJdbcDao {
             if(ObjectUtils.isNotEmpty(historyMap.get(item.getId()))){
                 boolean exist= historyMap.get(item.getId()).stream().anyMatch(historyEntity -> historyEntity.getRevision().equals(item.getRevision()));
                 if (exist) {
+                    history.setId(historyMap.get(item.getId()).get(0).getId());
+                    existItems.add(history);
+                }else{
                     historyList.add(history);
                 }
             }else{
