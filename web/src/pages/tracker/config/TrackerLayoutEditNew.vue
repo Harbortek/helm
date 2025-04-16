@@ -23,7 +23,7 @@
                         :class="{ 'clickable-zoom': true, actived: selectTab == 'field' }"
                         style="inset: 0px -16px;position: absolute;z-index: 20;"></span>
                     <a-col :span="12" v-if="customerFields?.length==0" style="min-height: 50px;"></a-col>
-                    <a-col :span="12" v-for="f in customerFields" :key="f.id">
+                    <a-col :span="isTable(f)?24:12" v-for="f in customerFields" :key="f.id">
                         <a-form-item :label="f.name" :prop="f.name" :required="f.required">
 
                             <TrackerItemFields :fields="f" v-model="formData.values[f.id]" :projectId="projectId" 
@@ -229,6 +229,9 @@ export default {
                 watchers: []
             }
         },
+        isTable(field){
+            return field.inputType === 'TABLE' || field.inputType === 'TEST_STEP' || field.inputType === 'DURATION'
+        }
 
     },
 };

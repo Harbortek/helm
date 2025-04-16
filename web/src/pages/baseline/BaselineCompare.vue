@@ -63,7 +63,7 @@
         </vxe-table>
         <tracker-item-diff-dialog :isShowDialog="showTrackerItemDiff" :currentCompare="currentCompare" @cancel="showTrackerItemDiff = false" />
 
-        <document-diff-dialog :isShowDialog="showDocumentDiff" :currentCompare="currentCompare" @cancel="showDocumentDiff = false" />
+        <document-diff-dialog :isShowDialog="showDocumentDiff" :currentCompare="currentCompare" :tableData="tableData" @cancel="showDocumentDiff = false" />
     </div>
 </template>
 

@@ -64,12 +64,20 @@ public class DocumentHistoryDao extends BaseJdbcDao {
             history.setId(IDUtils.getId());
             history.setName(item.getName());
             history.setRevision(item.getRevision());
+
+            boolean notExist = false;
             if (ObjectUtils.isNotEmpty(historyMap.get(item.getId()))) {
                 boolean exist = historyMap.get(item.getId()).stream().anyMatch(historyEntity -> historyEntity.getRevision().equals(item.getRevision()));
                 if (exist) {
+                    history.setId(historyMap.get(item.getId()).get(0).getId());
                     existDocuments.add(history);
+                }else{
+                    notExist=true;
                 }
             } else {
+                notExist=true;
+            }
+            if(notExist){
                 historyEntities.add(history);
                 for (SlateNode element : history.getElements()) {
                     if (element instanceof TrackerItemSlateElement<?>) {

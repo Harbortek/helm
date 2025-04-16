@@ -7,11 +7,11 @@
         </template>
         <vxe-grid class="reverse-table" v-bind="gridOptions1" :loading="loading">
             <template #left_default="{ row }">
-                <span v-if="row.item=='描述'" v-html="row.left" :style="{color:cellStyle(row,'left')}"></span>
+                <SimpleEditor v-if="row.item=='描述'" :value="row.left||{}" :disabled="true" :style="{color:cellStyle(row,'left')}"></SimpleEditor>
                 <span v-else :style="{color:cellStyle(row,'left')}">{{ row.left }}</span>
             </template>
             <template #right_default="{ row }">
-                <span v-if="row.item=='描述'" v-html="row.left" :style="{color:cellStyle(row,'right')}"></span>
+                <SimpleEditor v-if="row.item=='描述'" :value="row.right||{}" :disabled="true" :style="{color:cellStyle(row,'right')}"></SimpleEditor>
                 <span v-else :style="{color:cellStyle(row,'right')}">{{ row.right }}</span>
             </template>
         </vxe-grid>
@@ -22,9 +22,10 @@
 <script>
 import { findItemsHistory } from '@/services/baseline/BaselineService'
 import { findOneTracker} from "@/services/tracker/TrackerService";
+import SimpleEditor from '@/components/editor/SimpleEditor.vue';
 export default {
     name: 'TrackerItemDiffDialog',
-    components: {},
+    components: {SimpleEditor},
     props: {
         isShowDialog: {
             required: true
@@ -197,6 +198,13 @@ export default {
 <style lang="less" scoped>
 .reverse-table /deep/.vxe-body--row .vxe-body--column:first-child {
     background-color: #f8f8f9;
+}
+.reverse-table ::v-deep .w-e-text-container [data-slate-editor]{
+    padding:0;
+}
+
+.reverse-table ::v-deep .w-e-text-container{
+    color: currentColor;
 }
 
 </style>
