@@ -241,4 +241,14 @@ public class TrackerDao extends BaseJdbcDao {
                                           .and(BaseEntity.Fields.deleted).is(Boolean.FALSE));
         return find(query, TrackerEntity.class).stream().findFirst().orElse(null);
     }
+
+    public List<TrackerEntity> findTrackersByName(Long productLineId, String trackerName) {
+        //Hack
+        String sql = "select id from trackers t where  t.project_id  in (select project_id from products p where p.product_line_id=:productLineId and p.deleted = 0) and t.name=:name and t.deleted=0";
+        Map<String,Object> params = new HashMap<>();
+        params.put("name", trackerName);
+        params.put("productLineId", productLineId);
+        List<TrackerEntity> entities = find(sql, params, TrackerEntity.class);
+        return findByIds(ObjectUtils.ids(entities), TrackerEntity.class, true);
+    }
 }

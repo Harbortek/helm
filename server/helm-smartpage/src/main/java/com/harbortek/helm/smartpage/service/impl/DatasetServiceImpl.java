@@ -29,6 +29,7 @@ import com.harbortek.helm.smartpage.vo.DatasetPreviewRequest;
 import com.harbortek.helm.system.service.UserService;
 import com.harbortek.helm.system.vo.UserVo;
 import com.harbortek.helm.tracker.constants.FieldTypes;
+import com.harbortek.helm.tracker.constants.PageScopes;
 import com.harbortek.helm.tracker.dao.SmartPageDao;
 import com.harbortek.helm.tracker.service.SprintService;
 import com.harbortek.helm.tracker.service.TargetVersionService;
@@ -106,7 +107,7 @@ public class DatasetServiceImpl implements DatasetService {
         SqlRowSet rowSet = null;
         if ("SQL".equals(dataset.getType())) {
             String sql = dataset.getSql();
-            sql = translateVirtualTables(sql);
+            sql = translateVirtualTables(pageId,sql);
             rowSet = sqlDao.plainSelect(sql, null, null, filterFields, 1,
                     100);
             rowSetToDataset(rowSet, dataset);
@@ -124,7 +125,7 @@ public class DatasetServiceImpl implements DatasetService {
                                  List<DataFilter> filterFields, int page, int pageSize) {
         if ("SQL".equals(dataset.getType())) {
             String sql = dataset.getSql();
-            sql = translateVirtualTables(sql);
+            sql = translateVirtualTables(pageId,sql);
             return sqlDao.plainSelect(sql, parameters, fields, filterFields, page, pageSize);
 
         } else if ("JavaScript".equals(dataset.getType())) {
@@ -147,7 +148,7 @@ public class DatasetServiceImpl implements DatasetService {
     public Long count(Long pageId, DatasetVo dataset, List<DataFilter> filterFields, List<DataFilter> queryParameters) {
         if ("SQL".equals(dataset.getType())) {
             String sql = dataset.getSql();
-            sql = translateVirtualTables(sql);
+            sql = translateVirtualTables(pageId,sql);
             return sqlDao.count(sql, queryParameters, filterFields);
         } else if ("JavaScript".equals(dataset.getType())) {
             Object result = ExpressionUtils.execute(dataset.getSql());
@@ -169,7 +170,7 @@ public class DatasetServiceImpl implements DatasetService {
                              List<DatasetField> valueFields, List<DataFilter> filterFields) {
         if ("SQL".equals(dataset.getType())) {
             String sql = dataset.getSql();
-            sql = translateVirtualTables(sql);
+            sql = translateVirtualTables(pageId, sql);
             return sqlDao.groupBy(sql, queryParameters, groupByFields, valueFields, filterFields);
         } else if ("JavaScript".equals(dataset.getType())) {
             Object result = ExpressionUtils.execute(dataset.getSql());
@@ -225,7 +226,7 @@ public class DatasetServiceImpl implements DatasetService {
         DatasetVo dataset = findById(pageId, datasetId);
         if ("SQL".equals(dataset.getType())) {
             String sql = dataset.getSql();
-            sql = translateVirtualTables(sql);
+            sql = translateVirtualTables(pageId,sql);
             SqlRowSet rowSet = sqlDao.selectDistinct(sql, field);
             List<String> result = new ArrayList<>();
             while (rowSet.next()) {
@@ -341,7 +342,7 @@ public class DatasetServiceImpl implements DatasetService {
         return tokens;
     }
 
-    public String translateVirtualTables(String sql) {
+    public String translateVirtualTables(Long pageId, String sql) {
         //从SQL中识别出类似[[PROJECT|TRACKER|PLAN|VERSION|SPRING|USER][表名]]这样的字符串
         List<String> tokens = tokenize(sql);
         for (String token : tokens) {
@@ -351,23 +352,19 @@ public class DatasetServiceImpl implements DatasetService {
             //根据表名查询表的定义
             if ("PROJECT".equals(type)) {
                 //根据项目ID查询项目的定义
-                String newToken = translateVirtualProjectTable(elementNames);
+                String newToken = translateVirtualProjectTable(pageId,elementNames);
                 sql = StringUtils.replaceOnce(sql, token, newToken);
             } else if ("TRACKER".equals(type)) {
                 //根据跟踪器ID查询跟踪器的定义
-                String newToken = translateVirtualTrackerTable(elementNames);
-                sql = StringUtils.replaceOnce(sql, token, newToken);
-            } else if ("PLAN".equals(type)) {
-                //根据计划ID查询计划的定义
-                String newToken = translateVirtualPlanTable(elementNames);
+                String newToken = translateVirtualTrackerTable(pageId,elementNames);
                 sql = StringUtils.replaceOnce(sql, token, newToken);
             } else if ("VERSION".equals(type)) {
                 //根据版本ID查询版本的定义
-                String newToken = translateVirtualVersionTable(elementNames);
+                String newToken = translateVirtualVersionTable(pageId,elementNames);
                 sql = StringUtils.replaceOnce(sql, token, newToken);
             } else if ("SPRINT".equals(type)) {
-                //根据Spring Bean的ID查询Spring Bean的定义
-                String newToken = translateVirtualSprintTable(elementNames);
+                //根据Sprint 的ID查询Sprint 的定义
+                String newToken = translateVirtualSprintTable(pageId,elementNames);
                 sql = StringUtils.replaceOnce(sql, token, newToken);
             } else if ("CURRENT_USER_NAME".equals(type)) {
                 //根据用户ID查询用户的定义
@@ -384,7 +381,7 @@ public class DatasetServiceImpl implements DatasetService {
     }
 
 
-    private String translateVirtualSprintTable(String[] elementNames) {
+    private String translateVirtualSprintTable(Long pageId,String[] elementNames) {
         StringBuilder sb = new StringBuilder();
         String sql = """
                 select p.item_no            as '编号',
@@ -416,8 +413,15 @@ public class DatasetServiceImpl implements DatasetService {
                 """;
         sb.append(sql);
         sb.append(" WHERE p.deleted =0");
-        Long currentProjectId = (Long) SecurityUtils.get(SecurityUtils.PROJECT_ID);
-        sb.append(" AND  p.project_id = ").append(currentProjectId);
+
+        Long objectId = smartPageDao.getObjectId(pageId);
+        String scope = smartPageDao.getScope(pageId);
+        if (ObjectUtils.isNotEmpty(objectId) && PageScopes.SCOPE_PROJECT.equals(scope)) {
+            sb.append(" AND  p.project_id = ").append(objectId);
+        }else if (ObjectUtils.isNotEmpty(objectId) && PageScopes.SCOPE_PRODUCT_LINE.equals(scope)) {
+            sb.append(" AND  p.project_id in (select project_id from products where product_line_id = ").append(objectId).append(")");
+        }
+
         if (elementNames.length > 0 && !"*".equals(elementNames[0])) {
             String names = Arrays.stream(elementNames).map(SQLUtils::wrapString).collect(Collectors.joining(","));
             sb.append(" AND  p.name in (").append(names).append(")");
@@ -425,7 +429,7 @@ public class DatasetServiceImpl implements DatasetService {
         return "(" + sb + ")";
     }
 
-    private String translateVirtualVersionTable(String[] elementNames) {
+    private String translateVirtualVersionTable(Long pageId,String[] elementNames) {
         StringBuilder sb = new StringBuilder();
         String sql = """
                 select tv.name               as '目标版本',
@@ -450,8 +454,15 @@ public class DatasetServiceImpl implements DatasetService {
                 """;
         sb.append(sql);
         sb.append(" WHERE tv.deleted =0");
-        Long currentProjectId = (Long) SecurityUtils.get(SecurityUtils.PROJECT_ID);
-        sb.append(" AND  tv.project_id = ").append(currentProjectId);
+
+        Long objectId = smartPageDao.getObjectId(pageId);
+        String scope = smartPageDao.getScope(pageId);
+        if (ObjectUtils.isNotEmpty(objectId) && PageScopes.SCOPE_PROJECT.equals(scope)) {
+            sb.append(" AND  tv.project_id = ").append(objectId);
+        }else if (ObjectUtils.isNotEmpty(objectId) && PageScopes.SCOPE_PRODUCT_LINE.equals(scope)) {
+            sb.append(" AND  tv.project_id in (select project_id from products where product_line_id = ").append(objectId).append(")");
+        }
+
         if (elementNames.length > 0 && !"*".equals(elementNames[0])) {
             String names = Arrays.stream(elementNames).map(SQLUtils::wrapString).collect(Collectors.joining(","));
             sb.append(" AND  tv.name in (").append(names).append(")");
@@ -459,46 +470,7 @@ public class DatasetServiceImpl implements DatasetService {
         return "(" + sb + ")";
     }
 
-    private String translateVirtualPlanTable(String[] elementNames) {
-        StringBuilder sb = new StringBuilder();
-        String sql = """
-                select p.seq_number           as '序号',
-                       case p.type
-                           when 'GROUP' then '组'
-                           when 'TASK' then '任务'
-                           when 'MILE_STONE' then '里程碑'
-                           end                as '类型',
-                       p.name                 as '任务名称',
-                       p.description          as '任务描述',
-                       p.duration             as '工期',
-                       p.finished             as '已完成',
-                       u3.name                as '负责人',
-                       p.plan_start_date      as '计划开始日期',
-                       p.plan_end_date        as '计划完成日期',
-                       p.progress             as '进度',
-                       p.real_start_date      as '实际开始日期',
-                       p.real_end_date        as '实际完成日期',
-                       u1.name                as '创建者',
-                       p.create_date          as '创建日期',
-                       u2.name                as '更新者',
-                       p.last_modified_date   as '更新日期'
-                from plans p
-                         left join users u1 on p.create_by = u1.id
-                         left join users u2 on p.last_modified_by = u2.id
-                         left join users u3 on p.owner_id = u3.id
-                """;
-        sb.append(sql);
-        sb.append(" WHERE p.deleted =0");
-        Long currentProjectId = (Long) SecurityUtils.get(SecurityUtils.PROJECT_ID);
-        sb.append(" AND  p.project_id = ").append(currentProjectId);
-        if (elementNames.length > 0 && !"*".equals(elementNames[0])) {
-            String names = Arrays.stream(elementNames).map(SQLUtils::wrapString).collect(Collectors.joining(","));
-            sb.append(" AND  p.name in (").append(names).append(")");
-        }
-        return "(" + sb + ")";
-    }
-
-    private String translateVirtualTrackerTable(String[] trackerNames) {
+    private String translateVirtualTrackerTable(Long pageId, String[] trackerNames) {
         StringBuilder sb = new StringBuilder();
         if (trackerNames.length > 1 || "*".equals(trackerNames[0])) {
             String sql = """
@@ -546,8 +518,15 @@ public class DatasetServiceImpl implements DatasetService {
                         where items.deleted = 0
                     """;
             sb.append(sql);
-            Long currentProjectId = (Long) SecurityUtils.get(SecurityUtils.PROJECT_ID);
-            sb.append(" AND items.project_id = ").append(currentProjectId);
+
+            Long objectId = smartPageDao.getObjectId(pageId);
+            String scope = smartPageDao.getScope(pageId);
+            if (ObjectUtils.isNotEmpty(objectId) && PageScopes.SCOPE_PROJECT.equals(scope)) {
+                sb.append(" AND  items.project_id = ").append(objectId);
+            }else if (ObjectUtils.isNotEmpty(objectId) && PageScopes.SCOPE_PRODUCT_LINE.equals(scope)) {
+                sb.append(" AND  items.project_id in (select project_id from products where product_line_id = ").append(objectId).append(")");
+            }
+
             if (trackerNames.length > 1) {
                 String names = Arrays.stream(trackerNames).map(SQLUtils::wrapString).collect(Collectors.joining(","));
                 sb.append(" AND  items.tracker_id in (select id from trackers tracker where tracker.deleted = 0 and " +
@@ -555,7 +534,24 @@ public class DatasetServiceImpl implements DatasetService {
                         "(").append(names).append("))");
             }
         } else {
-            String select = """
+            Long objectId = smartPageDao.getObjectId(pageId);
+            String scope = smartPageDao.getScope(pageId);
+            if (ObjectUtils.isNotEmpty(objectId) && PageScopes.SCOPE_PROJECT.equals(scope)) {
+                TrackerVo tracker = trackerService.findOneTrackerByName(objectId, trackerNames[0]);
+                sb.append( buildSelectCustomerFields(List.of(tracker)));
+            }else if (ObjectUtils.isNotEmpty(objectId) && PageScopes.SCOPE_PRODUCT_LINE.equals(scope)) {
+                List<TrackerVo> trackers = trackerService.findTrackersByName(objectId, trackerNames[0]);
+                sb.append( buildSelectCustomerFields( trackers));
+            }
+        }
+
+        return "(" + sb + ")";
+    }
+
+    private String buildSelectCustomerFields(List<TrackerVo> trackers) {
+        StringBuilder sb = new StringBuilder();
+
+        String select = """
                     select upper(concat(concat(p.key_name, '-'), items.item_no)) as '工作项编号',
                            case items.tracker_id
                                when -1 then '章节'
@@ -587,7 +583,7 @@ public class DatasetServiceImpl implements DatasetService {
                            u2.name                                               as '更新者',
                            items.last_modified_date                              as '更新日期'
                     """;
-            String where = """
+        String where = """
                         from tracker_items items
                                  left join projects p on (items.project_id = p.id)
                                  left join trackers tracker on (items.tracker_id = tracker.id)
@@ -600,21 +596,80 @@ public class DatasetServiceImpl implements DatasetService {
                                  left join users u3 on items.assigned_to_id = u3.id
                                  left join users u4 on items.owner_id = u4.id
                         where items.deleted = 0
-                          and items.tracker_id =
                     """;
-            sb.append(select);
-
-            Long currentProjectId = (Long) SecurityUtils.get(SecurityUtils.PROJECT_ID);
-            TrackerVo tracker = trackerService.findOneTrackerByName(currentProjectId, trackerNames[0]);
+        //过滤同名同类型的自定义字段
+        LinkedHashMap<String,List<TrackerField>> fields = new LinkedHashMap<>();
+        for (TrackerVo tracker : trackers) {
             List<TrackerField> trackerFields = tracker.getTrackerFields();
             for (TrackerField trackerField : trackerFields) {
+                if (!trackerField.isSystem()) {
+                    String name = trackerField.getName();
+                    if (fields.containsKey(name)) {
+                        List<TrackerField> fieldList = fields.get(name);
+                        fieldList.add(trackerField);
+                    }else{
+                        List<TrackerField> trackerFieldList = new ArrayList<>();
+                        trackerFieldList.add(trackerField);
+                        fields.put(name,trackerFieldList);
+                    }
+                }
+            }
+        }
+        if (trackers.size()>1){
+            for (Map.Entry<String, List<TrackerField>> entry : fields.entrySet()) {
+                String name = entry.getKey();
+                List<TrackerField> trackerFields = entry.getValue();
+                if (trackerFields.size() != trackers.size()) {
+                    fields.remove(name);
+                }else{
+                    boolean isSameType = true;
+                    for (TrackerField trackerField : trackerFields) {
+                        if (!Objects.equals(trackerField.getInputType(), trackerFields.get(0).getInputType())) {
+                            isSameType = false;
+                            break;
+                        }
+                    }
+                    if (!isSameType) {
+                        fields.remove(name);
+                    }
+                }
+            }
+        }
+        if (fields.isEmpty()) {
+            sb.append(select);
+            sb.append(where);
+            if (trackers.size()>1){
+                sb.append("item.tracker_id in (");
+                for (TrackerVo tracker : trackers) {
+                    sb.append(tracker.getId()).append(",");
+                }
+                if (sb.charAt(sb.length()-1)==','){
+                    sb.deleteCharAt(sb.length()-1);
+                }
+                sb.append(")");
+            }else{
+                sb.append("item.tracker_id=").append(trackers.get(0).getId());
+            }
+            return sb.toString();
+        }
+
+        //存在多个TRACKER有同名的自定义字段的情况
+        List<String> sqls = new ArrayList<>();
+        for (int i=0; i< trackers.size();i ++){
+            StringBuilder trackerSelect = new StringBuilder();
+            trackerSelect.append(select);
+
+            TrackerVo tracker = trackers.get(i);
+            for (Map.Entry<String, List<TrackerField>> entry : fields.entrySet()){
+                TrackerField trackerField = entry.getValue().get(i);
+
                 if (!trackerField.isSystem()) {
                     if (Objects.equals(trackerField.getInputType(), FieldTypes.SINGLE_OPTIONS) ||
                             Objects.equals(trackerField.getInputType(), FieldTypes.MULTI_OPTIONS) ||
                             Objects.equals(trackerField.getInputType(),FieldTypes.TARGET_VERSION) ||
                             Objects.equals(trackerField.getInputType(),FieldTypes.SPRINT) ||
                             Objects.equals(trackerField.getInputType(),FieldTypes.USER)) {
-                        sb.append(",\n");
+                        trackerSelect.append(",\n");
                         final List<OptionsField.OptionItem> optionItems = new ArrayList<>();
                         if (trackerField instanceof OptionsField) {
                             if (ObjectUtils.isNotEmpty(((OptionsField) trackerField).getItems())) {
@@ -633,7 +688,7 @@ public class DatasetServiceImpl implements DatasetService {
                                 });
                             }
                         }else if (trackerField instanceof TargetVersionField) {
-                            Collection<TargetVersionVo> targetVersionVos = targetVersionService.findTargetVersions(currentProjectId);
+                            Collection<TargetVersionVo> targetVersionVos = targetVersionService.findTargetVersions(tracker.getProjectId());
                             for (TargetVersionVo targetVersionVo : targetVersionVos) {
                                 OptionsField.OptionItem item = new OptionsField.OptionItem();
                                 item.setId(targetVersionVo.getId());
@@ -641,7 +696,7 @@ public class DatasetServiceImpl implements DatasetService {
                                 optionItems.add(item);
                             }
                         }else if (trackerField instanceof SprintField) {
-                            Collection<SprintVo> sprintVos = sprintService.findSprints(currentProjectId);
+                            Collection<SprintVo> sprintVos = sprintService.findSprints(tracker.getProjectId());
                             for (SprintVo sprintVo : sprintVos) {
                                 OptionsField.OptionItem item = new OptionsField.OptionItem();
                                 item.setId(sprintVo.getId());
@@ -668,28 +723,37 @@ public class DatasetServiceImpl implements DatasetService {
                         String jsonString = jsonArray.toStringPretty();
                         String innerTable = "f" + trackerField.getId();
 
-                        sb.append("(select JSON_UNQUOTE(").append(innerTable).append(".name) from  json_table('").append(jsonString)
+                        trackerSelect.append("(select JSON_UNQUOTE(").append(innerTable).append(".name) from  json_table('").append(jsonString)
                                 .append("','$[*]' COLUMNS (id bigint path '$.id', name varchar(200) path '$.name')) ")
                                 .append(" as ").append(innerTable).append(" where ")
                                 .append(innerTable).append(".id").append("=").append("JSON_UNQUOTE(json_extract(items.values,'$.\"").append(trackerField.getId()).append("\"'))) ")
                                 .append(" as '").append(trackerField.getName()).append("' ");
                     } else if (!Objects.equals(trackerField.getInputType(), FieldTypes.TABLE) &&
                             !Objects.equals(trackerField.getInputType(), FieldTypes.TEST_STEP)) {
-                        sb.append(",\n");
-                        sb.append("JSON_UNQUOTE(json_extract(items.values,'$.\"").append(trackerField.getId()).append("\"')) as '")
+                        trackerSelect.append(",\n");
+                        trackerSelect.append("JSON_UNQUOTE(json_extract(items.values,'$.\"").append(trackerField.getId()).append("\"')) as '")
                                 .append(trackerField.getName()).append("'");
                     }
                 }
             }
-            sb.append(where);
-            sb.append(tracker.getId());
+            trackerSelect.append(where);
+            trackerSelect.append(" and items.tracker_id=").append(tracker.getId());
+            sqls.add(trackerSelect.toString());
         }
 
-        return "(" + sb + ")";
+        for (int i = 0; i < sqls.size(); i++) {
+            String sql = sqls.get(i);
+            sb.append(sql);
+            if (i < sqls.size() - 1) {
+                sb.append(" union all ");
+            }
+        }
+
+        return sb.toString();
     }
 
 
-    private String translateVirtualProjectTable(String[] elementNames) {
+    private String translateVirtualProjectTable(Long pageId, String[] elementNames) {
         StringBuilder sb = new StringBuilder();
         String sql = """
                 select p.key_name           as '代码',
@@ -721,6 +785,14 @@ public class DatasetServiceImpl implements DatasetService {
             }
         }
         sb.append(")");
+
+        Long objectId = smartPageDao.getObjectId(pageId);
+        String scope = smartPageDao.getScope(pageId);
+        if (ObjectUtils.isNotEmpty(objectId) && PageScopes.SCOPE_PROJECT.equals(scope)) {
+            sb.append(" AND  p.id = ").append(objectId);
+        }else if (ObjectUtils.isNotEmpty(objectId) && PageScopes.SCOPE_PRODUCT_LINE.equals(scope)) {
+            sb.append(" AND  p.id in (select project_id from products where product_line_id = ").append(objectId).append(")");
+        }
 
         return "(" + sb + ")";
     }

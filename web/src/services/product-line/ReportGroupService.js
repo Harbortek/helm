@@ -13,7 +13,7 @@ export function findOneReportGroup(productLineId, id) {
 }
 export function createReportGroup(productLineId, parameter) {
   return request({
-    url: `/product-line/${productLineId}/reportGroup/`,
+    url: `/product-line/${productLineId}/reportGroup`,
     method: METHOD.POST,
     data: parameter,
   });
@@ -21,7 +21,7 @@ export function createReportGroup(productLineId, parameter) {
 
 export function updateReportGroup(productLineId, parameter) {
   return request({
-    url: `/product-line/${productLineId}/reportGroup/`,
+    url: `/product-line/${productLineId}/reportGroup`,
     method: METHOD.PUT,
     data: parameter,
   });
