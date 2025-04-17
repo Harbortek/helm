@@ -39,7 +39,7 @@ public class ProductDao extends BaseJdbcDao {
     }
 
     public ProductEntity updateProduct(ProductEntity product) {
-        return save(product);
+        return update(product);
     }
 
     public void deleteProduct(Long productId) {

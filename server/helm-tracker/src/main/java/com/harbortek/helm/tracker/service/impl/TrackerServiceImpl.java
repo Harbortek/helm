@@ -573,6 +573,12 @@ public class TrackerServiceImpl implements TrackerService {
         return findOneTracker(trackerEntity.getId());
     }
 
+    @Override
+    public List<TrackerVo> findTrackersByName(Long productLineId, String trackerName) {
+        List<TrackerEntity> trackerEntities = trackerDao.findTrackersByName(productLineId,trackerName);
+        return DataUtils.toVo(trackerEntities, TrackerVo.class);
+    }
+
     /******  工作项步骤 ******/
     @Override
     public TrackerStateTransition createTrackerStateTransition(Long trackerId,

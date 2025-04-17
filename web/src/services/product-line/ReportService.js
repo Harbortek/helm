@@ -14,7 +14,7 @@ export function findOneReport(productLineId, id) {
 }
 export function createReport(productLineId, parameter) {
   return request({
-    url: `/product-line/${productLineId}/report/`,
+    url: `/product-line/${productLineId}/report`,
     method: METHOD.POST,
     data: parameter,
   });
@@ -22,7 +22,7 @@ export function createReport(productLineId, parameter) {
 
 export function updateReport(productLineId, parameter) {
   return request({
-    url: `/product-line/${productLineId}/report/`,
+    url: `/product-line/${productLineId}/reportß`,
     method: METHOD.PUT,
     data: parameter,
   });

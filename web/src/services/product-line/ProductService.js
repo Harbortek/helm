@@ -14,7 +14,7 @@ export function findOneProduct(productLineId, id) {
 }
 export function createProduct(productLineId, parameter) {
   return request({
-    url: `/product-line/${productLineId}/product/`,
+    url: `/product-line/${productLineId}/product`,
     method: METHOD.POST,
     data: parameter,
   });
@@ -22,7 +22,7 @@ export function createProduct(productLineId, parameter) {
 
 export function updateProduct(productLineId, parameter) {
   return request({
-    url: `/product-line/${productLineId}/product/`,
+    url: `/product-line/${productLineId}/product`,
     method: METHOD.PUT,
     data: parameter,
   });

@@ -48,7 +48,7 @@ public class ReportServiceImpl implements ReportService {
 
         //创建smart page
         SmartPageVo smartPage = new SmartPageVo();
-        smartPage.setObjectId(reportVo.getId());
+        smartPage.setObjectId(reportVo.getProductLineId());
         smartPage.setName(reportVo.getName());
         smartPage.setScope(PageScopes.SCOPE_PRODUCT_LINE);
         smartPageService.createSmartPage(smartPage);

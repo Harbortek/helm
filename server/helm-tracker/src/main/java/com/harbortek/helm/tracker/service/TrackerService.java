@@ -144,4 +144,6 @@ public interface TrackerService {
     void createTrackers(Collection<TrackerVo> trackers);
 
     TrackerVo findOneTrackerByName(Long projectId, String trackerName);
+
+    List<TrackerVo> findTrackersByName(Long productLineId, String trackerName);
 }
