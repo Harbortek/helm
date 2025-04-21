@@ -42,6 +42,7 @@ public class ChangeLogDao extends BaseJdbcDao {
         if(newObject==null){
             newObject="";
         }
+
         ChangeLogEntity changeLog =
                 ChangeLogEntity.builder().id(IDUtils.getId()).objectId(objectId)
                                .messageType(type).message(message).target(new IdNameReference<>(target))

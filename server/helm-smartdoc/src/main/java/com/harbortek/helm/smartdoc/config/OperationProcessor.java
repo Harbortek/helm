@@ -17,7 +17,6 @@
 package com.harbortek.helm.smartdoc.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.harbortek.helm.common.exception.ServiceException;
 import com.harbortek.helm.smartdoc.editor.operation.Operation;
 import com.harbortek.helm.smartdoc.editor.operation.util.SlateOperationApplier;
 import com.harbortek.helm.system.vo.UserVo;

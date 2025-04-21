@@ -18,7 +18,7 @@ package com.harbortek.helm.smartdoc.config;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONArray;
-import com.harbortek.helm.smartdoc.editor.operation.util.SlateParser;
+import com.harbortek.helm.tracker.util.SlateParser;
 import com.harbortek.helm.tracker.entity.block.DocBlock;
 import com.harbortek.helm.tracker.entity.block.DocumentEntity;
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.Block2Node;

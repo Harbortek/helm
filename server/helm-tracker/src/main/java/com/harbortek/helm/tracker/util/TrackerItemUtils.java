@@ -16,10 +16,15 @@
 
 package com.harbortek.helm.tracker.util;
 
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
 import com.harbortek.helm.util.JsonUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -45,4 +50,20 @@ public class TrackerItemUtils {
     public static void setTableFieldValue(TrackerItemVo trackerItem, Long tableFieldId, List<Map<Long, String>> columnMapList) {
 		trackerItem.getValues().put(tableFieldId, JsonUtils.toJSONString(columnMapList));
     }
+
+	public static String plainText(String jsonString){
+        List<SlateNode> nodes = new ArrayList<>();
+        try {
+            nodes = SlateParser.parseArray(jsonString);
+        } catch (IOException e) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+		nodes.forEach((node) -> {
+			sb.append(node.toHtml());
+		});
+		String html = sb.toString();
+		Document  document = Jsoup.parse(html);
+		return document.text();
+	}
 }

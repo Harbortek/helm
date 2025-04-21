@@ -16,7 +16,6 @@
 
 package com.harbortek.helm.smartdoc.service.impl;
 
-import ch.qos.logback.core.net.SyslogOutputStream;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HtmlUtil;
 import com.harbortek.helm.common.exception.ServiceException;
@@ -24,7 +23,7 @@ import com.harbortek.helm.common.vo.IdNameReference;
 import com.harbortek.helm.smartdoc.constants.ConditionMatchTypes;
 import com.harbortek.helm.smartdoc.constants.ConditionsMatchScopes;
 import com.harbortek.helm.smartdoc.dao.WordImportJobDao;
-import com.harbortek.helm.smartdoc.editor.operation.util.SlateParser;
+import com.harbortek.helm.tracker.util.SlateParser;
 import com.harbortek.helm.smartdoc.entity.WordImportJobEntity;
 import com.harbortek.helm.smartdoc.importer.word.analysis.WordDocumentProperties;
 import com.harbortek.helm.smartdoc.importer.word.conditions.ConditionsRegistry;
@@ -42,9 +41,7 @@ import com.harbortek.helm.tracker.entity.block.*;
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.Block2Node;
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.Node2Block;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.style.SlateStyle;
 import com.harbortek.helm.tracker.service.*;
 import com.harbortek.helm.tracker.vo.ProjectVo;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
@@ -54,7 +51,6 @@ import com.harbortek.helm.tracker.vo.tracker.fields.TrackerField;
 import com.harbortek.helm.util.DataUtils;
 import com.harbortek.helm.util.IDUtils;
 import com.harbortek.helm.util.JsonUtils;
-import com.harbortek.helm.util.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;

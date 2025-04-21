@@ -16,11 +16,9 @@
 
 package com.harbortek.helm.smartdoc.api;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.json.JSONArray;
 import com.harbortek.helm.common.exception.ServiceException;
-import com.harbortek.helm.smartdoc.editor.operation.util.SlateParser;
+import com.harbortek.helm.tracker.util.SlateParser;
 import com.harbortek.helm.smartdoc.exporter.word.Block2Docx;
 import com.harbortek.helm.smartdoc.vo.PageSettingTrackerVo;
 import com.harbortek.helm.smartdoc.vo.ProjectPage4BlockVo;
@@ -28,10 +26,7 @@ import com.harbortek.helm.tracker.entity.block.DocBlock;
 import com.harbortek.helm.tracker.entity.block.TrackerItemBlockData;
 import com.harbortek.helm.tracker.entity.smartdoc.element.parser.block.Block2Node;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.PoUtils;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.style.SlateStyle;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph.ParagraphSlateElement;
 import com.harbortek.helm.tracker.entity.project.PageSettingTracker;
@@ -59,7 +54,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
