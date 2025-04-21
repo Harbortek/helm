@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.harbortek.helm.smartdoc.editor.operation.util;
+package com.harbortek.helm.tracker.util;
 
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;

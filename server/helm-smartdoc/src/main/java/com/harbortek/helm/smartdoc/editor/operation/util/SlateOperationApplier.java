@@ -25,6 +25,8 @@ import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
 import com.harbortek.helm.tracker.service.TrackerItemService;
+import com.harbortek.helm.tracker.util.SlateNodeFinder;
+import com.harbortek.helm.tracker.util.SlateParser;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
 import com.harbortek.helm.util.JsonUtils;
 import org.apache.commons.lang3.StringUtils;

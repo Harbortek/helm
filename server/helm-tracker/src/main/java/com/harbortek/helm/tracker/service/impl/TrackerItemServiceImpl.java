@@ -44,6 +44,7 @@ import com.harbortek.helm.tracker.entity.tracker.TrackerEntity;
 import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
 import com.harbortek.helm.tracker.service.*;
 import com.harbortek.helm.tracker.util.ExecuteContext;
+import com.harbortek.helm.tracker.util.TrackerItemUtils;
 import com.harbortek.helm.tracker.vo.chart.ProjectCardInfo;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
 import com.harbortek.helm.tracker.vo.link.TrackerLinkVo;
@@ -597,9 +598,10 @@ public class TrackerItemServiceImpl implements TrackerItemService {
                 //发送通知
                 trackerNotificationService.sendSystemNotification(NotificationEvents.CHANGE_ITEM_TITLE, tracker, item, SecurityUtils.getCurrentUser());
             } else if (SystemFields.DESCRIPTION.equals(systemProperty)) {
-                oldValue = item.getDescription();
+                oldValue = TrackerItemUtils.plainText(item.getDescription());
                 item.setDescription(String.valueOf(newValue));
                 trackerItemDao.updateSystemField(item, BaseEntity.Fields.description, item.getDescription());
+                newValue = TrackerItemUtils.plainText(item.getDescription());
 
                 //发送通知
                 trackerNotificationService.sendSystemNotification(NotificationEvents.CHANGE_ITEM_DESCRIPTION, tracker, item, SecurityUtils.getCurrentUser());
@@ -692,22 +694,6 @@ public class TrackerItemServiceImpl implements TrackerItemService {
 
                 //发送通知
                 trackerNotificationService.sendSystemNotification(NotificationEvents.CHANGE_ITEM_PLAN_START_DATE, tracker, item, SecurityUtils.getCurrentUser());
-//            } else if (SystemFields.TEST_CASE_TYPE.equals(systemProperty)) {
-//                oldValue = item.getTestCaseTypeId();
-//                trackerItemDao.updateSystemField(item, TrackerItemEntity.Fields.testCaseTypeId, Long.parseLong(newValue.toString()));
-//                if (ObjectUtils.isNotEmpty(oldValue)) {
-//                    oldValue = enumService.findOneEnumItemById((Long) oldValue).getName();
-//                }
-//                newValue = enumService.findOneEnumItemById(Long.parseLong(newValue.toString())).getName();
-//            } else if (SystemFields.PRECONDITION.equals(systemProperty)) {
-//                oldValue = item.getPrecondition();
-//                if (ObjectUtils.isEmpty(newValue)) {
-//                    newValue = "";
-//                }
-//                if (newValue.equals(oldValue)) {
-//                    return;
-//                }
-//                trackerItemDao.updateSystemField(item, TrackerItemEntity.Fields.precondition, newValue);
             } else {
                 if (systemProperty.endsWith("Date")) {
                     try {
