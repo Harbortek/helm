@@ -61,13 +61,13 @@ export default {
         },
         refItems() {
             const a = {
-                deliverables: this.reviewModel.deliverables || [],
+                // deliverables: this.reviewModel.deliverables || [],
                 documents: this.reviewModel.documents || [],
-                milestones: this.reviewModel.milestones || [],
-                projectPlans: this.reviewModel.projectPlans || [],
+                // milestones: this.reviewModel.milestones || [],
+                // projectPlans: this.reviewModel.projectPlans || [],
                 sprints: this.reviewModel.sprints || [],
                 targetVersions: this.reviewModel.targetVersions || [],
-                tasks: this.reviewModel.tasks || [],
+                // tasks: this.reviewModel.tasks || [],
                 trackerItems: this.reviewModel.trackerItems || [],
             };
             return a
@@ -94,6 +94,7 @@ export default {
             this.projectId = projectId;
             if (reviewId) {
                 findOneReview(reviewId).then(res => {
+                    console.log("review2222",res)
                     this.reviewModel = res;
                     this.isShowProgressBody=true;
                 })

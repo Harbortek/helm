@@ -8,23 +8,11 @@
         <a-menu-item key="trackerItems" tab="">工作项
           <span v-if="getSelectedItemCount('trackerItems')!=0"> ({{getSelectedItemCount('trackerItems')}})</span>
         </a-menu-item>
-        <a-menu-item key="projectPlans" tab="">项目计划
-          <span v-if="getSelectedItemCount('projectPlans')!=0"> ({{getSelectedItemCount('projectPlans')}})</span>
-        </a-menu-item>
         <a-menu-item key="targetVersions" tab="">版本
           <span v-if="getSelectedItemCount('targetVersions')!=0"> ({{getSelectedItemCount('targetVersions')}})</span>
         </a-menu-item>
         <a-menu-item key="sprints" tab="">迭代
           <span v-if="getSelectedItemCount('sprints')!=0"> ({{getSelectedItemCount('sprints')}})</span>
-        </a-menu-item>
-        <a-menu-item key="milestones" tab="">里程碑
-          <span v-if="getSelectedItemCount('milestones')!=0"> ({{getSelectedItemCount('milestones')}})</span>
-        </a-menu-item>
-        <a-menu-item key="tasks" tab="">计划执行
-          <span v-if="getSelectedItemCount('tasks')!=0"> ({{getSelectedItemCount('tasks')}})</span>
-        </a-menu-item>
-        <a-menu-item key="deliverables" tab="">交付物
-          <span v-if="getSelectedItemCount('deliverables')!=0"> ({{getSelectedItemCount('deliverables')}})</span>
         </a-menu-item>
         <a-menu-item key="documents" tab="">文档
           <span v-if="getSelectedItemCount('documents')!=0"> ({{getSelectedItemCount('documents')}})</span>
@@ -150,7 +138,6 @@
 
             <vxe-column field="" title="编号" :width="100">
               <template #default="{ row }">
-                <!-- {{ currentProjectKeyName + '-' + row.itemNo }} -->
                 <HItemNo :trackerItem="row"></HItemNo>
               </template>
             </vxe-column>
@@ -175,7 +162,7 @@
                   {{ void (user= members.find(v=>v.id == status?.reviewerId)) }}
                   <a-tag v-if="!item?.name||item?.name=='未评审'" style="border-radius: 10px;font-size: 13px;"
                       :style="{ color: item?.color||'#87888a', borderColor: item?.color||'#87888a' }">
-                      {{  item?.name||'未评审' }}
+                      {{  item?.name||'未评审1' }}
                   </a-tag>
                   <a-popover v-else :overlayStyle="{zIndex:9999}">
                     <template slot="content">
@@ -214,92 +201,6 @@
             :total="pagination.total" :layouts="['PrevPage', 'JumpNumber', 'NextPage', 'FullJump', 'Sizes', 'Total']"
             @page-change="handlePageChange">
           </vxe-pager>
-        </div>
-      </div>
-
-      <div v-show="currentTab[0] == 'projectPlans'" style="height:100%;">
-        <a-row style="margin-bottom: 15px">
-          <a-col :span="12">
-            <div class="alert">
-              <div type="info" :show-icon="true">
-                <div class="message" style="font-size: 12px">
-                  已选择&nbsp;<a>{{ selectedRowKey['projectPlans']?.length }}</a>&nbsp;项，共{{ itemData['projectPlans'].length
-                  }}个符合条件的结果：
-                </div>
-              </div>
-            </div>
-          </a-col>
-          <a-col :span="12">
-            <a-col :offset="8" :span="4">
-
-            </a-col>
-            <a-col :span="12">
-              <a-input-search placeholder="搜索项目计划" v-model="keyword['projectPlans']" @search="handleSearch" />
-            </a-col>
-          </a-col>
-        </a-row>
-        <div class="table-box" :style="{ height: tableHeight }">
-          <vxe-table ref="vxeTableProjectPlans" height="100%" row-id="id" style="overflow:auto"
-            :data="itemData['projectPlans'].filter(v => (new RegExp(keyword['projectPlans'])).test(v.name))"
-            :loading="loading" @checkbox-all="selectChangeEvent" @checkbox-change="selectChangeEvent"
-            :row-config="{ isHover: true }" :checkbox-config="{
-              checkRowKeys: selectedRowKey['projectPlans'],
-              reserve: true, checkField: 'checked'
-            }">
-
-            <vxe-column type="checkbox" title="" width="35"></vxe-column>
-            <vxe-column field="name" title="名称" min-width="100">
-              <template #default="{ row }">
-                <div style="display: inline-flex;" @click.stop @click="onOpenDetail('projectPlans',row)">
-                  <a style="width:20px;" >
-                    <h-icon type="plan-group" v-if="row.type === 'GROUP'" />
-                    <h-icon type="plan-tasks" v-else-if="row.type === 'TASK'" />
-                    <h-icon type="flag" v-else-if="row.type === 'MILE_STONE'" />
-                  </a>
-                  <a> {{ row.name }}</a>
-                </div>
-              </template>
-            </vxe-column>
-
-            <vxe-column v-if="reviewId" field="" title="评审状态">
-              <template #default="{ row }">
-                  {{ void ({status,item} = getReviewStatus(row.id)) }} 
-                  {{ void (user= members.find(v=>v.id == status?.reviewerId)) }}
-                  <a-tag v-if="!item?.name||item?.name=='未评审'" style="border-radius: 10px;font-size: 13px;"
-                      :style="{ color: item?.color||'#87888a', borderColor: item?.color||'#87888a' }">
-                      {{  item?.name||'未评审' }}
-                  </a-tag>
-                  <a-popover v-else :overlayStyle="{zIndex:9999}">
-                    <template slot="content">
-                      <div style="font-size: 14px;color: rgb(32, 45, 64);font-weight: bold;margin-bottom: 5px;">评审建议</div>
-                      <div style="display: flex;">
-                        <div>
-                          <h-avatar :name="user?.name" :icon="user?.icon" :isShowName="false" size="default"></h-avatar>
-                        </div>
-                        <div style="margin-left: 8px;">
-                          <div style="font-size: 13px;">
-                            <a-icon theme="filled" :style="{ 'margin-right': '5px', color: item?.color }" type="check-circle" />{{item?.name}}
-                            <span>发表于 {{ status?.createDate }}</span>
-                          </div>
-                          <a-tooltip>
-                            <template slot="title">
-                              {{status?.description}}
-                            </template>
-                            <div style="max-width: 260px; overflow: hidden;white-space: normal;text-overflow: ellipsis;">
-                              {{ status?.description }}
-                            </div>
-                          </a-tooltip>
-                        </div>
-                      </div>
-                    </template>
-                    <a-tag style="border-radius: 10px;font-size: 13px;"
-                        :style="{ color: item?.color||'#87888a', borderColor: item?.color||'#87888a' }">
-                        {{  item?.name||'未评审' }}
-                    </a-tag>
-                  </a-popover>
-              </template>
-            </vxe-column>
-          </vxe-table>
         </div>
       </div>
 
@@ -465,265 +366,6 @@
         </div>
       </div>
 
-      <div v-show="currentTab[0] == 'milestones'" style="height:100%;">
-        <a-row style="margin-bottom: 15px">
-          <a-col :span="12">
-            <div class="alert">
-              <div type="info" :show-icon="true">
-                <div class="message" style="font-size: 12px">
-                  已选择&nbsp;<a>{{ selectedRowKey['milestones']?.length }}</a>&nbsp;项，共{{ itemData['milestones'].length
-                  }}个符合条件的结果：
-                </div>
-              </div>
-            </div>
-          </a-col>
-          <a-col :span="12">
-            <a-col :offset="8" :span="4">
-
-            </a-col>
-            <a-col :span="12">
-              <a-input-search placeholder="搜索里程碑" v-model="keyword['milestones']" @search="handleSearch" />
-            </a-col>
-          </a-col>
-        </a-row>
-        <div class="table-box" :style="{ height: tableHeight }">
-          <vxe-table ref="vxeTableMilestones" height="100%" row-id="id" style="overflow:auto"
-            :data="itemData['milestones'].filter(v => (new RegExp(keyword['milestones'])).test(v.name))" :loading="loading"
-            @checkbox-all="selectChangeEvent" @checkbox-change="selectChangeEvent" :row-config="{ isHover: true }"
-            :checkbox-config="{
-              checkRowKeys: selectedRowKey['milestones'],
-              reserve: true, checkField: 'checked',
-            }">
-
-            <vxe-column type="checkbox" title="" width="35"></vxe-column>
-            <vxe-column field="itemNo" title="ID" width="50px">
-              <template #default="{ row }">
-                {{ '#' + row.itemNo }}
-              </template>
-            </vxe-column>
-            <vxe-column field="name" title="名称">
-              <template #default="{ row }">
-                <div style="display: inline-flex;" @click.stop @click="onOpenDetail('milestones',row)">
-                  <a style="width:20px;">
-                    <h-icon type="plan-group" v-if="row.type === 'GROUP'" />
-                    <h-icon type="plan-tasks" v-else-if="row.type === 'TASK'" />
-                    <h-icon type="plan-milestone" v-else-if="row.type === 'MILE_STONE'" />
-                  </a>
-                  <a>{{ row.name }}</a>
-                </div>
-              </template>
-            </vxe-column>
-
-            <vxe-column v-if="reviewId" field="" title="评审状态">
-              <template #default="{ row }">
-                  {{ void ({status,item} = getReviewStatus(row.id)) }} 
-                  {{ void (user= members.find(v=>v.id == status?.reviewerId)) }}
-                  <a-tag v-if="!item?.name||item?.name=='未评审'" style="border-radius: 10px;font-size: 13px;"
-                      :style="{ color: item?.color||'#87888a', borderColor: item?.color||'#87888a' }">
-                      {{  item?.name||'未评审' }}
-                  </a-tag>
-                  <a-popover v-else :overlayStyle="{zIndex:9999}">
-                    <template slot="content">
-                      <div style="font-size: 14px;color: rgb(32, 45, 64);font-weight: bold;margin-bottom: 5px;">评审建议</div>
-                      <div style="display: flex;">
-                        <div>
-                          <h-avatar :name="user?.name" :icon="user?.icon" :isShowName="false" size="default"></h-avatar>
-                        </div>
-                        <div style="margin-left: 8px;">
-                          <div style="font-size: 13px;">
-                            <a-icon theme="filled" :style="{ 'margin-right': '5px', color: item?.color }" type="check-circle" />{{item?.name}}
-                            <span>发表于 {{ status?.createDate }}</span>
-                          </div>
-                          <a-tooltip>
-                            <template slot="title">
-                              {{status?.description}}
-                            </template>
-                            <div style="max-width: 260px; overflow: hidden;white-space: normal;text-overflow: ellipsis;">
-                              {{ status?.description }}
-                            </div>
-                          </a-tooltip>
-                        </div>
-                      </div>
-                    </template>
-                    <a-tag style="border-radius: 10px;font-size: 13px;"
-                        :style="{ color: item?.color||'#87888a', borderColor: item?.color||'#87888a' }">
-                        {{  item?.name||'未评审' }}
-                    </a-tag>
-                  </a-popover>
-              </template>
-            </vxe-column>
-          </vxe-table>
-        </div>
-      </div>
-
-      <div v-show="currentTab[0] == 'tasks'" style="height:100%;">
-        <a-row style="margin-bottom: 15px">
-          <a-col :span="12">
-            <div class="alert">
-              <div type="info" :show-icon="true">
-                <div class="message" style="font-size: 12px">
-                  已选择&nbsp;<a>{{ selectedRowKey['tasks']?.length }}</a>&nbsp;项，共{{ itemData['tasks'].length }}个符合条件的结果：
-                </div>
-              </div>
-            </div>
-          </a-col>
-          <a-col :span="12">
-            <a-col :offset="8" :span="4">
-
-            </a-col>
-            <a-col :span="12">
-              <a-input-search placeholder="搜索计划执行" v-model="keyword['tasks']" @search="handleSearch" />
-            </a-col>
-          </a-col>
-        </a-row>
-        <div class="table-box" :style="{ height: tableHeight }">
-          <vxe-table ref="vxeTableTasks" height="100%" row-id="id" style="overflow:auto"
-            :data="itemData['tasks'].filter(v => (new RegExp(keyword['tasks'])).test(v.name))" :loading="loading"
-            @checkbox-all="selectChangeEvent" @checkbox-change="selectChangeEvent" :row-config="{ isHover: true }"
-            :checkbox-config="{
-              checkRowKeys: selectedRowKey['tasks'],
-              reserve: true, checkField: 'checked',
-            }">
-
-            <vxe-column type="checkbox" title="" width="35"></vxe-column>
-            <vxe-column field="itemNo" title="ID" header-align="center" align="center" width="50px">
-              <template #default="{ row }">
-                #{{ row.itemNo }}
-              </template>
-            </vxe-column>
-
-            <vxe-column field="name" title="名称">
-              <template #default="{ row }">
-                <a @click.stop @click="onOpenDetail('tasks',row)">
-                  {{ row.name }}
-                </a>
-              </template>
-            </vxe-column>
-            <vxe-column v-if="reviewId" field="" title="评审状态">
-              <template #default="{ row }">
-                  {{ void ({status,item} = getReviewStatus(row.id)) }} 
-                  {{ void (user= members.find(v=>v.id == status?.reviewerId)) }}
-                  <a-tag v-if="!item?.name||item?.name=='未评审'" style="border-radius: 10px;font-size: 13px;"
-                      :style="{ color: item?.color||'#87888a', borderColor: item?.color||'#87888a' }">
-                      {{  item?.name||'未评审' }}
-                  </a-tag>
-                  <a-popover v-else :overlayStyle="{zIndex:9999}">
-                    <template slot="content">
-                      <div style="font-size: 14px;color: rgb(32, 45, 64);font-weight: bold;margin-bottom: 5px;">评审建议</div>
-                      <div style="display: flex;">
-                        <div>
-                          <h-avatar :name="user?.name" :icon="user?.icon" :isShowName="false" size="default"></h-avatar>
-                        </div>
-                        <div style="margin-left: 8px;">
-                          <div style="font-size: 13px;">
-                            <a-icon theme="filled" :style="{ 'margin-right': '5px', color: item?.color }" type="check-circle" />{{item?.name}}
-                            <span>发表于 {{ status?.createDate }}</span>
-                          </div>
-                          <a-tooltip>
-                            <template slot="title">
-                              {{status?.description}}
-                            </template>
-                            <div style="max-width: 260px; overflow: hidden;white-space: normal;text-overflow: ellipsis;">
-                              {{ status?.description }}
-                            </div>
-                          </a-tooltip>
-                        </div>
-                      </div>
-                    </template>
-                    <a-tag style="border-radius: 10px;font-size: 13px;"
-                        :style="{ color: item?.color||'#87888a', borderColor: item?.color||'#87888a' }">
-                        {{  item?.name||'未评审' }}
-                    </a-tag>
-                  </a-popover>
-              </template>
-            </vxe-column>
-          </vxe-table>
-        </div>
-      </div>
-
-      <div v-show="currentTab[0] == 'deliverables'" style="height:100%;">
-        <a-row style="margin-bottom: 15px">
-          <a-col :span="12">
-            <div class="alert">
-              <div type="info" :show-icon="true">
-                <div class="message" style="font-size: 12px">
-                  已选择&nbsp;<a>{{ selectedRowKey['deliverables']?.length }}</a>&nbsp;项，共{{ itemData['deliverables'].length
-                  }}个符合条件的结果：
-                </div>
-              </div>
-            </div>
-          </a-col>
-          <a-col :span="12">
-            <a-col :offset="8" :span="4">
-
-            </a-col>
-            <a-col :span="12">
-              <a-input-search placeholder="搜索交付物" v-model="keyword['deliverables']" @search="handleSearch" />
-            </a-col>
-          </a-col>
-        </a-row>
-        <div class="table-box" :style="{ height: tableHeight }">
-          <vxe-table ref="vxeTableDeliverables" height="100%" row-id="id" style="overflow:auto"
-            :data="itemData['deliverables'].filter(v => (new RegExp(keyword['deliverables'])).test(v.name))"
-            :loading="loading" @checkbox-all="selectChangeEvent" @checkbox-change="selectChangeEvent"
-            :row-config="{ isHover: true }" :checkbox-config="{
-              checkRowKeys: selectedRowKey['deliverables'],
-              reserve: true, checkField: 'checked',
-            }">
-
-            <vxe-column type="checkbox" title="" width="35"></vxe-column>
-            <vxe-column type="seq" width="50px" />
-
-            <vxe-column field="sourceName" title="名称" >
-              <template #default="{ row }">
-                <a @click.stop @click="onOpenDetail('deliverables',row)">
-                  {{ row.sourceName }}
-                </a>
-              </template>
-            </vxe-column>
-            
-            <vxe-column v-if="reviewId" field="" title="评审状态">
-              <template #default="{ row }">
-                  {{ void ({status,item} = getReviewStatus(row.id)) }} 
-                  {{ void (user= members.find(v=>v.id == status?.reviewerId)) }}
-                  <a-tag v-if="!item?.name||item?.name=='未评审'" style="border-radius: 10px;font-size: 13px;"
-                      :style="{ color: item?.color||'#87888a', borderColor: item?.color||'#87888a' }">
-                      {{  item?.name||'未评审' }}
-                  </a-tag>
-                  <a-popover v-else :overlayStyle="{zIndex:9999}">
-                    <template slot="content">
-                      <div style="font-size: 14px;color: rgb(32, 45, 64);font-weight: bold;margin-bottom: 5px;">评审建议</div>
-                      <div style="display: flex;">
-                        <div>
-                          <h-avatar :name="user?.name" :icon="user?.icon" :isShowName="false" size="default"></h-avatar>
-                        </div>
-                        <div style="margin-left: 8px;">
-                          <div style="font-size: 13px;">
-                            <a-icon theme="filled" :style="{ 'margin-right': '5px', color: item?.color }" type="check-circle" />{{item?.name}}
-                            <span>发表于 {{ status?.createDate }}</span>
-                          </div>
-                          <a-tooltip>
-                            <template slot="title">
-                              {{status?.description}}
-                            </template>
-                            <div style="max-width: 260px; overflow: hidden;white-space: normal;text-overflow: ellipsis;">
-                              {{ status?.description }}
-                            </div>
-                          </a-tooltip>
-                        </div>
-                      </div>
-                    </template>
-                    <a-tag style="border-radius: 10px;font-size: 13px;"
-                        :style="{ color: item?.color||'#87888a', borderColor: item?.color||'#87888a' }">
-                        {{  item?.name||'未评审' }}
-                    </a-tag>
-                  </a-popover>
-              </template>
-            </vxe-column>
-          </vxe-table>
-        </div>
-      </div>
-
       <div v-show="currentTab[0] == 'documents'" style="height:100%;">
         <a-row style="margin-bottom: 15px">
           <a-col :span="12">
@@ -833,7 +475,7 @@ import { buildGantt } from '@/services/plan/PlanService'
 import { findVersions } from '@/services/plan/TargetVersionService'
 import { findSprints } from '@/services/plan/SprintService'
 import { findWaitExecutePlans } from '@/services/plan/PlanService'
-import { findMilestones } from '@/services/plan/PlanService'
+// import { findMilestones } from '@/services/plan/PlanService'
 import { findByProjectId } from '@/services/tracker/ProjectPageService'
 import HItemNo from '@/components/table/itemNo/ItemNo.vue';
 
@@ -859,55 +501,35 @@ export default {
       },
       keyword: {
         trackerItems: '',
-        projectPlans: '',
         targetVersions: '',
         sprints: '',
-        milestones: '',
-        tasks: '',
-        deliverables: '',
         documents: '',
         selected:'',
       },
       itemData: {
         trackerItems: [],
-        projectPlans: [],
         targetVersions: [],
         sprints: [],
-        milestones: [],
-        tasks: [],
-        deliverables: [],
         documents: [],
       },
       members: [],
       selectedRowKey: {
         trackerItems: [],
-        projectPlans: [],
         targetVersions: [],
         sprints: [],
-        milestones: [],
-        tasks: [],
-        deliverables: [],
         documents: [],
         selected:[],
       },
       selectedRow: {
         trackerItems: [],
-        projectPlans: [],
         targetVersions: [],
         sprints: [],
-        milestones: [],
-        tasks: [],
-        deliverables: [],
         documents: [],
       },
       tableRefMap:{
         trackerItems: 'vxeTableTrackerItems',
-        projectPlans: 'vxeTableProjectPlans',
         targetVersions: 'vxeTableTargetVersions',
         sprints: 'vxeTableSprints',
-        milestones: 'vxeTableTasks',
-        tasks: 'vxeTableDeliverables',
-        deliverables: 'vxeTableMilestones',
         documents: 'vxeTableDocuments'
       },
       loading: false,
@@ -971,6 +593,7 @@ export default {
       return function(rowId) {
         let status=this.reviewStatuses.find(v=>v.objectId==rowId)
         if(status?.statusId){
+          console.log('status', status,rowId,this.statusList.find(v=>v.id==status?.statusId));
           return {status:status,item:this.statusList.find(v=>v.id==status?.statusId)}
         }else{
           return {status: null,item: null}
@@ -979,10 +602,7 @@ export default {
     },
   },
   mounted() {
-    
     // this.loadData();
-
-
   },
   methods: {
     getSelectedItemCount(item){
@@ -1005,29 +625,13 @@ export default {
     },
     onOpenDetail(key,row){
       let routeData;
-      if(key=='projectPlans'){
-        routeData= this.$router.resolve({
-            path: `/tracker/project/${this.projectId}/plan`
-        });
-      }else if(key =='targetVersions'){
+      if(key =='targetVersions'){
         routeData= this.$router.resolve({
             path: `/tracker/project/${this.projectId}/targetVersion`
         });
       }else if(key =='sprints'){
         routeData= this.$router.resolve({
             path: `/tracker/project/${this.projectId}/sprints`
-        });
-      }else if(key =='milestones'){
-        routeData= this.$router.resolve({
-            path: `/tracker/project/${this.projectId}/milestones`
-        });
-      }else if(key =='tasks'){
-        routeData= this.$router.resolve({
-            path: `/tracker/project/${this.projectId}/tasks`
-        });
-      }else if(key =='deliverables'){
-        routeData= this.$router.resolve({
-            path: `/tracker/project/${this.projectId}/deliverables`
         });
       }else if(key =='documents'){
         routeData= this.$router.resolve({
@@ -1103,78 +707,7 @@ export default {
         })
       })
     },
-    //deliverables
-    loadDeliverablesData() {
-      findMilestones(this.projectId).then(resp => {
-        this.itemData.milestones = resp
-        this.itemData.deliverables=Vue.observable([])
-        resp.forEach(element => {
-          const objs = element.deliverables || []
-          objs.forEach(obj => {
-            const item = obj
-            item.sourceName = element.name
-            item.sourceType = 'MILE_STONE'
-            this.itemData.deliverables.push(item)
-          })
-        });
     
-      }).finally(() => {
-        //初始化选中
-        this.$nextTick(() => {
-          this.selectedRow['milestones']=[]
-          this.selectedRow['deliverables']=[]
-          for (let item2 of this.itemData.milestones) {
-            for (let item of this.selectedRowKey?.milestones) {
-              if (item == item2.id){
-                this.$refs["vxeTableMilestones"].setCheckboxRow(item2, true)
-                this.selectedRow['milestones'].push(item2)
-              }
-            }
-          }
-          for (let item2 of this.itemData.deliverables) {
-            for (let item of this.selectedRowKey?.deliverables) {
-              if (item == item2.id){
-                this.$refs["vxeTableDeliverables"].setCheckboxRow(item2, true)
-                this.selectedRow['deliverables'].push(item2)
-              }
-            }
-          }
-          if(this.isRead){
-            this.itemData.milestones=this.itemData.milestones.filter(
-                v=>this.selectedRowKey['milestones'].includes(v.id))
-            this.itemData.deliverables=this.itemData.deliverables.filter(
-                v=>this.selectedRowKey['deliverables'].includes(v.id))
-          }
-        })
-      })
-    },
-    //tasks
-    loadTasksData() {
-      findWaitExecutePlans(this.projectId).then(resp => {
-        this.itemData.tasks = resp || []
-      }).finally(() => {
-        //初始化选中
-        this.$nextTick(() => {
-          this.selectedRow['tasks']=[]
-          for (let item2 of this.itemData.tasks) {
-            for (let item of this.selectedRowKey?.tasks) {
-              if (item == item2.id){
-                this.$refs["vxeTableTasks"].setCheckboxRow(item2, true)
-                this.selectedRow['tasks'].push(item2)
-              }
-            }
-          }
-          if(this.isRead){
-            this.itemData.tasks=this.itemData.tasks.filter(
-                v=>this.selectedRowKey['tasks'].includes(v.id))
-          }
-        })
-      })
-    },
-    //milestones
-    loadMilestonesData() {
-      // this.loadDeliverablesData();
-    },
     //sprints
     loadSprintsData() {
       findSprints(this.projectId).then(resp => {
@@ -1217,30 +750,6 @@ export default {
           if(this.isRead){
             this.itemData.targetVersions=this.itemData.targetVersions.filter(
                 v=>this.selectedRowKey['targetVersions'].includes(v.id))
-          }
-        })
-      })
-    },
-    //projectPlans
-    loadProjectPlanData() {
-      buildGantt(this.projectId).then(resp => {
-        this.itemData.projectPlans = resp.tasks || []
-        this.itemData.projectPlans.forEach(f => { f.owner = f.owner || { id: '' } })
-      }).finally(() => {
-        //初始化选中
-        this.$nextTick(() => {
-          this.selectedRow['projectPlans']=[]
-          for (let item2 of this.itemData.projectPlans) {
-            for (let item of this.selectedRowKey?.projectPlans) {
-              if (item == item2.id){
-                this.$refs["vxeTableProjectPlans"].setCheckboxRow(item2, true)
-                this.selectedRow['projectPlans'].push(item2)
-              }
-            }
-          }
-          if(this.isRead){
-            this.itemData.projectPlans=this.itemData.projectPlans.filter(
-                v=>this.selectedRowKey['projectPlans'].includes(v.id))
           }
         })
       })
@@ -1293,12 +802,12 @@ export default {
     selectData() {
       this.selectedRow = {
           trackerItems: [],
-          projectPlans: [],
+          // projectPlans: [],
           targetVersions: [],
           sprints: [],
-          milestones: [],
-          tasks: [],
-          deliverables: [],
+          // milestones: [],
+          // tasks: [],
+          // deliverables: [],
           documents: [],
           selected: [],
       };
@@ -1345,23 +854,11 @@ export default {
         //   }
         this.loadTrackerItemsData({ conditionGroups: this.conditionGroups });
       }
-      if (this.itemData['projectPlans'].length == 0) {
-        this.loadProjectPlanData();
-      }
       if (this.itemData['targetVersions'].length == 0) {
         this.loadTargetVersionsData();
       }
       if (this.itemData['sprints'].length == 0) {
         this.loadSprintsData();
-      }
-      // if (this.itemData['milestones'].length == 0) {
-      //   this.loadMilestonesData();
-      // }
-      if (this.itemData['tasks'].length == 0) {
-        this.loadTasksData();
-      }
-      if (this.itemData['deliverables'].length == 0) {
-        this.loadDeliverablesData();
       }
       if ( this.itemData['documents'].length == 0) {
         this.loadDocumentsData();
@@ -1370,44 +867,28 @@ export default {
     onClear() {
       this.selectedRowKey = {
         trackerItems: [],
-        projectPlans: [],
         targetVersions: [],
         sprints: [],
-        milestones: [],
-        tasks: [],
-        deliverables: [],
         documents: [],
         selected: [],
       },
       this.itemData = {
           trackerItems: [],
-          projectPlans: [],
           targetVersions: [],
           sprints: [],
-          milestones: [],
-          tasks: [],
-          deliverables: [],
           documents: [],
         },
         this.selectedRow = {
           trackerItems: [],
-          projectPlans: [],
           targetVersions: [],
           sprints: [],
-          milestones: [],
-          tasks: [],
-          deliverables: [],
           documents: [],
           selected: [],
         },
       this.queryParam.keyword = ""
       this.$refs.vxeTableTrackerItems.clearCheckboxRow()
-      this.$refs.vxeTableProjectPlans.clearCheckboxRow()
       this.$refs.vxeTableTargetVersions.clearCheckboxRow()
       this.$refs.vxeTableSprints.clearCheckboxRow()
-      this.$refs.vxeTableTasks.clearCheckboxRow()
-      this.$refs.vxeTableDeliverables.clearCheckboxRow()
-      this.$refs.vxeTableMilestones.clearCheckboxRow()
       this.$refs.vxeTableDocuments.clearCheckboxRow()
       this.$refs.vxeTableSelected.clearCheckboxRow()
       this.currentTab = ['trackerItems']

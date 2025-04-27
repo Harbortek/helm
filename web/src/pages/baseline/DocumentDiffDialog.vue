@@ -277,7 +277,7 @@ export default {
 
 .diffContent{
     margin: 10px;
-    height: calc(100% - 350px);
+    max-height: 700px;
     overflow: auto;
 } 
 </style>

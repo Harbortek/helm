@@ -23,6 +23,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Date;
+
 @SuperBuilder
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -34,4 +36,6 @@ public class ReviewStatus extends IdNameVo {
     Long statusId;
 
     Long reviewerId;
+
+    Date createDate;
 }

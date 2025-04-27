@@ -96,6 +96,7 @@ public class ReviewServiceImpl implements ReviewService {
                 reviewStatusList.get(index).setStatusId(item.getStatusId());
                 reviewStatusList.get(index).setDescription(item.getDescription());
                 reviewStatusList.get(index).setReviewerId(item.getReviewerId());
+                reviewStatusList.get(index).setCreateDate(item.getCreateDate());
             }
         });
         review.setReviewStatuses(reviewStatusList);

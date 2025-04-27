@@ -50,21 +50,21 @@ public class ReviewVo extends BaseVo {
     List<Long> reviewers = new ArrayList<>();
 
 
-    List<Long> deliverables = new ArrayList<>();
+//    List<Long> deliverables = new ArrayList<>();
     List<Long> documents = new ArrayList<>();
-    List<Long> milestones = new ArrayList<>();
-    List<Long> projectPlans = new ArrayList<>();
+//    List<Long> milestones = new ArrayList<>();
+//    List<Long> projectPlans = new ArrayList<>();
     List<Long> sprints = new ArrayList<>();
     List<Long> targetVersions = new ArrayList<>();
-    List<Long> tasks = new ArrayList<>();
+//    List<Long> tasks = new ArrayList<>();
     List<Long> trackerItems = new ArrayList<>();
 
     List<ReviewStatus> reviewStatuses = new ArrayList<>();
 
     public int getTotal() {
-        return deliverables.size() + documents.size() + milestones.size() +
-                projectPlans.size() + sprints.size() + targetVersions.size() +
-                tasks.size() + trackerItems.size();
+        return  documents.size() +
+                sprints.size() + targetVersions.size() +
+                trackerItems.size();
     }
 
 

@@ -59,13 +59,13 @@ public class ReviewEntity extends BaseEntity {
     List<Long> reviewers = new ArrayList<>();
 
 
-    List<Long> deliverables = new ArrayList<>();
+//    List<Long> deliverables = new ArrayList<>();
     List<Long> documents = new ArrayList<>();
-    List<Long> milestones = new ArrayList<>();
-    List<Long> projectPlans = new ArrayList<>();
+//    List<Long> milestones = new ArrayList<>();
+//    List<Long> projectPlans = new ArrayList<>();
     List<Long> sprints = new ArrayList<>();
     List<Long> targetVersions = new ArrayList<>();
-    List<Long> tasks = new ArrayList<>();
+//    List<Long> tasks = new ArrayList<>();
     List<Long> trackerItems = new ArrayList<>();
 
     List<ReviewStatus> reviewStatuses = new ArrayList<>();

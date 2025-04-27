@@ -477,14 +477,13 @@
             @cancel="isShowExportDialog = false" />
 
         <tracker-transform-modal :projectId="projectId" :projectKeyName="currentProjectKeyName"
-            :isShowDialog="isShowTransformDialog" :initalData="selectedRows" @onPrevStep="isShowTransformDialog = false"
+            :isShowDialog="isShowTransformDialog" :initalData="selectedRows" :tracker="trackerFilter"
+            :members="members" @onPrevStep="isShowTransformDialog = false"
             @cancel="onCancelTransform" @refresh="loadWorkItems()"></tracker-transform-modal>
 
         <tracker-item-batch-delete-modal :projectId="projectId" :projectKeyName="currentProjectKeyName"
             :isShowDialog="isShowBatchDelDialog" :initalData="selectedRows" @onPrevStep="isShowBatchDelDialog = false"
             @cancel="onCancelTransform" @refresh="loadWorkItems()"></tracker-item-batch-delete-modal>
-
-
 
     </div>
 </template>
