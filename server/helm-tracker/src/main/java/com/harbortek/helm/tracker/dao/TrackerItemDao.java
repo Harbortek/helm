@@ -329,20 +329,52 @@ public class TrackerItemDao extends BaseJdbcDao {
 
     public void batchUpdateTrackerItem(List<TrackerItemEntity> trackerItemEntities) {
         String sql =
-                "update tracker_items set priority_id = :priorityId,owner_id = :ownerId,watchers = :watchers,close_date = :closeDate,revision = revision + 1 where id = :id";
+                "update tracker_items set name = :name," +
+                        "owner_id = :ownerId," +
+                        "watchers = :watchers," +
+                        "priority_id = :priorityId," +
+                        "severity_id = :severityId," +
+                        "status_id = :statusId," +
+                        "assigned_to_id = :assignedToId," +
+                        "assigned_date = :assignedDate," +
+                        "tracker_id = :trackerId," +
+                        "plan_start_date = :planStartDate," +
+                        "plan_end_date = :planEndDate," +
+                        "real_start_date = :realStartDate," +
+                        "real_end_date = :realEndDate," +
+                        "progress = :progress," +
+                        "close_date = :closeDate," +
+                        "estimate_working_hours = :estimateWorkingHours," +
+                        "registered_working_hours = :registeredWorkingHours," +
+                        "remaining_working_hours = :remainingWorkingHours," +
+                        "`values` = :values," +
+                        "revision = revision + 1 where id = :id";
         List<SqlParameterSource> parameterSources = new ArrayList<>();
 
         trackerItemEntities.forEach(item -> {
             Map<String,Object> params = new HashMap<>();
             params.put("id", item.getId());
-            params.put("createBy", item.getCreateBy());
-            params.put("priorityId", item.getPriorityId());
+            params.put("name", item.getName());
             params.put("ownerId", item.getOwnerId());
             params.put("watchers", JsonUtils.toJSONString(item.getWatchers()));
+            params.put("priorityId", item.getPriorityId());
+            params.put("severityId", item.getSeverityId());
+            params.put("statusId", item.getStatusId());
+            params.put("assignedToId", item.getAssignedToId());
+            params.put("assignedDate", item.getAssignedDate());
+            params.put("trackerId", item.getTrackerId());
+            params.put("planStartDate", item.getPlanStartDate());
+            params.put("planEndDate", item.getPlanEndDate());
+            params.put("realStartDate", item.getRealStartDate());
+            params.put("realEndDate", item.getRealEndDate());
+            params.put("progress", item.getProgress());
             params.put("closeDate", item.getCloseDate());
+            params.put("estimateWorkingHours", item.getEstimateWorkingHours());
+            params.put("registeredWorkingHours", item.getRegisteredWorkingHours());
+            params.put("remainingWorkingHours", item.getRemainingWorkingHours());
+            params.put("values", JsonUtils.toJSONString(item.getValues()));
             parameterSources.add(new MapSqlParameterSource(params));
         });
-
         batchUpdate(sql, parameterSources.toArray(new SqlParameterSource[0]), TrackerItemEntity.class);
     }
 

@@ -33,6 +33,7 @@
 </template>
 <script lang="js">
 import store from '@/store';
+import { formatLongDate } from '@/utils/DateUtils'
 import {
   findEnumsByCode
 } from "@/services/system/EnumService";
@@ -105,7 +106,9 @@ export default {
                                     objectId:element,
                                     statusId:this.formData.status,
                                     description:this.formData.description,
-                                    reviewerId : store.getters["account/user"].id
+                                    reviewerId : store.getters["account/user"].id,
+
+                                    createDate: formatLongDate(new Date(),'yyyy-MM-dd hh:mm:ss'),
                                 })
                             });
                         }           

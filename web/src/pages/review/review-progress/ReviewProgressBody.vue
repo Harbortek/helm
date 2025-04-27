@@ -106,7 +106,7 @@ export default {
                     if(c!='selected'){
                         t += i[c].length
                     }
-                }) 
+                })
                 return t;
 
             }

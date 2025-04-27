@@ -76,10 +76,10 @@
                             </a-select>
                             <a-select v-model="field.type" style="margin-top: 4px;">
                                 <a-select-option value="modify">修改为</a-select-option>
-                                <a-select-option value="clear">清空</a-select-option>
+                                <a-select-option v-if="isClearable(field)" value="clear">清空</a-select-option>
                             </a-select>
                             <template v-if="field.type!='clear'">
-                              <a-form-model-item v-if="field.systemProperty=='priority'" prop="priority">
+                              <!-- <a-form-model-item v-if="field.systemProperty=='priority'" prop="priority">
                                 <priority-select  style="width:180px" v-model="field.value" 
                                   @change="(v,e)=>onChangeFieldValue(v,e,field)"/>
                               </a-form-model-item>
@@ -97,7 +97,66 @@
                               <a-form-model-item v-else-if="field.systemProperty=='sprintId'" prop="sprintId">
                                 <sprint-select  style="width:180px" v-model="field.value" :projectId="projectId"
                                   @change="(v,e)=>onChangeFieldValue(v,e,field)"/>
+                              </a-form-model-item> -->
+
+                              <!-- <a-form-model-item prop="priority"> -->
+                                <a-form-model-item :prop="field.id">
+
+                                <div style="display: flex;align-items: center;position: relative;">
+                                  <a-input v-if="((field.inputType=='INTEGER'||field.inputType=='DECIMAL'))||field.inputType=='TEXT'||field.inputType=='WORK_ITEM_NO'" placeholder="请输入..."
+                                     v-model="field.value" @change="onChangeFormData(field)" style="width:220px;margin-top:4px;"/>                          
+                                </div>
+
+                                <a-date-picker v-if="field.inputType=='DATE'" style="width:220px;" v-model="field.value" @change="onChangeFormData(field)" placeholder="请选择日期" />
+
+                                <a-select v-if="field.inputType=='STATUS'" optionFilterProp="label" v-model="field.value" style="width: 220px" placeholder="请选择..." @change="onChangeFormData(field)">
+                                  <a-select-option v-for="status in tracker.trackerStatuses" :key="status.id" :label="status.name">
+                                    <a-icon style="margin-right:5px;" v-if="status.icon" :component="status.icon"/>{{ status.name }}
+                                  </a-select-option>
+                                </a-select>
+
+                                <a-select v-if="field.inputType=='OPTIONS'||field.inputType=='WORK_ITEM'||field.inputType=='STATUS_TYPE'||
+                                  field.inputType=='WORK_ITEM_TYPE'||field.inputType=='SPRINT'" optionFilterProp="label" 
+                                  v-model="field.value" style="width: 220px" placeholder="请选择..." @change="onChangeFormData(field)">
+                                  <template v-if="field.systemProperty">
+                                    <a-select-option  v-for="status in tracker[field.systemProperty]" :key="status.id" :label="status.name">
+                                      <a-icon style="margin-right:5px;" v-if="status.icon" :component="status.icon"/>{{ status.name }}
+                                    </a-select-option>
+                                  </template>
+                                  <template v-else>
+                                    <a-select-option  v-for="status in getCustomFieldItems(field.id)" :key="status.id" :label="status.name">
+                                      <a-icon style="margin-right:5px;" v-if="status.icon" :component="status.icon"/>{{ status.name }}
+                                    </a-select-option>
+                                  </template>
+                                </a-select>
+
+                                <a-select
+                                    v-if="field.inputType=='USER'"
+                                    optionFilterProp="label"
+                                    style="width:220px;"
+                                    v-model="field.value"
+                                    placeholder="请选择..."
+                                    @change="onChangeFormData(field)"
+                                >
+                                  <a-select-option v-for="member,index in members" :key="member.id" :label="member.name+index">
+                                      <h-avatar :name="member.name" :icon="member.icon"></h-avatar>
+                                      <span class="domain-list-cell-subtext"> {{ member.description }} </span>
+                                  </a-select-option>
+                                </a-select>
+                                <a-select
+                                    v-if="field.inputType=='BOOL'"
+                                    optionFilterProp="label"
+                                    style="width:220px;"
+                                    v-model="field.value"
+                                    placeholder="请选择..."
+                                    @change="onChangeFormData(field)"
+                                >
+                                  <a-select-option value="true">是</a-select-option>
+                                  <a-select-option value="false">否</a-select-option>
+
+                                </a-select>
                               </a-form-model-item>
+
                             </template>
                         </a-space>
                     </div>
@@ -203,7 +262,7 @@ export default {
         // { id: '7', name: "创建者", systemProperty: "createBy", inputType: "USER" },
         { id: '25', name: "关注者", systemProperty: "watchers", inputType: "USER" },
         { id: '21', name: "关闭时间", systemProperty: "closeDate", inputType: "DATE" },
-        // { id: '26', name: "所属迭代", systemProperty: "sprintId", inputType: "OPTIONS" },
+        { id: '26', name: "所属迭代", systemProperty: "sprintId", inputType: "OPTIONS" },
       ],
       formData:{
         priority:'',
@@ -212,14 +271,6 @@ export default {
         watchers:'',
         closeDate:'',
         sprintId:'',
-      },
-      rules: {
-          priority: [ { required: true, message: "请输入值", trigger: "change" }],
-          ownerId: [ { required: true, message: "请输入值", trigger: "change" }],
-          createBy:[ { required: true, message: "请输入值", trigger: "change" }],
-          watchers: [ { required: true, message: "请输入值", trigger: "change" }],
-          closeDate: [ { required: true, message: "请输入值", trigger: "change" }],
-          sprintId:[ { required: true, message: "请输入值", trigger: "change" }],
       },
     };
   },
@@ -235,7 +286,11 @@ export default {
     },
     projectKeyName: {
       required: false,
-    }
+    },
+    tracker:{
+      required: false,
+    },
+    members: Array,
   },
   computed: {
     visiable: {
@@ -246,11 +301,53 @@ export default {
         return newValue;
       },
     },
+    rules(){
+      let rules={}
+      this.fieldDatas.forEach(field => {
+        this.$set(rules, field.id, [ { required: true, message: "请输入值",trigger: "change"}]);
+      });
+      return rules;
+    },
+    precondFields(){
+      let fields=this.tracker.trackerFields || []
+      this.isChange  //更新computed
+      fields = fields.filter(f => {
+        return (f.systemProperty!='itemNo' &&
+              f.systemProperty!='createBy' &&
+              f.systemProperty!='createDate' &&
+              f.systemProperty!='lastModifiedBy' &&
+              f.systemProperty!='lastModifiedDate' &&
+              f.systemProperty!='resolution' &&
+              f.systemProperty!='resolvedOn' &&
+              f.systemProperty!='meaning')
+      })
+      fields = fields.filter(f => {
+        return (f.inputType === 'INTEGER' || f.inputType === 'TEXT' || 
+            f.inputType === 'STATUS'|| f.inputType === 'DATE' || f.inputType === 'USER'||
+            f.inputType === 'OPTIONS'||f.inputType === 'WORK_ITEM_TYPE'||  f.inputType ==='SPRINT' ||
+            f.inputType === 'STATUS_TYPE'||f.inputType === 'WORK_ITEM_NO'||
+            f.inputType === 'DECIMAL' || f.inputType === 'BOOL')
+      })
+      fields.forEach(item=>{
+        if(item.system==null||item.system.undefined){
+          item.system=true;
+        }
+        if(item.items){
+          if(item.system&&!this.tracker[item.systemProperty]){
+            this.$set(this.tracker,item.systemProperty,item.items)
+          }else if(!item.system&&!this.tracker[item.id]){
+            this.$set(this.tracker,item.id,item.items)
+          }
+        }
+      })
+      return fields;
+    },
   },
   watch: {
     isShowDialog: {
       handler: function (newVal, oldVal) {
         if (newVal) {
+          console.log("newVal",this.tracker)
           this.selectedRows=cloneDeep(this.initalData);
           if(this.fieldDatas.length===0){
             this.addFieldItem();
@@ -261,6 +358,28 @@ export default {
   },
   mounted() {},
   methods: {
+    isClearable(field){
+      return field.systemProperty!='priority' && field.systemProperty!='trackerId' &&
+        field.systemProperty!='ownerId' && field.systemProperty!='status' &&
+        field.systemProperty!='name'
+    },
+    onChangeFormData(v){
+      this.$set(this.formData,v.id,v.value)
+    },
+    validatePriority(rule, value, callBack) {
+      console.log("value",value)
+      if (value != null && value != '') {
+        callBack()
+        return
+      }
+      callBack(new Error('不为空'))
+    },
+    getCustomFieldItems(fieldId){
+      return this.tracker.trackerFields.find(f=>f.id==fieldId)?.items
+    },
+    onChangeConditionSelect(f){
+      console.log("f",f)
+    },
     onChangeFieldValue(v,e,field){
       this.formData[field.systemProperty]=e
     },
@@ -299,7 +418,8 @@ export default {
                 return f !== fieldItem?.id
             })
         }
-        let result = this.fieldList.filter(f => { return ids.indexOf(f.id) < 0 })
+        // let result = this.fieldList.filter(f => { return ids.indexOf(f.id) < 0 })
+        let result = this.precondFields.filter(f => { return ids.indexOf(f.id) < 0 })
         return result
     },
 
@@ -318,18 +438,39 @@ export default {
               this.selectedRows.forEach(row =>{
                 this.fieldDatas.forEach(field=>{
                   if(field.type=='modify'){
-                    if(field.systemProperty.endsWith("Id")){
+                    console.log("field222",field,row)
+                    let fieldValue;
+                    if(field.inputType=='DATE'){
+                      fieldValue=moment(field.value).format("YYYY-MM-DD HH:mm:ss")
+                    }else{
+                      fieldValue=field.value
+                    }
+
+                    if(!field.systemProperty){
+                      this.$set(row.values,field.id,fieldValue)
+                    }else if(field.systemProperty.endsWith("Id")){
                       let columnField = field.systemProperty.slice(0, field.systemProperty.length - 2)
-                      row[columnField]=this.formData[field.systemProperty]
+                      row[columnField]={id:field.value}
                     }else if(field.systemProperty=='watchers'){
                       let ids =row.watchers.map(_=>_.id)
                       if(ids.indexOf(field.value)<0){
-                        row.watchers.push(this.formData[field.systemProperty])
+                        row.watchers.push({id:field.value})
                       }
                     }else if(field.inputType=='DATE'){
-                      row[field.systemProperty]=moment(field.value).format("YYYY-MM-DD HH:mm:ss")
+                      row[field.systemProperty]=fieldValue;
+                    }else if(field.inputType=='OPTIONS'||field.inputType=='USER'||
+                      field.inputType=='WORK_ITEM'||field.inputType=='STATUS_TYPE'|| field.inputType=='WORK_ITEM_TYPE'){
+                      row[field.systemProperty]={id:field.value}
+                    }else if(field.inputType=='STATUS'){
+                      row.statusId=field.value
                     }else{
-                      row[field.systemProperty]=this.formData[field.systemProperty]
+                      row[field.systemProperty]=field.value
+                    }
+                  }else if(field.type=='clear'){
+                    if(!field.systemProperty){
+                      this.$set(row.values,field.id,undefined)
+                    }else{
+                      row[field.systemProperty]=undefined
                     }
                   }
                 })

@@ -43,10 +43,10 @@ export default {
                 border: true,
                 showHeader: false,
                 columns: [
-                    { field: 'item', width: 100 },
+                    { field: 'item', width: 130,align:'center' },
                     { field: 'left',slots: { default: 'left_default' } },
                     { field: 'right',slots: { default: 'right_default' }  },
-                ],
+                ],  
                 data: [
                 ]
             },
