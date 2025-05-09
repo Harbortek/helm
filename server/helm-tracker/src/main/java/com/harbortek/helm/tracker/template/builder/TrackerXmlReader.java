@@ -186,6 +186,7 @@ public class TrackerXmlReader {
 
     public TrackerVo createTracker() {
         TrackerVo tracker = new TrackerVo();
+        tracker.setId(IDUtils.getId());
         tracker.setName(parent.valueOf("@name"));
         tracker.setDescription(parent.valueOf("@description"));
 //        tracker.setShortName(parent.valueOf("@shortName"));
@@ -286,7 +287,15 @@ public class TrackerXmlReader {
 
     public List<TrackerField> createTrackerFields() {
         List<Node> nodes = parent.selectNodes("fields/field");
-        ArrayList<TrackerField> trackerFields = new ArrayList<>();
+        List<TrackerField> trackerFields = setTrackerFields(nodes);
+
+        trackerFields.addAll(TrackerUtils.buildSystemFields());
+        trackerFields.forEach(f->f.setId(IDUtils.getId()));
+        return trackerFields;
+    }
+
+    private List<TrackerField> setTrackerFields(List<Node> nodes) {
+        List<TrackerField> trackerFields = new ArrayList<>();
         for (Node node : nodes) {
             String type = node.valueOf("@type");
             TrackerField trackerField = null;
@@ -325,7 +334,9 @@ public class TrackerXmlReader {
             } else if (FieldTypes.MULTI_OPTIONS.equals(type)) {
                 trackerField = MultiOptionsField.builder().enumName(node.valueOf("@enumName")).build();
             } else if (FieldTypes.TABLE.equals(type)) {
-                trackerField = TableField.builder().build();
+                List<Node> column = node.selectNodes("columns/column");
+                List<TrackerField> fields = setTrackerFields(column);
+                trackerField = TableField.builder().columns(fields).build();
             } else if (FieldTypes.WORK_ITEM.equals(type)) {
                 trackerField = WorkItemField.builder().build();
             } else if (FieldTypes.WORK_ITEM_NO.equals(type)) {
@@ -337,20 +348,22 @@ public class TrackerXmlReader {
             } else if (FieldTypes.WORK_ITEM_TYPE.equals(type)) {
                 trackerField = WorkItemTypeField.builder().build();
             } else if(FieldTypes.TEST_STEP.equals(type)){
-                trackerField = TestStepField.builder().build();
-                List<TrackerField> columns= ((TestStepField) trackerField).createDefaultColumns();
-                ((TableField) trackerField).setColumns(columns);
-                columns.forEach(column -> {
-                    column.setId(IDUtils.getId());
-                });
+                List<Node> column = node.selectNodes("columns/column");
+                List<TrackerField> fields = setTrackerFields(column);
+                trackerField = TestStepField.builder().columns(fields).build();
             }else if(FieldTypes.SPRINT.equals(type)){
                 trackerField = SprintField.builder().build();
+            }else if(FieldTypes.TARGET_VERSION.equals(type)){
+                trackerField = TargetVersionField.builder().build();
             }
 
             if(ObjectUtils.isNotEmpty(node.valueOf("@system"))){
                 trackerField.setSystem(Boolean.valueOf(node.valueOf("@system")));
             }else{
                 trackerField.setSystem(Boolean.FALSE);
+            }
+            if(!node.valueOf("@id").isEmpty()){
+                trackerField.setId(Long.valueOf(node.valueOf("@id")));
             }
             trackerField.setName(node.valueOf("@name"));
             trackerField.setTitle(node.valueOf("@title"));
@@ -384,8 +397,6 @@ public class TrackerXmlReader {
 
             trackerFields.add(trackerField);
         }
-
-        trackerFields.addAll(TrackerUtils.buildSystemFields());
         return trackerFields;
     }
 

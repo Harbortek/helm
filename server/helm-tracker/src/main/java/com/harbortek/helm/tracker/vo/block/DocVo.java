@@ -42,7 +42,7 @@ import java.util.List;
 public class DocVo extends BaseVo {
 
     //    private Long pageId;
-    private Long version;
+    private Long revision;
     private List<DocBlock> blocks = new ArrayList<>();
     @JsonIgnore
     private List<SlateNode> elements = new ArrayList<>();

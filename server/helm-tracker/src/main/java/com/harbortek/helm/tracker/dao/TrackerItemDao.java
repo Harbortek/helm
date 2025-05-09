@@ -19,6 +19,7 @@ package com.harbortek.helm.tracker.dao;
 import com.harbortek.helm.common.dao.BaseJdbcDao;
 import com.harbortek.helm.common.entity.BaseEntity;
 import com.harbortek.helm.system.vo.EnumItemVo;
+import com.harbortek.helm.tracker.constants.SystemFields;
 import com.harbortek.helm.tracker.entity.tracker.DocItemEntity;
 import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
 import com.harbortek.helm.tracker.util.FilterUtils;
@@ -161,6 +162,9 @@ public class TrackerItemDao extends BaseJdbcDao {
         if (ObjectUtils.isNotEmpty(pageable.getSort())) {
             pageable.getSort().forEach(item -> {
                 Field<?> field = getField(item.getProperty());
+                if(SystemFields.ITEM_NO.equals(item.getProperty())){
+                    field=DSL.cast(field,Integer.class);
+                }
                 if (item.getDirection() == Sort.Direction.DESC) {
                     sortFields.add(field.sort(SortOrder.DESC));
                 }else {

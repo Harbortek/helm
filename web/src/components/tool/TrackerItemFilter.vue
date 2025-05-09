@@ -81,7 +81,7 @@
                             <a-date-picker v-if="condition.type=='DATE'&&condition.operator!='BETWEEN'" style="width:260px;" v-model="condition.conditionDate" placeholder="请选择日期" @change="onChangeConditionDate(condition)" />
                             <a-range-picker v-else-if="condition.type=='DATE'&&condition.operator=='BETWEEN'" style="width:260px;" v-model="condition.conditionRangeDate" @change="onChangeConditionRangeDate(condition)" />
 
-                            <a-select v-if="condition.type=='STATUS'" mode="multiple" optionFilterProp="label" v-model="condition.value" style="width: 260px" placeholder="请选择..." @change="onChangeConditionSelect(condition)">
+                            <a-select v-if="condition.type=='STATUS'" mode="multiple" optionFilterProp="label" v-model="condition.value" style="width: 260px" placeholder="请选择" @change="onChangeConditionSelect(condition)">
                               <a-select-option v-for="status in tracker.trackerStatuses" :key="status.id" :label="status.name">
                                 <a-icon style="margin-right:5px;" v-if="status.icon" :component="status.icon"/>{{ status.name }}
                               </a-select-option>

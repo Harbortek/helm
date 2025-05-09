@@ -1524,7 +1524,11 @@ public class TrackerItemServiceImpl implements TrackerItemService {
 
             //改变工作项属性值
             AtomicReference<Object> oldValue = new AtomicReference<>(item.getCustomerFieldValue(trackerField));
-            item.setCustomerFieldValue(trackerField, newValue);
+            if(ObjectUtils.isNotEmpty(newValue)){
+                item.setCustomerFieldValue(trackerField, newValue);
+            }else{
+                item.setCustomerFieldValue(trackerField, "");
+            }
             trackerItemDao.updateCustomField(item);
             if(!item.getRelatedWikis().isEmpty()){
                 docDao.incVersion(item.getRelatedWikis());

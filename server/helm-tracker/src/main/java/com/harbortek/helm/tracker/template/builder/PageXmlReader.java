@@ -18,9 +18,12 @@ package com.harbortek.helm.tracker.template.builder;
 
 import com.harbortek.helm.common.vo.IdNameReference;
 import com.harbortek.helm.tracker.constants.ObjectTypes;
+import com.harbortek.helm.tracker.entity.project.PageSettingTracker;
 import com.harbortek.helm.tracker.util.ResourceUtils;
 import com.harbortek.helm.tracker.vo.pages.ProjectPageVo;
 import com.harbortek.helm.tracker.vo.tracker.TrackerVo;
+import com.harbortek.helm.tracker.vo.tracker.fields.TrackerField;
+import com.harbortek.helm.util.ObjectUtils;
 import lombok.Cleanup;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -34,6 +37,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class PageXmlReader {
     private final Logger logger = LoggerFactory.getLogger(PageXmlReader.class);
@@ -77,6 +82,21 @@ public class PageXmlReader {
                 if(!node.valueOf("@tracker").isEmpty()){
                     TrackerVo trackerVo = entityResolver.findByName(node.valueOf("@tracker"), ObjectTypes.TRACKER, TrackerVo.class);
                     page.setTracker(new IdNameReference<>(trackerVo));
+                }
+
+                List<Node> trackers = node.selectNodes("page-setting-trackers/page-setting-tracker");
+                if(ObjectUtils.isNotEmpty(trackers)){
+                    List<PageSettingTracker> pageSettingTrackers = new ArrayList<>();
+                    trackers.forEach(tracker->{
+                        TrackerVo trackerVo = entityResolver.findByName(tracker.valueOf("@tracker"), ObjectTypes.TRACKER, TrackerVo.class);
+                        Map<String,Long> fieldMap = trackerVo.getTrackerFields().stream().collect(Collectors.toMap(TrackerField::getName,TrackerField::getId));
+                        List<Node> list = tracker.selectNodes("fieldIds/fieldId");
+                        List<Long> fieldsIds = list.stream().map(f->fieldMap.get(f.getText())).toList();
+                        pageSettingTrackers.add(PageSettingTracker.builder().id(trackerVo.getId()).content(tracker.valueOf("@content"))
+                                .fieldIds(fieldsIds).build());
+                    });
+                    page.setPageSettingTrackers(pageSettingTrackers);
+
                 }
             }else if ("folder".equals(tagName)){
                 page.setFolder(true);

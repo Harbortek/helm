@@ -31,6 +31,21 @@ import com.harbortek.helm.tracker.constants.ObjectTypes;
 import com.harbortek.helm.tracker.constants.PagePermissions;
 import com.harbortek.helm.tracker.entity.block.DocBlock;
 import com.harbortek.helm.tracker.entity.block.TemplateBlockData;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.AttachmentSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.CodeSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.LinkSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.header.*;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.image.ImageSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.list.ListSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.paragraph.ParagraphSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.table.TableSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.title.TitleSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.style.StyleedStyle;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
 import com.harbortek.helm.tracker.template.builder.EntityResolver;
 import com.harbortek.helm.tracker.template.builder.PageXmlReader;
 import com.harbortek.helm.tracker.template.builder.TrackerItemXmlReader;
@@ -250,24 +265,30 @@ public class ProjectTemplateReaderImpl implements ProjectTemplateReader, Applica
                 for (Node node : nodes) {
                     DocVo docVo = new DocVo();
                     docVo.setName(node.valueOf("@page"));
-                    docVo.setVersion(Long.parseLong(node.valueOf("@version")));
-                    List<Node> blockNodes = node.selectNodes("blocks/block");
-                    List<DocBlock> docBlocks= new ArrayList<>();
-                    blockNodes.forEach(blockNode -> {
-                        TemplateBlockData templateBlockData;
-                        if(ObjectUtils.isNotEmpty(blockNode.valueOf("@isTrackerItemLink"))){
-                            templateBlockData=TemplateBlockData.builder().itemNo(blockNode.valueOf("@code"))
-                                    .isTrackerItemLink(Boolean.parseBoolean(blockNode.valueOf("@isTrackerItemLink")))
-                                    .build();
-                        }else if(ObjectUtils.isNotEmpty(blockNode.valueOf("@level"))){
-                            templateBlockData = TemplateBlockData.builder().level(Long.valueOf(blockNode.valueOf("@level")))
-                                                                 .itemNo(blockNode.valueOf("@code")).build();
-                        }else{
-                            templateBlockData = TemplateBlockData.builder().itemNo(blockNode.valueOf("@code")).build();
-                        }
-                        docBlocks.add(new DocBlock(null,blockNode.valueOf("@type"), templateBlockData));
+                    docVo.setRevision(Long.parseLong(node.valueOf("@reversion")));
+//                    List<Node> blockNodes = node.selectNodes("blocks/block");
+//                    List<DocBlock> docBlocks= new ArrayList<>();
+//                    blockNodes.forEach(blockNode -> {
+//                        TemplateBlockData templateBlockData;
+//                        if(ObjectUtils.isNotEmpty(blockNode.valueOf("@isTrackerItemLink"))){
+//                            templateBlockData=TemplateBlockData.builder().itemNo(blockNode.valueOf("@code"))
+//                                    .isTrackerItemLink(Boolean.parseBoolean(blockNode.valueOf("@isTrackerItemLink")))
+//                                    .build();
+//                        }else if(ObjectUtils.isNotEmpty(blockNode.valueOf("@level"))){
+//                            templateBlockData = TemplateBlockData.builder().level(Long.valueOf(blockNode.valueOf("@level")))
+//                                                                 .itemNo(blockNode.valueOf("@code")).build();
+//                        }else{
+//                            templateBlockData = TemplateBlockData.builder().itemNo(blockNode.valueOf("@code")).build();
+//                        }
+//                        docBlocks.add(new DocBlock(null,blockNode.valueOf("@type"), templateBlockData));
+//                    });
+                    List<Node> elementNodes = node.selectNodes("elements/element");
+                    List<SlateNode> elements = new ArrayList<>();
+                    elementNodes.forEach(elementNode -> {
+                        readDocElements(elements,elementNode);
                     });
-                    docVo.setBlocks(docBlocks);
+
+                    docVo.setElements(elements);
                     docVos.add(docVo);
                 }
             }
@@ -277,6 +298,145 @@ public class ProjectTemplateReaderImpl implements ProjectTemplateReader, Applica
         }
         return docVos;
     }
+
+    private void readDocElements(List<SlateNode> elements,Node elementNode){
+        String type = elementNode.valueOf("@type");
+        SlateElement slateNode = null;
+        List<Node> styles = elementNode.selectNodes("styles/style");
+
+        if(SlateElements.TEXT.equals(type)){
+            SlateText slateText = new SlateText();
+            slateText.setText(elementNode.valueOf("@text"));
+            slateText.setId(elementNode.valueOf("@id"));
+            slateText.setType(type);
+            List<StyleedStyle> styleList  = new ArrayList<>();
+            styles.forEach(style -> {
+                StyleedStyle styleedStyle = new StyleedStyle();
+                styleedStyle.setBold(Boolean.parseBoolean(style.valueOf("@bold")));
+                styleedStyle.setCode(Boolean.parseBoolean(style.valueOf("@code")));
+                styleedStyle.setItalic(Boolean.parseBoolean(style.valueOf("@italic")));
+                styleedStyle.setUnderline(Boolean.parseBoolean(style.valueOf("@underline")));
+                styleedStyle.setThrough(Boolean.parseBoolean(style.valueOf("@through")));
+                styleedStyle.setSub(Boolean.parseBoolean(style.valueOf("@sub")));
+                styleedStyle.setSup(Boolean.parseBoolean(style.valueOf("@sup")));
+                styleList.add(styleedStyle);
+            });
+            slateText.setStyles(styleList);
+            elements.add(slateText);
+            return;
+        }else if(SlateElements.TRACKER_ITEM.equals(type)){
+            TrackerItemSlateElement<Object> itemSlateElement = new TrackerItemSlateElement<>();
+            itemSlateElement.setRef(elementNode.valueOf("@ref"));
+            slateNode=itemSlateElement;
+        }else if(SlateElements.TRACKER_ITEM_TITLE.equals(type)){
+            TrackerItemSlateElement.TrackerItemTitleSlateElement itemSlateElement = new TrackerItemSlateElement.TrackerItemTitleSlateElement();
+            itemSlateElement.setRef(elementNode.valueOf("@ref"));
+            slateNode=itemSlateElement;
+        }else if(SlateElements.TRACKER_ITEM_DESCRIPTION.equals(type)){
+            TrackerItemSlateElement.TrackerItemDescriptionSlateElement itemSlateElement = new TrackerItemSlateElement.TrackerItemDescriptionSlateElement();
+            itemSlateElement.setRef(elementNode.valueOf("@ref"));
+            slateNode=itemSlateElement;
+        }else if(SlateElements.TRACKER_ITEM_EXTRA.equals(type)){
+            TrackerItemSlateElement.TrackerItemExtraSlateElement itemSlateElement = new TrackerItemSlateElement.TrackerItemExtraSlateElement();
+            itemSlateElement.setRef(elementNode.valueOf("@ref"));
+            slateNode=itemSlateElement;
+        }else if(SlateElements.TITLE.equals(type)){
+            slateNode=new TitleSlateElement();
+        }else if(SlateElements.HEADER1.equals(type)){
+            slateNode=new Header1SlateElement();
+        }else if(SlateElements.HEADER2.equals(type)){
+            slateNode=new Header2SlateElement();
+        }else if(SlateElements.HEADER3.equals(type)){
+            slateNode=new Header3SlateElement();
+        }else if(SlateElements.HEADER4.equals(type)){
+            slateNode=new Header4SlateElement();
+        }else if(SlateElements.HEADER5.equals(type)){
+            slateNode=new Header5SlateElement();
+        }else if(SlateElements.PARAGRAPH.equals(type)){
+            slateNode=new ParagraphSlateElement();
+        }else if(SlateElements.LIST.equals(type)){
+            ListSlateElement<?> listSlateElement = new ListSlateElement<>();
+            listSlateElement.setOrdered(Boolean.parseBoolean(elementNode.valueOf("@ordered")));
+            if(ObjectUtils.isNotEmpty(elementNode.valueOf("@level"))){
+                listSlateElement.setLevel(Long.parseLong(elementNode.valueOf("@level")));
+            }
+            slateNode=listSlateElement;
+        }else if(SlateElements.LINK.equals(type)){
+            LinkSlateElement<Object> linkSlateElement = new LinkSlateElement<>();
+            linkSlateElement.setUrl(elementNode.valueOf("@url"));
+            linkSlateElement.setTarget(elementNode.valueOf("@target"));
+            slateNode=linkSlateElement;
+        }else if(SlateElements.IMAGE.equals(type)){
+            ImageSlateElement<Object> imageSlateElement = new ImageSlateElement<>();
+            imageSlateElement.setSrc(elementNode.valueOf("@src"));
+            imageSlateElement.setAlt(elementNode.valueOf("@alt"));
+            imageSlateElement.setHref(elementNode.valueOf("@href"));
+
+            ImageSlateElement.ImageStyle imageStyle = new ImageSlateElement.ImageStyle();
+            Node style = elementNode.selectSingleNode("style");
+            imageStyle.setWidth(style.valueOf("@width"));
+            imageStyle.setHeight(style.valueOf("@height"));
+            imageSlateElement.setStyle(imageStyle);
+
+            slateNode=imageSlateElement;
+        }else if(SlateElements.CODE.equals(type)){
+            CodeSlateElement<Object> codeSlateElement = new CodeSlateElement<>();
+            codeSlateElement.setLanguage(elementNode.valueOf("@language"));
+            slateNode=codeSlateElement;
+        }else if(SlateElements.ATTACHMENT.equals(type)){
+            AttachmentSlateElement<Object> attachmentSlateElement = new AttachmentSlateElement<>();
+            attachmentSlateElement.setFileName(elementNode.valueOf("@fileName"));
+            attachmentSlateElement.setLink(elementNode.valueOf("@link"));
+            slateNode=attachmentSlateElement;
+        }else if(SlateElements.TABLE.equals(type)){
+            TableSlateElement<Object> tableSlateElement = new TableSlateElement<>();
+            tableSlateElement.setWidth(elementNode.valueOf("@width"));
+            slateNode=tableSlateElement;
+        }else if(SlateElements.TABLE_CELL.equals(type)){
+            TableSlateElement.TableCellSlateElement<Object> tableCellSlateElement = new TableSlateElement.TableCellSlateElement<>();
+            tableCellSlateElement.setIsHeader(Boolean.parseBoolean(elementNode.valueOf("@isHeader")));
+            if(ObjectUtils.isNotEmpty(elementNode.valueOf("@colSpan"))){
+                tableCellSlateElement.setColSpan(Integer.parseInt(elementNode.valueOf("@colSpan")));
+            }
+            if(ObjectUtils.isNotEmpty(elementNode.valueOf("@rowSpan"))){
+                tableCellSlateElement.setRowSpan(Integer.parseInt(elementNode.valueOf("@rowSpan")));
+            }
+            tableCellSlateElement.setWidth(elementNode.valueOf("@width"));
+            slateNode=tableCellSlateElement;
+        }else{
+            slateNode=new TitleSlateElement<>();
+        }
+        List<StyleedStyle> styleList  = new ArrayList<>();
+        if(ObjectUtils.isNotEmpty(styles)){
+            styles.forEach(style -> {
+                StyleedStyle styleedStyle = new StyleedStyle();
+                styleedStyle.setBold(Boolean.parseBoolean(style.valueOf("@bold")));
+                styleedStyle.setCode(Boolean.parseBoolean(style.valueOf("@code")));
+                styleedStyle.setItalic(Boolean.parseBoolean(style.valueOf("@italic")));
+                styleedStyle.setUnderline(Boolean.parseBoolean(style.valueOf("@underline")));
+                styleedStyle.setThrough(Boolean.parseBoolean(style.valueOf("@through")));
+                styleedStyle.setSub(Boolean.parseBoolean(style.valueOf("@sub")));
+                styleedStyle.setSup(Boolean.parseBoolean(style.valueOf("@sup")));
+                styleList.add(styleedStyle);
+            });
+            slateNode.setStyles(styleList);
+        }
+        slateNode.setId(elementNode.valueOf("@id"));
+        slateNode.setType(type);
+        List<Node> childrenList = elementNode.selectNodes("children");
+        List<SlateNode> children = new ArrayList<>();
+        if(ObjectUtils.isNotEmpty(childrenList)){
+            childrenList.forEach(child -> {
+                readDocElements(children,child);
+            });
+            if(ObjectUtils.isNotEmpty(children)){
+                slateNode.setChildren(children);
+            }
+        }
+        elements.add(slateNode);
+    }
+
+
     private List<SmartPageVo> readSmartPages(Resource parent,EntityResolver entityResolver) {
         ArrayList<SmartPageVo> smartPageVos = new ArrayList<>();
         String path = ResourceUtils.getPath(parent)+"/smart-page/*.xml";

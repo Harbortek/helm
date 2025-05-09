@@ -22,9 +22,7 @@ import com.harbortek.helm.common.vo.IdNameReference;
 import com.harbortek.helm.system.constants.IdentityTypes;
 import com.harbortek.helm.tracker.util.ResourceUtils;
 import com.harbortek.helm.tracker.vo.tracker.TrackerVo;
-import com.harbortek.helm.tracker.vo.tracker.fields.MultiOptionsField;
-import com.harbortek.helm.tracker.vo.tracker.fields.OptionsField;
-import com.harbortek.helm.tracker.vo.tracker.fields.TrackerField;
+import com.harbortek.helm.tracker.vo.tracker.fields.*;
 import com.harbortek.helm.tracker.vo.tracker.nofitication.CustomerTrackerNotification;
 import com.harbortek.helm.tracker.vo.tracker.nofitication.SystemTrackerNotification;
 import com.harbortek.helm.tracker.vo.tracker.nofitication.TrackerNotification;
@@ -206,6 +204,18 @@ public class TrackerXmlWriter {
                 }else if(!trackerField.isSystem()&& trackerField instanceof MultiOptionsField){
                     fieldElement.addAttribute("enumName", ((MultiOptionsField) trackerField).getEnumName());
                 }
+                if(trackerField instanceof TableField tableField){
+                    Element columns = fieldElement.addElement("columns");
+                    tableField.getColumns().forEach(c->{
+                        Element column = columns.addElement("column");
+                        column.addAttribute("id", String.valueOf(c.getId()));
+                        column.addAttribute("name", c.getName());
+                        column.addAttribute("type", c.getInputType());
+                        column.addAttribute("systemProperty", c.getSystemProperty());
+                        column.addAttribute("system", c.getSystem().toString());
+                    });
+                }
+
                 writeTrackerFieldPermission(fieldElement, trackerField);
 
             }
@@ -317,7 +327,9 @@ public class TrackerXmlWriter {
             List<CustomerTrackerNotification> customerTrackerNotifications = trackerNotification.getCustomerTrackerNotifications();
             for (CustomerTrackerNotification notification : customerTrackerNotifications) {
                 Element notificationElement = customerConfigElement.addElement("notification");
-                notificationElement.addAttribute("fieldName",notification.getTrackerField().getName());
+                if(ObjectUtils.isNotEmpty(notification.getTrackerField())){
+                    notificationElement.addAttribute("fieldName",notification.getTrackerField().getName());
+                }
                 notificationElement.addAttribute("useMessage",notification.getUseMessage().toString());
                 notificationElement.addAttribute("useEmail",notification.getUseEmail().toString());
                 writePermissionGrant(notificationElement,notification.getSubscribers());

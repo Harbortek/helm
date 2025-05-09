@@ -19,11 +19,22 @@ package com.harbortek.helm.tracker.template.writer.impl;
 import com.harbortek.helm.common.vo.BaseIdentity;
 import com.harbortek.helm.system.constants.IdentityTypes;
 import com.harbortek.helm.system.vo.EnumItemVo;
-import com.harbortek.helm.tracker.constants.BlockTypes;
 import com.harbortek.helm.tracker.constants.InternalTrackers;
 import com.harbortek.helm.tracker.constants.SystemFields;
 import com.harbortek.helm.tracker.entity.block.HeaderBlockData;
 import com.harbortek.helm.tracker.entity.block.TrackerItemBlockData;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.AttachmentSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.CodeSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.LinkSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.image.ImageSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.list.ListSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.table.TableSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.style.StyleedStyle;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
 import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
 import com.harbortek.helm.tracker.template.builder.TrackerXmlWriter;
 import com.harbortek.helm.tracker.template.writer.ProjectTemplateWriter;
@@ -216,6 +227,15 @@ public class ProjectTemplateWriterImpl implements ProjectTemplateWriter {
     }
 
     void writePages(ProjectTemplateVo templateVo, File rootDir) {
+        Map<Long, String> trackerMap = templateVo.getTrackers().stream().collect(Collectors.toMap(TrackerVo::getId, TrackerVo::getName));
+
+        Map<Long,String> filedMap = new HashMap<>();
+        templateVo.getTrackers().forEach(tracker -> {
+            tracker.getTrackerFields().forEach(field -> {
+                filedMap.put(field.getId(),field.getName());
+            });
+        });
+
         File outputFile = new File(rootDir, "pages/pages.xml");
         Document document = DocumentHelper.createDocument();
         Element pagesElement = document.addElement("pages");
@@ -227,10 +247,10 @@ public class ProjectTemplateWriterImpl implements ProjectTemplateWriter {
                 folderElement.addAttribute("name",page.getName());
                 folderElement.addAttribute("icon",page.getIcon());
                 page.getChildren().forEach(childrenPage->{
-                    writePage(folderElement,childrenPage,rootDir);
+                    writePage(folderElement,childrenPage,rootDir,trackerMap,filedMap);
                 });
             }else{
-                writePage(pagesElement,page,rootDir);
+                writePage(pagesElement,page,rootDir,trackerMap,filedMap);
             }
         });
         ResourceUtils.writeXml(outputFile,document);
@@ -238,7 +258,6 @@ public class ProjectTemplateWriterImpl implements ProjectTemplateWriter {
     void writeDocs(ProjectTemplateVo templateVo, File rootDir) {
 
         Map<Long, String> trackerItemMap = templateVo.getTrackerItems().stream().filter(itemVo -> ObjectUtils.isNotEmpty(itemVo.getItemNo())).collect(Collectors.toMap(TrackerItemVo::getId, TrackerItemVo::getItemNo));
-        Map<Long, String> trackerMap = templateVo.getTrackers().stream().collect(Collectors.toMap(TrackerVo::getId, TrackerVo::getName));
 
         List<DocVo> docVos = templateVo.getDocs();
         docVos.forEach(docVo->{
@@ -249,30 +268,83 @@ public class ProjectTemplateWriterImpl implements ProjectTemplateWriter {
 //            if(ObjectUtils.isNotEmpty(pageMap.get(docVo.getPageId()))){
                 Element docElement = pagesElement.addElement("doc");
                 docElement.addAttribute("page",docVo.getName());
-                docElement.addAttribute("version",docVo.getVersion().toString());
-                Element blocksElement = docElement.addElement("blocks");
-                docVo.getBlocks().forEach(block->{
-                    if(ObjectUtils.isNotEmpty(trackerItemMap.get(block.getData().getRefId()))){
-                        Element blockElement = blocksElement.addElement("block");
-                        if(BlockTypes.ALL_BLOCK_TYPES.contains(block.getType())){
-                            blockElement.addAttribute("type",block.getType());
-                        }else if(ObjectUtils.isNotEmpty(block.getType())){
-                            blockElement.addAttribute("type",trackerMap.get(Long.parseLong(block.getType())));
-                        }
-                        blockElement.addAttribute("code",trackerItemMap.get(block.getData().getRefId()));
-                        if(block.getData() instanceof TrackerItemBlockData){
-                            blockElement.addAttribute("isTrackerItemLink",((TrackerItemBlockData) block.getData()).getIsTrackerItemLink().toString());
-                        }else if(block.getData() instanceof HeaderBlockData){
-                            if(ObjectUtils.isNotEmpty(((HeaderBlockData) block.getData()).getLevel())){
-                                blockElement.addAttribute("level", String.valueOf(((HeaderBlockData) block.getData()).getLevel()));
-                            }
-
-                        }
-                    }
+                docElement.addAttribute("reversion",String.valueOf(docVo.getRevision()));
+                Element blocksElement = docElement.addElement("elements");
+                docVo.getElements().forEach(element->{
+                    Element blockElement = blocksElement.addElement("element");
+                    setBlockElement(element,blockElement,trackerItemMap);
                 });
 //            }
             ResourceUtils.writeXml(outputFile,document);
         });
+    }
+    void setBlockElement(SlateNode element, Element blockElement, Map<Long, String> trackerItemMap){
+        blockElement.addAttribute("id",element.getId());
+        blockElement.addAttribute("type",element.getType());
+        String ref=null;
+        if(SlateElements.TRACKER_ITEM.equals(element.getType())) {
+            ref = ((TrackerItemSlateElement<?>) element).getRef();
+        }else if(SlateElements.TRACKER_ITEM_TITLE.equals(element.getType())){
+            ref = ((TrackerItemSlateElement.TrackerItemTitleSlateElement) element).getRef();
+        }else if(SlateElements.TRACKER_ITEM_DESCRIPTION.equals(element.getType())){
+            ref = ((TrackerItemSlateElement.TrackerItemDescriptionSlateElement) element).getRef();
+        }else if(SlateElements.TRACKER_ITEM_EXTRA.equals(element.getType())){
+            ref = ((TrackerItemSlateElement.TrackerItemExtraSlateElement) element).getRef();
+        }else if(SlateElements.TEXT.equals(element.getType())){
+            blockElement.addAttribute("text",((SlateText)element).getText());
+        }else if(SlateElements.LIST.equals(element.getType())){
+            blockElement.addAttribute("ordered",((ListSlateElement<?>)element).getOrdered().toString());
+            blockElement.addAttribute("level",((ListSlateElement<?>)element).getLevel().toString());
+        }else if(SlateElements.LINK.equals(element.getType())){
+            blockElement.addAttribute("url",((LinkSlateElement<?>)element).getUrl());
+            blockElement.addAttribute("target",((LinkSlateElement<?>)element).getTarget());
+        }else if(SlateElements.IMAGE.equals(element.getType())){
+            blockElement.addAttribute("src",((ImageSlateElement<?>)element).getSrc());
+            blockElement.addAttribute("alt",((ImageSlateElement<?>)element).getAlt());
+            blockElement.addAttribute("href",((ImageSlateElement<?>)element).getHref());
+            ImageSlateElement.ImageStyle imageStyle = ((ImageSlateElement<?>) element).getStyle();
+            if(ObjectUtils.isNotEmpty(imageStyle)){
+                Element style = blockElement.addElement("style");
+                style.addAttribute("width",imageStyle.getWidth());
+                style.addAttribute("height",imageStyle.getHeight());
+            }
+        }else if(SlateElements.CODE.equals(element.getType())){
+            blockElement.addAttribute("language",((CodeSlateElement<?>)element).getLanguage());
+        }else if(SlateElements.ATTACHMENT.equals(element.getType())){
+            blockElement.addAttribute("fileName",((AttachmentSlateElement<?>)element).getFileName());
+            blockElement.addAttribute("link",((AttachmentSlateElement<?>)element).getLink());
+        }else if(SlateElements.TABLE.equals(element.getType())){
+            blockElement.addAttribute("width",((TableSlateElement<?>)element).getWidth());
+        }else if(SlateElements.TABLE_CELL.equals(element.getType())){
+            blockElement.addAttribute("isHeader", String.valueOf(((TableSlateElement.TableCellSlateElement<?>)element).getIsHeader()));
+            blockElement.addAttribute("colSpan", String.valueOf(((TableSlateElement.TableCellSlateElement<?>)element).getColSpan()));
+            blockElement.addAttribute("rowSpan", String.valueOf(((TableSlateElement.TableCellSlateElement<?>)element).getRowSpan()));
+            blockElement.addAttribute("width", String.valueOf(((TableSlateElement.TableCellSlateElement<?>)element).getWidth()));
+        }
+        if(ObjectUtils.isNotEmpty(ref)){
+            blockElement.addAttribute("ref",trackerItemMap.get(Long.parseLong(ref)));
+        }
+        if(ObjectUtils.isNotEmpty(element.getStyles())){
+            Element style2 = blockElement.addElement("styles");
+            element.getStyles().forEach(style->{
+                Element style3 = style2.addElement("style");
+                style3.addAttribute("bold",String.valueOf(style.getBold()));
+                style3.addAttribute("code",String.valueOf(style.getCode()));
+                style3.addAttribute("italic",String.valueOf(style.getItalic()));
+                style3.addAttribute("underline",String.valueOf(style.getUnderline()));
+                style3.addAttribute("through",String.valueOf(style.getThrough()));
+                style3.addAttribute("sub",String.valueOf(style.getSub()));
+                style3.addAttribute("sup",String.valueOf(style.getSup()));
+            });
+        }
+        if(element instanceof SlateElement<?> element1){
+            if(element1.getChildren()!=null){
+                element1.getChildren().forEach(childElement->{
+                    Element childElement1 = blockElement.addElement("children");
+                    setBlockElement((SlateNode) childElement,childElement1,trackerItemMap);
+                });
+            }
+        }
     }
 
     void writeSmartPages(ProjectTemplateVo templateVo, File rootDir) {
@@ -311,7 +383,7 @@ public class ProjectTemplateWriterImpl implements ProjectTemplateWriter {
         });
         ResourceUtils.writeXml(outputFile,document);
     }
-    void writePage(Element element,ProjectPageVo page, File rootDir){
+    void writePage(Element element,ProjectPageVo page, File rootDir,Map<Long,String> trackerMap,Map<Long,String> filedMap){
         Element pageElement = element.addElement("page");
         pageElement.addAttribute("name",page.getName());
         pageElement.addAttribute("type",page.getType());
@@ -321,17 +393,29 @@ public class ProjectTemplateWriterImpl implements ProjectTemplateWriter {
         if(ObjectUtils.isNotEmpty(page.getComponentType())){
             pageElement.addAttribute("componentType",page.getComponentType());
         }
-        if(ObjectUtils.isNotEmpty(page.getDefinition())){
-            String definitionPath="pages/"+page.getName()+"/"+page.getName()+"Spec.xml";
-            pageElement.addAttribute("definition",definitionPath);
-            File definitionFile = new File(rootDir, definitionPath);
-            Document definitiondocument = DocumentHelper.createDocument();
-            Element definitionElement = definitiondocument.addElement("definition");
-            definitionElement.setText("<![CDATA["+page.getDefinition()+"]]>");
-            ResourceUtils.writeXml(definitionFile,definitiondocument);
+//        if(ObjectUtils.isNotEmpty(page.getDefinition())){
+//            String definitionPath="pages/"+page.getName()+"/"+page.getName()+"Spec.xml";
+//            pageElement.addAttribute("definition",definitionPath);
+//            File definitionFile = new File(rootDir, definitionPath);
+//            Document definitiondocument = DocumentHelper.createDocument();
+//            Element definitionElement = definitiondocument.addElement("definition");
+//            definitionElement.setText("<![CDATA["+page.getDefinition()+"]]>");
+//            ResourceUtils.writeXml(definitionFile,definitiondocument);
+//        }
+        if(ObjectUtils.isNotEmpty(page.getPageSettingTrackers())){
+            Element trackersElement = pageElement.addElement("page-setting-trackers");
+            page.getPageSettingTrackers().forEach(pageSettingTrackerVo->{
+                Element element1 = trackersElement.addElement("page-setting-tracker");
+                element1.addAttribute("tracker",trackerMap.get(pageSettingTrackerVo.getId()));
+                element1.addAttribute("content",pageSettingTrackerVo.getContent());
+                Element fieldIds = element1.addElement("fieldIds");
+                pageSettingTrackerVo.getFieldIds().forEach(fieldId->{
+                    Element fieldIdElement = fieldIds.addElement("fieldId");
+                    fieldIdElement.setText(filedMap.get(fieldId));
+                });
+            });
         }
         if (ObjectUtils.isValid(page.getSmartPageId())){
-
             pageElement.addAttribute("smartPage",page.getName());
         }
         if (ObjectUtils.isValid(page.getSmartDocId())){
