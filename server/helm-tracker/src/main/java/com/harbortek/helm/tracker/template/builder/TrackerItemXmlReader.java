@@ -102,7 +102,7 @@ public class TrackerItemXmlReader {
         }else if (SystemFields.PRIORITY.equals(fieldName)){
             item.setPriority(entityResolver.findByName(fieldValue, ObjectTypes.TRACKER_PRIORITY, EnumItemVo.class));
         }else if (SystemFields.SEVERITY.equals(fieldName)){
-            item.setPriority(entityResolver.findByName(fieldValue, ObjectTypes.TRACKER_SEVERITY, EnumItemVo.class));
+            item.setSeverity(entityResolver.findByName(fieldValue, ObjectTypes.TRACKER_SEVERITY, EnumItemVo.class));
         }else if (SystemFields.STATUS_TYPE.equals(fieldName)){
             item.setMeaning(entityResolver.findByName(fieldValue, ObjectTypes.TRACKER_STATUS_MEANING, EnumItemVo.class));
         }else if (SystemFields.DESCRIPTION.equals(fieldName)){

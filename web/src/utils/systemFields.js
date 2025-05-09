@@ -9,7 +9,7 @@ export const systemFields = [
     { id: '8', name: "创建日期", systemProperty: "createDate", inputType: "DATE" },
     { id: '9', name: "修改者", systemProperty: "lastModifiedBy", inputType: "USER" },
     { id: '10', name: "修改日期", systemProperty: "lastModifiedDate", inputType: "DATE" },
-    { id: '11', name: "状态", systemProperty: "status", inputType: "STATUS" },
+    // { id: '11', name: "状态", systemProperty: "status", inputType: "STATUS" },
     { id: '12', name: "状态类型", systemProperty: "meaning", inputType: "STATUS_TYPE" },
     { id: '13', name: "分配给", systemProperty: "assignedToId", inputType: "USER" },
     { id: '14', name: "分配日期", systemProperty: "assignedDate", inputType: "DATE" },

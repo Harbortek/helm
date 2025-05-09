@@ -49,5 +49,5 @@ public class SlateElements {
 
     public static final String TABLE_CELL = "table-cell";
     public static final String TABLE_ROW = "table-row";
-    public static final String TABLE = "table";;
+    public static final String TABLE = "table";
 }

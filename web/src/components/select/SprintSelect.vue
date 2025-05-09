@@ -44,6 +44,10 @@ export default ({
                 this.selectItem = this.sprints[0].id;
                 this.onChange(this.selectItem);
             }
+            if(curVal&&!this.sprints.find(_=>_.id===curVal)){
+                this.selectItem = undefined;
+                this.onChange(undefined);
+            }
         }
     },
     mounted() {

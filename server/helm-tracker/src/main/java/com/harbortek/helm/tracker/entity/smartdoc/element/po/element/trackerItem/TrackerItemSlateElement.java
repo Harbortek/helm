@@ -22,6 +22,7 @@ import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElemen
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
 import lombok.Data;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Transient;
 
 @Data

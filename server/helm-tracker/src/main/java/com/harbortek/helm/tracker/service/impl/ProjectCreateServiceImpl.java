@@ -36,6 +36,11 @@ import com.harbortek.helm.tracker.dao.*;
 import com.harbortek.helm.tracker.entity.block.*;
 import com.harbortek.helm.tracker.entity.link.TrackerLinkEntity;
 import com.harbortek.helm.tracker.entity.project.ProjectEntity;
+import com.harbortek.helm.tracker.entity.project.ProjectPageEntity;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.SlateElement;
+import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
 import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
 import com.harbortek.helm.tracker.entity.view.ViewEntity;
 import com.harbortek.helm.tracker.service.*;
@@ -57,10 +62,7 @@ import com.harbortek.helm.tracker.vo.tracker.fields.OptionsField;
 import com.harbortek.helm.tracker.vo.tracker.fields.TrackerField;
 import com.harbortek.helm.tracker.vo.tracker.stateTransition.TrackerStatus;
 import com.harbortek.helm.tracker.vo.view.*;
-import com.harbortek.helm.util.DataUtils;
-import com.harbortek.helm.util.IDUtils;
-import com.harbortek.helm.util.ObjectUtils;
-import com.harbortek.helm.util.SecurityUtils;
+import com.harbortek.helm.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -155,6 +157,8 @@ public class ProjectCreateServiceImpl implements ProjectCreateService {
         //2.1 创建项目
         projectDao.createProject(projectEntity);
 
+        CacheUtils.evictAll(ProjectPageEntity.class);
+
         return vo;
     }
 
@@ -246,11 +250,13 @@ public class ProjectCreateServiceImpl implements ProjectCreateService {
         viewDao.createViews(views);
 //        permissionService.grant(permissions);
 
-        HashMap<String,Long> fieldMap=new HashMap<>();
+        HashMap<Long,HashMap<String,Long>> trackerMap=new HashMap<>();
         trackers.forEach(tracker -> {
+            HashMap<String,Long> fieldMap=new HashMap<>();
             tracker.getTrackerFields().forEach(trackerField -> {
                 fieldMap.put(trackerField.getName(),trackerField.getId());
             });
+            trackerMap.put(tracker.getId(),fieldMap);
         });
 
 
@@ -261,6 +267,7 @@ public class ProjectCreateServiceImpl implements ProjectCreateService {
                 if(ObjectUtils.isNotEmpty(trackerItemVo)){
                     TrackerItemEntity trackerItemEntity = DataUtils.toEntity(trackerItemVo, TrackerItemEntity.class);
                     Map<Long,String> values = new HashMap<>();
+                    HashMap<String, Long> fieldMap = trackerMap.get(trackerItemVo.getTracker().getId());
                     trackerItemEntity.getValues().forEach((k,v)->{
                         String[] split = v.split("_");
                         if(split.length>1&&ObjectUtils.isNotEmpty(fieldMap.get(split[0]))){
@@ -272,6 +279,12 @@ public class ProjectCreateServiceImpl implements ProjectCreateService {
                     trackerItemEntity.setId(Optional.ofNullable(trackerItemEntity.getId()).orElse(IDUtils.getId()));
                     trackerItemEntity.setProjectId(project.getId());
                     trackerItemEntity.setCreateDate(null);
+                    if(ObjectUtils.isNotEmpty(trackerItemVo.getMeaning())){
+                        trackerItemEntity.setMeaningId(trackerItemVo.getMeaning().getId());
+                    }
+                    if(ObjectUtils.isNotEmpty(trackerItemVo.getPriority())){
+                        trackerItemEntity.setPriorityId(trackerItemVo.getPriority().getId());
+                    }
                     trackerItemEntities.add(trackerItemEntity);
                 }
             });
@@ -304,31 +317,9 @@ public class ProjectCreateServiceImpl implements ProjectCreateService {
         //5.1 文档数据
         templateVo.getDocs().forEach(docVo -> {
             docVo.setId(Optional.ofNullable(docVo.getId()).orElse(IDUtils.getId()));
-            docVo.getBlocks().forEach(block -> {
-                block.setId(NanoId.randomNanoId());
-                TemplateBlockData templateBlockData = (TemplateBlockData) block.getData();
-                trackerItemEntities.stream().filter(item -> item.getItemNo().equals(templateBlockData.getItemNo()))
-                        .findFirst().ifPresent(item -> {
-                            block.getData().setRefId(item.getId());
-                        });
-                if(!BlockTypes.ALL_BLOCK_TYPES.contains(block.getType())){
-                    trackers.stream().filter(tracker -> tracker.getName().equals(block.getType()))
-                            .findFirst().ifPresent(tracker -> {
-                                block.setType(tracker.getId().toString());
-                            });
-                    block.setData(TrackerItemBlockData.builder().refId(templateBlockData.getRefId())
-                            .isTrackerItemLink(templateBlockData.getIsTrackerItemLink()).build());
-                }else if(BlockTypes.TITLE.equals(block.getType())){
-                    block.setData(TitleBlockData.builder().refId(templateBlockData.getRefId()).build());
-                }else if(BlockTypes.HEADING.equals(block.getType())){
-                    block.setData(HeaderBlockData.builder().refId(templateBlockData.getRefId())
-                            .level(templateBlockData.getLevel()).build());
-                }else if(BlockTypes.PARAGRAPH.equals(block.getType())){
-                    block.setData(ParagraphBlockData.builder().refId(templateBlockData.getRefId()).build());
-                }
+            docVo.getElements().forEach(element -> {
+                setElementRef(element,trackerItemEntities);
             });
-            docVo.setBlocks(docVo.getBlocks().stream()
-                    .filter(block -> ObjectUtils.isNotEmpty(block.getData().getRefId())).collect(Collectors.toList()));
         });
         Collection<DocumentEntity> docEntities = DataUtils.toEntity(templateVo.getDocs(), DocumentEntity.class);
         docDao.batchSave(docEntities);
@@ -395,6 +386,45 @@ public class ProjectCreateServiceImpl implements ProjectCreateService {
         permissionService.grant(pagePermissions);
     }
 
+    private void setElementRef(SlateNode element, List<TrackerItemEntity> trackerItemEntities){
+        if(SlateElements.TRACKER_ITEM.equals(element.getType())){
+            TrackerItemSlateElement element1 = (TrackerItemSlateElement) element;
+            trackerItemEntities.stream().filter(item -> item.getItemNo().equals(element1.getRef()))
+                    .findFirst().ifPresent(item -> {
+                        element1.setRef(String.valueOf(item.getId()));
+                    });
+        }else if(SlateElements.TRACKER_ITEM_TITLE.equals(element.getType())){
+            TrackerItemSlateElement.TrackerItemTitleSlateElement element1 =
+                    (TrackerItemSlateElement.TrackerItemTitleSlateElement) element;
+            trackerItemEntities.stream().filter(item -> item.getItemNo().equals(element1.getRef()))
+                    .findFirst().ifPresent(item -> {
+                        element1.setRef(String.valueOf(item.getId()));
+                    });
+        }else if(SlateElements.TRACKER_ITEM_DESCRIPTION.equals(element.getType())){
+            TrackerItemSlateElement.TrackerItemDescriptionSlateElement element1 =
+                    (TrackerItemSlateElement.TrackerItemDescriptionSlateElement) element;
+            trackerItemEntities.stream().filter(item -> item.getItemNo().equals(element1.getRef()))
+                    .findFirst().ifPresent(item -> {
+                        element1.setRef(String.valueOf(item.getId()));
+                    });
+        }else if(SlateElements.TRACKER_ITEM_EXTRA.equals(element.getType())){
+            TrackerItemSlateElement.TrackerItemExtraSlateElement element1 =
+                    (TrackerItemSlateElement.TrackerItemExtraSlateElement) element;
+            trackerItemEntities.stream().filter(item -> item.getItemNo().equals(element1.getRef()))
+                    .findFirst().ifPresent(item -> {
+                        element1.setRef(String.valueOf(item.getId()));
+                    });
+        }
+        if(element instanceof SlateElement<?>){
+            SlateElement element1 = (SlateElement) element;
+            if(element1.getChildren()!=null){
+                element1.getChildren().forEach(childElement->{
+                    setElementRef((SlateNode) childElement,trackerItemEntities);
+                });
+            }
+        }
+    }
+
     //构建tracker view数据
     private TrackerItemViewConfig buildViewConfig(TrackerVo tracker, TrackerStatus s) {
         TrackerField trackerCalcField = findField(tracker.getTrackerFields(), SystemFields.CREATE_DATE);
@@ -437,6 +467,7 @@ public class ProjectCreateServiceImpl implements ProjectCreateService {
             pageEntity.setProjectId(projectId);
             pageEntity.setType(pageVo.getType());
             pageEntity.setComponentType(pageVo.getComponentType());
+            pageEntity.setPageSettingTrackers(pageVo.getPageSettingTrackers());
             pageEntity.setDefinition(pageVo.getDefinition());
             pageEntity.setFolder(pageVo.getFolder());
             pageEntity.setLevel(level);
@@ -503,6 +534,7 @@ public class ProjectCreateServiceImpl implements ProjectCreateService {
                 deleteTemplateFile(file);
             }
         }
+        CacheUtils.evictAll(ProjectPageEntity.class);
 
         return DataUtils.toVo(targetProject, ProjectVo.class);
     }

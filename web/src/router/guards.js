@@ -95,6 +95,7 @@ const authorityGuard = (to, from, next, options) => {
     message.warning(`对不起，您无权访问页面: ${to.name}，请联系管理员`)
     // next('/login')
     // next(-1)
+    next({path: '/tracker/projectList'})
     return;
   }
   next();
