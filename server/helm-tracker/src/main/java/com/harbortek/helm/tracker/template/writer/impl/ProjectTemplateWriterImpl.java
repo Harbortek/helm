@@ -322,7 +322,9 @@ public class ProjectTemplateWriterImpl implements ProjectTemplateWriter {
             blockElement.addAttribute("width", String.valueOf(((TableSlateElement.TableCellSlateElement<?>)element).getWidth()));
         }
         if(ObjectUtils.isNotEmpty(ref)){
-            blockElement.addAttribute("ref",trackerItemMap.get(Long.parseLong(ref)));
+            if(ObjectUtils.isNotEmpty(trackerItemMap.get(Long.parseLong(ref)))){
+                blockElement.addAttribute("ref",trackerItemMap.get(Long.parseLong(ref)));
+            }
         }
         if(ObjectUtils.isNotEmpty(element.getStyles())){
             Element style2 = blockElement.addElement("styles");
@@ -410,8 +412,10 @@ public class ProjectTemplateWriterImpl implements ProjectTemplateWriter {
                 element1.addAttribute("content",pageSettingTrackerVo.getContent());
                 Element fieldIds = element1.addElement("fieldIds");
                 pageSettingTrackerVo.getFieldIds().forEach(fieldId->{
-                    Element fieldIdElement = fieldIds.addElement("fieldId");
-                    fieldIdElement.setText(filedMap.get(fieldId));
+                    if(ObjectUtils.isNotEmpty(filedMap.get(fieldId))){
+                        Element fieldIdElement = fieldIds.addElement("fieldId");
+                        fieldIdElement.setText(filedMap.get(fieldId));
+                    }
                 });
             });
         }

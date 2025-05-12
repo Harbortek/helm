@@ -327,18 +327,30 @@ public class ProjectTemplateReaderImpl implements ProjectTemplateReader, Applica
         }else if(SlateElements.TRACKER_ITEM.equals(type)){
             TrackerItemSlateElement<Object> itemSlateElement = new TrackerItemSlateElement<>();
             itemSlateElement.setRef(elementNode.valueOf("@ref"));
+            if(ObjectUtils.isEmpty(itemSlateElement.getRef())){
+                return;
+            }
             slateNode=itemSlateElement;
         }else if(SlateElements.TRACKER_ITEM_TITLE.equals(type)){
             TrackerItemSlateElement.TrackerItemTitleSlateElement itemSlateElement = new TrackerItemSlateElement.TrackerItemTitleSlateElement();
             itemSlateElement.setRef(elementNode.valueOf("@ref"));
+            if(ObjectUtils.isEmpty(itemSlateElement.getRef())){
+                return;
+            }
             slateNode=itemSlateElement;
         }else if(SlateElements.TRACKER_ITEM_DESCRIPTION.equals(type)){
             TrackerItemSlateElement.TrackerItemDescriptionSlateElement itemSlateElement = new TrackerItemSlateElement.TrackerItemDescriptionSlateElement();
             itemSlateElement.setRef(elementNode.valueOf("@ref"));
+            if(ObjectUtils.isEmpty(itemSlateElement.getRef())){
+                return;
+            }
             slateNode=itemSlateElement;
         }else if(SlateElements.TRACKER_ITEM_EXTRA.equals(type)){
             TrackerItemSlateElement.TrackerItemExtraSlateElement itemSlateElement = new TrackerItemSlateElement.TrackerItemExtraSlateElement();
             itemSlateElement.setRef(elementNode.valueOf("@ref"));
+            if(ObjectUtils.isEmpty(itemSlateElement.getRef())){
+                return;
+            }
             slateNode=itemSlateElement;
         }else if(SlateElements.TITLE.equals(type)){
             slateNode=new TitleSlateElement();

@@ -48,7 +48,7 @@
                                     </a-tab-pane>
                                 </a-tabs>
                             </div>
-                            <div class="select-project-template-right">
+                            <!-- <div class="select-project-template-right">
                                 <div class="select-project-template-right-img select-project-template-right-img-project-t5">
                                 </div>
                                 <div>
@@ -62,7 +62,7 @@
                                         <div class="select-project-template-right-desc">需求、迭代、缺陷、任务、概览、报表、文档、成员</div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                     <div class="addProject-footer ">
@@ -100,31 +100,53 @@ export default {
     data() {
         const that = this;
         const nameValidator = (rule, value, callback) => {
-            checkDuplicateProjectName(this.formData.projectId || 0, value)
-                .then(resp => {
-                    if (!resp) {
-                        callback();
-                    } else {
+            if (!value || value.trim() === '') {
+                callback(new Error('请输入项目名称'));
+                clearTimeout(that.nameValidateTimer);
+                return;
+            }
+            // 防抖
+            if (that.nameValidateTimer) {
+                clearTimeout(that.nameValidateTimer);
+            }
+            that.nameValidateTimer = setTimeout(() => {
+                checkDuplicateProjectName(that.formData.projectId || 0, value)
+                    .then(resp => {
+                        if (!resp) {
+                            callback();
+                        } else {
+                            callback(new Error("项目名称已存在"));
+                        }
+                    })
+                    .catch(err => {
                         callback(new Error("项目名称已存在"));
-                    }
-                })
-                .catch(err => {
-                    callback(new Error("项目名称已存在"));
-                });
+                    });
+            }, 300);
         };
         const keyNameValidator = (rule, value, callback) => {
-
-            checkDuplicateProjectShortName(this.formData.projectId || 0, value)
-                .then(resp => {
-                    if (!resp) {
-                        callback();
-                    } else {
+            if (!value || value.trim() === '') {
+                callback(new Error('请输入项目缩写'));
+                console.log('keyNameValidator', value);
+                clearTimeout(that.keyNameValidateTimer);
+                return;
+            }
+            // 防抖
+            if (that.keyNameValidateTimer) {
+                clearTimeout(that.keyNameValidateTimer);
+            }
+            that.keyNameValidateTimer = setTimeout(() => {
+                checkDuplicateProjectShortName(this.formData.projectId || 0, value)
+                    .then(resp => {
+                        if (!resp) {
+                            callback();
+                        } else {
+                            callback(new Error("项目缩略名称已存在"));
+                        }
+                    })
+                    .catch(err => {
                         callback(new Error("项目缩略名称已存在"));
-                    }
-                })
-                .catch(err => {
-                    callback(new Error("项目缩略名称已存在"));
-                });
+                    });
+            },300);
         };
         return {
             currentStep: 1,
@@ -297,7 +319,8 @@ export default {
         border-radius: 3px;
         box-shadow: 0 4px 6px 0 rgba(31, 31, 31, .05), 0 0 2px 0 rgba(31, 31, 31, .2);
         height: calc(100% - 2 * 20px);
-        width: 900px;
+        // width: 900px;
+        width: 680px;
         display: flex;
         flex-direction: column;
     }
@@ -324,6 +347,7 @@ export default {
         min-height: 0;
         padding: 0;
         overflow: auto;
+        justify-content: center;
     }
 
     .select-project-template {
@@ -334,13 +358,14 @@ export default {
         }
 
         .select-project-template-left {
-            width: 540px;
+            // width: 540px;
+            width: 640px;
             display: flex;
             flex-direction: column;
             padding: 0 20px 0 20px;
 
             .project-form {
-                width: 500px;
+                width: 600px;
 
             }
             .project-tabs{

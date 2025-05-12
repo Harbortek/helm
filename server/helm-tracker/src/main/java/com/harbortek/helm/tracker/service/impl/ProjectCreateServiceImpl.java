@@ -509,7 +509,7 @@ public class ProjectCreateServiceImpl implements ProjectCreateService {
 
         targetProject.setId(IDUtils.getId());
         targetProject.setName(sourceProject.getName());
-        if(ObjectUtils.isNotEmpty(sourceProject.getKeyName())){//存在重复
+        if(ObjectUtils.isNotEmpty(sourceProject.getKeyName())){
             targetProject.setKeyName(sourceProject.getKeyName());
         }
         if(ObjectUtils.isNotEmpty(sourceProject.getDescription())){
@@ -518,6 +518,14 @@ public class ProjectCreateServiceImpl implements ProjectCreateService {
         File file=null;
         try{
             ProjectTemplateVo templateVo = projectTemplateService.findDataByProjectId(sourceProject.getId());
+            //删除未选择tracker
+            templateVo.getTrackers().removeIf(tracker->
+                !sourceProject.getTrackerList().contains(tracker.getId())
+            );
+            //删除未选择item
+            templateVo.getTrackerItems().removeIf(item->
+                !sourceProject.getTrackerList().contains(item.getTracker().getId())
+            );
             //创建临时模板-复制项目
             templateVo.setName(targetProject.getName());
             file = projectTemplateWriter.writeFully(templateVo);
