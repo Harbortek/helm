@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.harbortek.helm.tracker.constants.ProjectPageTypes;
 import com.harbortek.helm.util.SecurityUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
@@ -215,15 +216,22 @@ public class ProjectTemplateServiceImpl implements ProjectTemplateService, Appli
 		templateVo.setTrackerLinks(DataUtils.toVo(trackerLinkDao.findByItemIds(itemIds), TrackerLinkVo.class));
 
 		List<ProjectPageVo> pageVos = projectPageService.findByProjectId(projectId);
+		//pageVos使用stream转换为map
+		Map<Long, String> smartDocMap = pageVos.stream().filter(pageVo -> ProjectPageTypes.SMART_DOCUMENT.equals(pageVo.getType()))
+				.collect(Collectors.toMap(ProjectPageVo::getSmartDocId, ProjectPageVo::getName));
+		Map<Long, String> smartPageMap = pageVos.stream().filter(pageVo -> ProjectPageTypes.SMART_PAGE.equals(pageVo.getType()))
+				.collect(Collectors.toMap(ProjectPageVo::getSmartPageId, ProjectPageVo::getName));
 		List<Long> docIds = pageVos.stream().map(ProjectPageVo::getSmartDocId)
 				.distinct().filter(Objects::nonNull).toList();
 		List<DocVo> docVos = docService.findDocByIds(docIds);
+		docVos.forEach(docVo -> {docVo.setName(smartDocMap.get(docVo.getId()));});
 		templateVo.setDocs(docVos);
 
 		List<Long> smartPageIds = pageVos.stream().map(ProjectPageVo::getSmartPageId)
 				.distinct().filter(Objects::nonNull).toList();
 
 		List<SmartPageVo> smartPages = smartPageService.findSmartPageByIds(smartPageIds);
+		smartPages.forEach(smartPageVo -> {smartPageVo.setName(smartPageMap.get(smartPageVo.getId()));});
 		templateVo.setSmartPages(smartPages);
 		return templateVo;
 	}

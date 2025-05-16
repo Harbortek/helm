@@ -461,7 +461,8 @@ public class ProjectTemplateReaderImpl implements ProjectTemplateReader, Applica
 
                 Node node = document.selectSingleNode("smart-page");
                 SmartPageVo smartPageVo = new SmartPageVo();
-                smartPageVo.setName(node.valueOf("@page"));
+                String name = node.valueOf("@page");
+                smartPageVo.setName(name.split("_")[0]);
                 smartPageVo.setScope(node.valueOf("@scope"));
                 Node definition = node.selectSingleNode("definition");
                 smartPageVo.setDefinition(definition.getStringValue());

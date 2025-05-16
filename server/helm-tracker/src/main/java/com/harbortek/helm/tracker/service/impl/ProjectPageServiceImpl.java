@@ -139,7 +139,6 @@ public class ProjectPageServiceImpl implements ProjectPageService {
 
     public void updateProjectPageBasicInfo(ProjectPageVo page) {
         ProjectPageEntity entity = DataUtils.toEntity(page, ProjectPageEntity.class);
-
         projectPageDao.updateProjectPageBasicInfo(entity);
     }
 
@@ -204,7 +203,7 @@ public class ProjectPageServiceImpl implements ProjectPageService {
             smartPage.setDefinition(JsonUtils.toJSONString(pageDefinition));
             smartPage = smartPageService.createSmartPage(smartPage);
             page.setSmartPageId(smartPage.getId());
-        }else{
+        }else if(ProjectPageTypes.SMART_DOCUMENT.equals(pageVo.getType())){
             DocumentEntity doc = new DocumentEntity();
             doc.setId(IDUtils.getId());
             doc.setName(pageVo.getName());

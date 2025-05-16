@@ -76,7 +76,7 @@ public class SmartPageServiceImpl implements SmartPageService {
                 smartPageEntity.setId(IDUtils.getId());
             }
         });
-        List<SmartPageEntity> entity = DataUtils.toEntity(smartPageVos, SmartPageEntity.class);
-        smartPageDao.createSmartPages(entity);
+//        List<SmartPageEntity> entity = DataUtils.toEntity(smartPageVos, SmartPageEntity.class);
+        smartPageDao.createSmartPages(smartPageEntities);
     }
 }

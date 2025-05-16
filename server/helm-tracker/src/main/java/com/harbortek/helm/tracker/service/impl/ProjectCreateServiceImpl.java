@@ -338,6 +338,7 @@ public class ProjectCreateServiceImpl implements ProjectCreateService {
         List<SmartPageVo> smartPages = templateVo.getSmartPages();
         smartPages.forEach(smartPageVo->{
             smartPageVo.setId(Optional.ofNullable(smartPageVo.getId()).orElse(IDUtils.getId()));
+            smartPageVo.setObjectId(project.getId());
         });
         smartPageService.createSmartPages(smartPages);
 

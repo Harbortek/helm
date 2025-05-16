@@ -261,7 +261,8 @@ public class ProjectTemplateWriterImpl implements ProjectTemplateWriter {
 
         List<DocVo> docVos = templateVo.getDocs();
         docVos.forEach(docVo->{
-            File outputFile = new File(rootDir, "doc/"+docVo.getName()+".xml");
+            String name=docVo.getName()+"_"+docVo.getId();
+            File outputFile = new File(rootDir, "doc/"+name+".xml");
             Document document = DocumentHelper.createDocument();
             Element pagesElement = document.addElement("docs");
 
@@ -353,10 +354,11 @@ public class ProjectTemplateWriterImpl implements ProjectTemplateWriter {
 
         List<SmartPageVo> smartPages = templateVo.getSmartPages();
         smartPages.forEach(smartPageVo->{
-            File outputFile = new File(rootDir, "smart-page/"+smartPageVo.getName()+".xml");
+            String name=smartPageVo.getName()+'_'+ smartPageVo.getId();
+            File outputFile = new File(rootDir, "smart-page/"+name+".xml");
             Document document = DocumentHelper.createDocument();
             Element smartElement = document.addElement("smart-page");
-            smartElement.addAttribute("page",smartPageVo.getName());
+            smartElement.addAttribute("page",name);
             smartElement.addAttribute("scope",smartPageVo.getScope());
             Element definitionElement = smartElement.addElement("definition");
             definitionElement.setText("<![CDATA["+smartPageVo.getDefinition()+"]]>");
