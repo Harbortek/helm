@@ -25,6 +25,8 @@ import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
 import com.harbortek.helm.tracker.vo.link.TrackerLinkVo;
 import com.harbortek.helm.tracker.vo.pages.ProjectPageVo;
 import com.harbortek.helm.tracker.vo.permission.PermissionGrantVo;
+import com.harbortek.helm.tracker.vo.plan.SprintVo;
+import com.harbortek.helm.tracker.vo.plan.TargetVersionVo;
 import com.harbortek.helm.tracker.vo.smartpage.SmartPageVo;
 import com.harbortek.helm.tracker.vo.tracker.TrackerVo;
 import lombok.Data;
@@ -73,5 +75,11 @@ public class ProjectTemplateVo extends BaseVo {
 
     @Transient
     List<SmartPageVo> smartPages = new ArrayList<>();
+
+    @Transient
+    List<SprintVo> sprints = new ArrayList<>();
+
+    @Transient
+    List<TargetVersionVo> targetVersions = new ArrayList<>();
 
 }

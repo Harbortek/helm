@@ -35,6 +35,8 @@ import com.harbortek.helm.tracker.constants.*;
 import com.harbortek.helm.tracker.dao.*;
 import com.harbortek.helm.tracker.entity.block.*;
 import com.harbortek.helm.tracker.entity.link.TrackerLinkEntity;
+import com.harbortek.helm.tracker.entity.plan.SprintEntity;
+import com.harbortek.helm.tracker.entity.plan.TargetVersionEntity;
 import com.harbortek.helm.tracker.entity.project.ProjectEntity;
 import com.harbortek.helm.tracker.entity.project.ProjectPageEntity;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
@@ -54,6 +56,8 @@ import com.harbortek.helm.tracker.vo.link.TrackerLinkTypeVo;
 import com.harbortek.helm.tracker.vo.link.TrackerLinkVo;
 import com.harbortek.helm.tracker.vo.pages.ProjectPageVo;
 import com.harbortek.helm.tracker.vo.permission.PermissionGrantVo;
+import com.harbortek.helm.tracker.vo.plan.SprintVo;
+import com.harbortek.helm.tracker.vo.plan.TargetVersionVo;
 import com.harbortek.helm.tracker.vo.smartpage.SmartPageVo;
 import com.harbortek.helm.tracker.vo.template.ProjectTemplateVo;
 import com.harbortek.helm.tracker.vo.tracker.TrackerVo;
@@ -385,6 +389,21 @@ public class ProjectCreateServiceImpl implements ProjectCreateService {
             }
         });
         permissionService.grant(pagePermissions);
+
+        //7.1 版本数据
+        List<TargetVersionVo> targetVersionVos = templateVo.getTargetVersions();
+        List<TargetVersionEntity> targetVersions = DataUtils.toEntity(targetVersionVos, TargetVersionEntity.class);
+        targetVersions.forEach(targetVersion -> {targetVersion.setProjectId(project.getId());});
+        if(ObjectUtils.isNotEmpty(targetVersions)){
+            targetVersionDao.batchCreateTargetVersions(targetVersions);
+        }
+        //7.2 迭代数据
+        List<SprintVo> sprintVos = templateVo.getSprints();
+        List<SprintEntity> sprints = DataUtils.toEntity(sprintVos, SprintEntity.class);
+        sprints.forEach(sprint -> {sprint.setProjectId(project.getId());});
+        if(ObjectUtils.isNotEmpty(sprints)){
+            sprintDao.batchCreateSprints(sprints);
+        }
     }
 
     private void setElementRef(SlateNode element, List<TrackerItemEntity> trackerItemEntities){
@@ -526,7 +545,12 @@ public class ProjectCreateServiceImpl implements ProjectCreateService {
             //删除未选择item
             templateVo.getTrackerItems().removeIf(item->
                 !sourceProject.getTrackerList().contains(item.getTracker().getId())
-            );
+            );//未选择项目成员 则删除
+            if(!sourceProject.isMember()){
+                templateVo.getRoles().forEach(role->{
+                    role.setMembers(new ArrayList<>());
+                });
+            }
             //创建临时模板-复制项目
             templateVo.setName(targetProject.getName());
             file = projectTemplateWriter.writeFully(templateVo);

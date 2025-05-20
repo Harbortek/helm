@@ -17,12 +17,11 @@
 package com.harbortek.helm.tracker.template.writer.impl;
 
 import com.harbortek.helm.common.vo.BaseIdentity;
+import com.harbortek.helm.common.vo.IdNameVo;
 import com.harbortek.helm.system.constants.IdentityTypes;
 import com.harbortek.helm.system.vo.EnumItemVo;
 import com.harbortek.helm.tracker.constants.InternalTrackers;
 import com.harbortek.helm.tracker.constants.SystemFields;
-import com.harbortek.helm.tracker.entity.block.HeaderBlockData;
-import com.harbortek.helm.tracker.entity.block.TrackerItemBlockData;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateElements;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.SlateNode;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.AttachmentSlateElement;
@@ -33,7 +32,6 @@ import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.image.Image
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.list.ListSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.table.TableSlateElement;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.element.trackerItem.TrackerItemSlateElement;
-import com.harbortek.helm.tracker.entity.smartdoc.element.po.style.StyleedStyle;
 import com.harbortek.helm.tracker.entity.smartdoc.element.po.text.SlateText;
 import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
 import com.harbortek.helm.tracker.template.builder.TrackerXmlWriter;
@@ -102,14 +100,14 @@ public class ProjectTemplateWriterImpl implements ProjectTemplateWriter {
             writeDocs(templateVo,templateDir);
             writeEnums(templateVo,templateDir);
             writeSmartPages(templateVo,templateDir);
+            writeSprints(templateVo,templateDir);
+            writeTargetVersions(templateVo,templateDir);
 
         } catch (IOException ex) {
             logger.error("保存出错", ex);
         }
         return templateDir;
     }
-
-
 
     void writeBasicInfo(ProjectTemplateVo templateVo, File rootDir) {
         File templateProperties = new File(rootDir, "template.properties");
@@ -198,6 +196,7 @@ public class ProjectTemplateWriterImpl implements ProjectTemplateWriter {
                 filedMap.put(field.getId(),field.getName());
             });
         });
+        Map<Long, String> sprintMap = templateVo.getSprints().stream().collect(Collectors.toMap(IdNameVo::getId, IdNameVo::getName));
 
         List<TrackerItemVo> trackerItems = templateVo.getTrackerItems();
         for (TrackerItemVo trackerItem : trackerItems) {
@@ -205,7 +204,7 @@ public class ProjectTemplateWriterImpl implements ProjectTemplateWriter {
             Document document = DocumentHelper.createDocument();
 
             Element workItemElement = document.addElement("work-item");
-            writeWorkItemFields(trackerItem,workItemElement,filedMap);
+            writeWorkItemFields(trackerItem,workItemElement,filedMap,sprintMap);
             ResourceUtils.writeXml(outputFile,document);
         }
     }
@@ -226,7 +225,8 @@ public class ProjectTemplateWriterImpl implements ProjectTemplateWriter {
         ResourceUtils.writeXml(outputFile,document);
     }
 
-    void writePages(ProjectTemplateVo templateVo, File rootDir) {
+    void
+    writePages(ProjectTemplateVo templateVo, File rootDir) {
         Map<Long, String> trackerMap = templateVo.getTrackers().stream().collect(Collectors.toMap(TrackerVo::getId, TrackerVo::getName));
 
         Map<Long,String> filedMap = new HashMap<>();
@@ -366,6 +366,48 @@ public class ProjectTemplateWriterImpl implements ProjectTemplateWriter {
         });
     }
 
+    private void writeSprints(ProjectTemplateVo templateVo, File rootDir) {
+        File outputFile = new File(rootDir, "sprints/sprints.xml");
+        Document document = DocumentHelper.createDocument();
+        Element smartElement = document.addElement("sprints");
+        templateVo.getSprints().forEach(sprintVo->{
+            Element sprint = smartElement.addElement("sprint");
+            sprint.addAttribute("name",sprintVo.getName());
+            sprint.addAttribute("description",sprintVo.getDescription());
+            sprint.addAttribute("meaning",sprintVo.getMeaning());
+            sprint.addAttribute("status",sprintVo.getStatus().getName());
+            sprint.addAttribute("owner",sprintVo.getOwner().getName());
+            sprint.addAttribute("planStartDate",String.valueOf(DateUtils.toDefDatetimeString(sprintVo.getPlanStartDate())));
+            sprint.addAttribute("planEndDate",String.valueOf(DateUtils.toDefDatetimeString(sprintVo.getPlanEndDate())));
+            sprint.addAttribute("progress",String.valueOf(sprintVo.getProgress()));
+            sprint.addAttribute("realStartDate",String.valueOf(DateUtils.toDefDatetimeString(sprintVo.getRealStartDate())));
+            sprint.addAttribute("realEndDate",String.valueOf(DateUtils.toDefDatetimeString(sprintVo.getRealEndDate())));
+            if(ObjectUtils.isNotEmpty(sprintVo.getTargetVersion())){
+                sprint.addAttribute("targetVersion",sprintVo.getTargetVersion().getName());
+            }
+        });
+        ResourceUtils.writeXml(outputFile,document);
+    }
+
+    private void writeTargetVersions(ProjectTemplateVo templateVo, File rootDir) {
+        File outputFile = new File(rootDir, "targetVersions/targetVersions.xml");
+        Document document = DocumentHelper.createDocument();
+        Element smartElement = document.addElement("targetVersions");
+        templateVo.getTargetVersions().forEach(targetVersion->{
+            Element sprint = smartElement.addElement("targetVersion");
+            sprint.addAttribute("name",targetVersion.getName());
+            sprint.addAttribute("description",targetVersion.getDescription());
+            sprint.addAttribute("planStartDate",String.valueOf(DateUtils.toDefDatetimeString(targetVersion.getPlanStartDate())));
+            sprint.addAttribute("planEndDate",String.valueOf(DateUtils.toDefDatetimeString(targetVersion.getPlanEndDate())));
+            if(ObjectUtils.isNotEmpty(targetVersion.getProgress())){
+                sprint.addAttribute("progress",String.valueOf(targetVersion.getProgress()));
+            }
+            sprint.addAttribute("realStartDate",String.valueOf(DateUtils.toDefDatetimeString(targetVersion.getRealStartDate())));
+            sprint.addAttribute("realEndDate",String.valueOf(DateUtils.toDefDatetimeString(targetVersion.getRealEndDate())));
+        });
+        ResourceUtils.writeXml(outputFile,document);
+    }
+
     void writeEnums(ProjectTemplateVo templateVo, File rootDir) {
         File outputFile = new File(rootDir, "enum/enums.xml");
         Document document = DocumentHelper.createDocument();
@@ -445,7 +487,7 @@ public class ProjectTemplateWriterImpl implements ProjectTemplateWriter {
         });
     }
 
-    private void writeWorkItemFields(TrackerItemVo item, Element element, Map<Long, String> filedMap) {
+    private void writeWorkItemFields(TrackerItemVo item, Element element, Map<Long, String> filedMap, Map<Long, String> sprintMap) {
         Element fieldElement;
         Object propertyValue;
         List<String> allSystemFields = SystemFields.ALL_SYSTEM_FIELDS;
@@ -516,8 +558,13 @@ public class ProjectTemplateWriterImpl implements ProjectTemplateWriter {
             Element fieldElementValues = element.addElement("field");
             fieldElementValues.addAttribute("name", TrackerItemEntity.Fields.values);
             item.getValues().forEach((key, value) -> {
-                fieldElementValues.addElement("value").addAttribute("key", filedMap.get(Long.parseLong(key.toString())))
-                        .addAttribute("value",value.toString());
+                if("迭代".equals(filedMap.get(Long.parseLong(key.toString())))&&ObjectUtils.isNotEmpty(value)){
+                    fieldElementValues.addElement("value").addAttribute("key", filedMap.get(Long.parseLong(key.toString())))
+                            .addAttribute("value",sprintMap.get(Long.parseLong(value)));
+                }else{
+                    fieldElementValues.addElement("value").addAttribute("key", filedMap.get(Long.parseLong(key.toString())))
+                            .addAttribute("value",value.toString());
+                }
             });
         }
     }

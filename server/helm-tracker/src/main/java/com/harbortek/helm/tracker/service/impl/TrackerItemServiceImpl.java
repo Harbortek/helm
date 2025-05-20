@@ -889,7 +889,7 @@ public class TrackerItemServiceImpl implements TrackerItemService {
             headers.put(SystemFields.STATUS, "状态");
             headers.put(SystemFields.PROJECT, "所属项目");
             headers.put(SystemFields.TRACKER, "所属工作项类型");
-            headers.put(SystemFields.SPRINT, "所属迭代");
+//            headers.put(SystemFields.SPRINT, "所属迭代");
             headers.put(SystemFields.PRIORITY, "优先级");
             headers.put(SystemFields.SEVERITY, "严重级别");
             headers.put(SystemFields.ESTIMATE_WORKING_HOURS, "预估工时");
@@ -918,7 +918,7 @@ public class TrackerItemServiceImpl implements TrackerItemService {
         headers.put(SystemFields.STATUS, "状态");
         headers.put(SystemFields.PROJECT, "所属项目");
         headers.put(SystemFields.TRACKER, "所属工作项类型");
-        headers.put(SystemFields.SPRINT, "所属迭代");
+//        headers.put(SystemFields.SPRINT, "所属迭代");
         headers.put(SystemFields.PRIORITY, "优先级");
         headers.put(SystemFields.SEVERITY, "严重级别");
         headers.put(SystemFields.ESTIMATE_WORKING_HOURS, "预估工时");
@@ -931,7 +931,7 @@ public class TrackerItemServiceImpl implements TrackerItemService {
         itemMap.put(SystemFields.STATUS, "必填项。可选值：" + trackerStatusNames);
         itemMap.put(SystemFields.PROJECT, "必填项。");
         itemMap.put(SystemFields.TRACKER, "必填项。");
-        itemMap.put(SystemFields.SPRINT, "可选项。");
+//        itemMap.put(SystemFields.SPRINT, "可选项。");
         itemMap.put(SystemFields.PRIORITY, "必填项。可选值：" +  StringUtils.join(trackerPriority.stream().map(EnumItemVo::getName).collect(
                 Collectors.toList()), ","));
         itemMap.put(SystemFields.SEVERITY,

@@ -29,7 +29,7 @@ public interface SystemFields {
     String DESCRIPTION = "description";
 
     String OWNER = "ownerId";
-    String SPRINT = "sprintId";
+//    String SPRINT = "sprintId";
 
     String CREATE_BY = "createBy";
 
@@ -118,7 +118,7 @@ public interface SystemFields {
             NAME,
             DESCRIPTION,
             OWNER,
-            SPRINT,
+//            SPRINT,
             CREATE_BY,
             CREATE_DATE,
             LAST_MODIFIED_BY,
