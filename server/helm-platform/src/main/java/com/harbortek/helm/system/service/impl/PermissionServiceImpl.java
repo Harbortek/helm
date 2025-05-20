@@ -19,6 +19,7 @@ package com.harbortek.helm.system.service.impl;
 import com.harbortek.helm.common.config.module.ModuleManager;
 import com.harbortek.helm.common.config.module.PermissionLoader;
 import com.harbortek.helm.common.vo.BaseIdentity;
+import com.harbortek.helm.common.vo.IdNameReference;
 import com.harbortek.helm.system.constants.IdentityTypes;
 import com.harbortek.helm.system.dao.PermissionDao;
 import com.harbortek.helm.system.entity.PermissionEntity;
@@ -29,6 +30,7 @@ import com.harbortek.helm.system.vo.GrantedPermission;
 import com.harbortek.helm.system.vo.PermissionVo;
 import com.harbortek.helm.system.vo.UserVo;
 import com.harbortek.helm.util.IDUtils;
+import com.harbortek.helm.util.ObjectUtils;
 import com.harbortek.helm.util.PermissionCacheUtils;
 import com.harbortek.helm.util.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -101,8 +103,10 @@ public class PermissionServiceImpl implements PermissionService {
             PermissionEntity permissionEntity = new PermissionEntity();
             permissionEntity.setId(permissionVo.getId());
             permissionEntity.setName(permissionVo.getName());
-            permissionEntity.setIdentityId(permissionVo.getIdentity().getId());
-            permissionEntity.setIdentityType(permissionVo.getIdentity().getType());
+            if(ObjectUtils.isNotEmpty(permissionVo.getIdentity().getReferTo().getReferTo())){
+                permissionEntity.setIdentityId(permissionVo.getIdentity().getId());
+                permissionEntity.setIdentityType(permissionVo.getIdentity().getType());
+            }
             permissionEntity.setResourceId(permissionVo.getResourceId());
             return permissionEntity;
         }).collect(Collectors.toList());

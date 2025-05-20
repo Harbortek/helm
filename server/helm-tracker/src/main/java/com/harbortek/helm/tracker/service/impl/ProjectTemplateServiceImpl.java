@@ -18,14 +18,13 @@ package com.harbortek.helm.tracker.service.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.harbortek.helm.tracker.constants.ProjectPageTypes;
+import com.harbortek.helm.tracker.service.*;
+import com.harbortek.helm.tracker.vo.plan.SprintVo;
+import com.harbortek.helm.tracker.vo.plan.TargetVersionVo;
 import com.harbortek.helm.util.SecurityUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
@@ -54,14 +53,6 @@ import com.harbortek.helm.tracker.dao.ProjectDao;
 import com.harbortek.helm.tracker.dao.ProjectTemplateDao;
 import com.harbortek.helm.tracker.dao.TrackerLinkDao;
 import com.harbortek.helm.tracker.entity.project.ProjectEntity;
-import com.harbortek.helm.tracker.service.DocService;
-import com.harbortek.helm.tracker.service.ProjectPageService;
-import com.harbortek.helm.tracker.service.ProjectPermissionService;
-import com.harbortek.helm.tracker.service.ProjectRoleMemberService;
-import com.harbortek.helm.tracker.service.ProjectTemplateService;
-import com.harbortek.helm.tracker.service.SmartPageService;
-import com.harbortek.helm.tracker.service.TrackerItemService;
-import com.harbortek.helm.tracker.service.TrackerService;
 import com.harbortek.helm.tracker.template.reader.ProjectTemplateReader;
 import com.harbortek.helm.tracker.template.writer.ProjectTemplateWriter;
 import com.harbortek.helm.tracker.util.ResourceUtils;
@@ -121,11 +112,15 @@ public class ProjectTemplateServiceImpl implements ProjectTemplateService, Appli
 	EnumDao enumDao;
 	@Autowired
 	SmartPageService smartPageService;
+	@Autowired
+	SprintService sprintService;
 
 	@Value("${HELM_HOME}")
 	private String helmHome;
 
 	private final static String PROJECT_TEMPLATE_PATH = "templates";
+    @Autowired
+    private TargetVersionServiceImpl targetVersionService;
 
 	@Override
 	public ProjectTemplateVo createProjectTemplate(ProjectTemplateVo template) {
@@ -215,18 +210,31 @@ public class ProjectTemplateServiceImpl implements ProjectTemplateService, Appli
 		templateVo.setTrackerLinks(DataUtils.toVo(trackerLinkDao.findByItemIds(itemIds), TrackerLinkVo.class));
 
 		List<ProjectPageVo> pageVos = projectPageService.findByProjectId(projectId);
+		//pageVos使用stream转换为map
+		Map<Long, String> smartDocMap = pageVos.stream().filter(pageVo -> ProjectPageTypes.SMART_DOCUMENT.equals(pageVo.getType()))
+				.collect(Collectors.toMap(ProjectPageVo::getSmartDocId, ProjectPageVo::getName));
+		Map<Long, String> smartPageMap = pageVos.stream().filter(pageVo -> ProjectPageTypes.SMART_PAGE.equals(pageVo.getType()))
+				.collect(Collectors.toMap(ProjectPageVo::getSmartPageId, ProjectPageVo::getName));
 		List<Long> docIds = pageVos.stream().map(ProjectPageVo::getSmartDocId)
 				.distinct().filter(Objects::nonNull).toList();
 		List<DocVo> docVos = docService.findDocByIds(docIds);
+		docVos.forEach(docVo -> {docVo.setName(smartDocMap.get(docVo.getId()));});
 		templateVo.setDocs(docVos);
 
 		List<Long> smartPageIds = pageVos.stream().map(ProjectPageVo::getSmartPageId)
 				.distinct().filter(Objects::nonNull).toList();
 
 		List<SmartPageVo> smartPages = smartPageService.findSmartPageByIds(smartPageIds);
+		smartPages.forEach(smartPageVo -> {smartPageVo.setName(smartPageMap.get(smartPageVo.getId()));});
 		templateVo.setSmartPages(smartPages);
+		//迭代数据
+		Collection<SprintVo> sprints = sprintService.findSprints(projectId);
+		templateVo.setSprints((List<SprintVo>) sprints);
+		//版本
+		Collection<TargetVersionVo> targetVersions = targetVersionService.findTargetVersions(projectId);
+		templateVo.setTargetVersions((List<TargetVersionVo>) targetVersions);
 		return templateVo;
-	}
+    }
 
 	@Override
 	public void saveAsTemplate(BaseEntity template) {

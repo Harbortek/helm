@@ -192,11 +192,11 @@ public class ProjectPermissionLoader implements PermissionLoader {
     private boolean checkUserInIdentity(Long userId, List<BaseIdentity> granted, ProjectEntity project,
                                         List<RoleVo> roles) {
         for (BaseIdentity baseIdentity : granted) {
-            if (baseIdentity.getType().equals(IdentityTypes.USER) && baseIdentity.getId().equals(userId)) {
+            if (IdentityTypes.USER.equals(baseIdentity.getType()) && baseIdentity.getId().equals(userId)) {
                 return true;
-            } else if (baseIdentity.getType().equals(IdentityTypes.ROLE) && hasRole(roles, baseIdentity.getId())) {
+            } else if (IdentityTypes.ROLE.equals(baseIdentity.getType()) && hasRole(roles, baseIdentity.getId())) {
                 return true;
-            } else if (baseIdentity.getType().equals(IdentityTypes.SPECIAL_ROLE) &&
+            } else if (IdentityTypes.SPECIAL_ROLE.equals(baseIdentity.getType()) &&
                     hasSpecialRole(roles, baseIdentity.getId(), userId, project)) {
                 return true;
             }

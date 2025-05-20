@@ -86,7 +86,7 @@ public class SprintEntity extends BaseEntity implements Planable{
     Integer duration;
 
     @EntityReference(EnumItemEntity.class)
-    private Long statusId;
+    private Long statusId; //使用PROJECT_STATUS_MEANING
 
     private String meaning;
 

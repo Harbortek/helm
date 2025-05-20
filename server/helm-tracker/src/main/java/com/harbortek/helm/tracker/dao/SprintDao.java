@@ -85,9 +85,9 @@ public class SprintDao extends BaseJdbcDao {
 //        return find(query2, SprintEntity.class);
 //    }
 
-//    public void batchCreateSprints(Collection<SprintEntity> sprints) {
-//        saveAll(sprints);
-//    }
+    public void batchCreateSprints(Collection<SprintEntity> sprints) {
+        saveAll(sprints);
+    }
 
     public List<SprintEntity> findSprintByProjectId(Long projectId) {
         Criteria criteria = Criteria.empty();

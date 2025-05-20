@@ -15,7 +15,7 @@
             <span>项目组件
                 <a-tooltip :overlayStyle="{ minWidth: '280px',fontSize: '12px' }">
                     <template slot="title">
-                        <span>包含当前项目内的组件配置、组件权限与组件视图</span>
+                        <span>包含当前项目内的组件配置、组件权限与组件页面</span>
                     </template>
                             <span><a-icon type="question-circle-o" /></span>
                 </a-tooltip>、
@@ -25,7 +25,7 @@
                         <span>包含工作项属性、布局、权限、工作流和通知配置</span>
                     </template>
                             <span><a-icon type="question-circle-o" /></span>
-                </a-tooltip>、权限配置、迭代配置、项目配置
+                </a-tooltip>、权限配置、枚举值配置、项目配置
             </span>
         </a-form-model-item>
         <a-form-model-item label="自定义复制的数据">
@@ -48,9 +48,9 @@
                 </a-checkbox-group>
             </a-row>
             <a-row>
-                <a-col :span="12">
+                <!-- <a-col :span="12">
                     <a-checkbox v-model="formData.sprint" value="迭代数据">迭代数据</a-checkbox>
-                </a-col>
+                </a-col> -->
                 <a-col :span="12">
                     <a-checkbox v-model="formData.member">项目成员</a-checkbox>
                 </a-col>

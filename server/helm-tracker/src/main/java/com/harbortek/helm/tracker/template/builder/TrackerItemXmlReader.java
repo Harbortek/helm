@@ -20,12 +20,14 @@ import com.fasterxml.jackson.databind.node.ValueNode;
 import com.harbortek.helm.common.vo.IdNameReference;
 import com.harbortek.helm.system.vo.EnumItemVo;
 import com.harbortek.helm.system.vo.UserVo;
+import com.harbortek.helm.tracker.constants.FieldTypes;
 import com.harbortek.helm.tracker.constants.InternalTrackers;
 import com.harbortek.helm.tracker.constants.ObjectTypes;
 import com.harbortek.helm.tracker.constants.SystemFields;
 import com.harbortek.helm.tracker.entity.tracker.TrackerItemEntity;
 import com.harbortek.helm.tracker.util.ResourceUtils;
 import com.harbortek.helm.tracker.vo.items.TrackerItemVo;
+import com.harbortek.helm.tracker.vo.plan.SprintVo;
 import com.harbortek.helm.tracker.vo.tracker.TrackerVo;
 import com.harbortek.helm.tracker.vo.tracker.fields.TrackerField;
 import com.harbortek.helm.tracker.vo.tracker.stateTransition.TrackerStatus;
@@ -78,7 +80,16 @@ public class TrackerItemXmlReader {
             if(TrackerItemEntity.Fields.values.equals(fieldName)){
                 List<Node> valueNodes= node.selectNodes("value");
                 valueNodes.forEach(valueNode -> {
-                    item.getValues().put((long) valueNodes.indexOf(valueNode),valueNode.valueOf("@key")+"_"+valueNode.valueOf("@value"));
+                    String key = valueNode.valueOf("@key");
+                    String value = valueNode.valueOf("@value");
+                    if("迭代".equals(key)){
+                        SprintVo byName = entityResolver.findByName(value, ObjectTypes.SPRINT, SprintVo.class);
+                        if(ObjectUtils.isNotEmpty(byName)){
+                            item.getValues().put((long) valueNodes.indexOf(valueNode),key+"_"+byName.getId());
+                        }
+                    }else{
+                        item.getValues().put((long) valueNodes.indexOf(valueNode),key+"_"+value);
+                    }
                 });
             }else{
                 String value = node.getStringValue();
@@ -153,10 +164,12 @@ public class TrackerItemXmlReader {
                 TrackerVo tracker = entityResolver.findByName(fieldValue,ObjectTypes.TRACKER,  TrackerVo.class);
                 item.setTracker(new IdNameReference<>(tracker));
             }
-        }else {
+        }else{
             TrackerField trackerField = entityResolver.findByName(fieldValue,ObjectTypes.TRACKER_FIELD,
                                                                   TrackerField.class);
+
             item.setCustomerFieldValue(trackerField,fieldValue);
+
         }
     }
 }

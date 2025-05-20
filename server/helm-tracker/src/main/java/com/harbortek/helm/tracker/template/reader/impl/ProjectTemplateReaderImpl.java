@@ -60,11 +60,15 @@ import com.harbortek.helm.tracker.vo.link.TrackerLinkVo;
 import com.harbortek.helm.tracker.vo.pages.ProjectPageVo;
 import com.harbortek.helm.tracker.vo.permission.PagePermissionVo;
 import com.harbortek.helm.tracker.vo.permission.PermissionGrantVo;
+import com.harbortek.helm.tracker.vo.plan.SprintVo;
+import com.harbortek.helm.tracker.vo.plan.TargetVersionVo;
 import com.harbortek.helm.tracker.vo.smartpage.SmartPageVo;
 import com.harbortek.helm.tracker.vo.template.ProjectTemplateVo;
 import com.harbortek.helm.tracker.vo.tracker.TrackerVo;
 import com.harbortek.helm.tracker.vo.tracker.stateTransition.TrackerStatus;
 import com.harbortek.helm.util.DataUtils;
+import com.harbortek.helm.util.DateUtils;
+import com.harbortek.helm.util.IDUtils;
 import com.harbortek.helm.util.ObjectUtils;
 import lombok.Cleanup;
 import org.dom4j.Document;
@@ -180,6 +184,15 @@ public class ProjectTemplateReaderImpl implements ProjectTemplateReader, Applica
                 entityResolver.register(trackerStatus,ObjectTypes.TRACKER_STATUS);
             }
         });
+        List<TargetVersionVo> targetVersionVos = readTargetVersions(parent,entityResolver);
+        targetVersionVos.forEach(t -> {
+            entityResolver.register(t,ObjectTypes.TARGET_VERSION);
+        });
+
+        List<SprintVo> sprints = readSprints(parent,entityResolver);
+        sprints.forEach(t -> {
+            entityResolver.register(t,ObjectTypes.SPRINT);
+        });
 
 
         List<TrackerItemVo> trackerItems = readWorkItems(parent,entityResolver);
@@ -199,10 +212,17 @@ public class ProjectTemplateReaderImpl implements ProjectTemplateReader, Applica
         vo.setDocs(docVos);
         vo.setSmartPages(smartPageVos);
         vo.setEnumItems(enumItemVos);
+        vo.setSprints(sprints);
+        vo.setTargetVersions(targetVersionVos);
         return vo;
     }
 
     private void initEntityResolver(EntityResolver entityResolver){
+        Collection<EnumItemVo> projectStatus = enumService.findEnumItemsByCode(null,EnumCodes.PROJECT_STATUS_MEANING);
+        projectStatus.forEach(meaning->{
+            entityResolver.register(meaning,ObjectTypes.PROJECT_STATUS);
+        });
+
         Collection<EnumItemVo> meanings = enumService.findEnumItemsByCode(null,EnumCodes.TRACKER_STATUS_MEANING);
         meanings.forEach(meaning->{
             entityResolver.register(meaning,ObjectTypes.TRACKER_STATUS_MEANING);
@@ -225,8 +245,76 @@ public class ProjectTemplateReaderImpl implements ProjectTemplateReader, Applica
 
     }
 
+    private List<TargetVersionVo> readTargetVersions(Resource parent, EntityResolver entityResolver) {
+        List<TargetVersionVo> targetVersionVos =new ArrayList<>();
+        Resource resource = ResourceUtils.getResource(parent, "/targetVersions/targetVersions.xml");
+        SAXReader saxReader = new SAXReader();
+        try {
+            @Cleanup InputStream is = resource.getInputStream();
+            Document document = saxReader.read(is);
+
+            List<Node> nodes = document.selectNodes("targetVersions/targetVersion");
+            for (Node node : nodes) {
+                TargetVersionVo targetVersionVo = new TargetVersionVo();
+                targetVersionVo.setId(IDUtils.getId());
+                targetVersionVo.setName(node.valueOf("@name"));
+                targetVersionVo.setDescription(node.valueOf("@description"));
+                targetVersionVo.setPlanStartDate(DateUtils.toDate(node.valueOf("@planStartDate")));
+                targetVersionVo.setPlanEndDate(DateUtils.toDate(node.valueOf("@planEndDate")));
+                if(ObjectUtils.isNotEmpty(node.valueOf("@progress"))){
+                    targetVersionVo.setProgress(Integer.parseInt(node.valueOf("@progress")));
+                }
+                targetVersionVo.setRealStartDate(DateUtils.toDate(node.valueOf("@realStartDate")));
+                targetVersionVo.setRealEndDate(DateUtils.toDate(node.valueOf("@realEndDate")));
+                targetVersionVos.add(targetVersionVo);
+            }
+        } catch (IOException | DocumentException ex) {
+            logger.error("无法读取 {}", ResourceUtils.getPath(resource),ex);
+        }
+        return targetVersionVos;
+    }
+
+    private List<SprintVo> readSprints(Resource parent, EntityResolver entityResolver) {
+        List<SprintVo> sprintVos =new ArrayList<>();
+        Resource resource = ResourceUtils.getResource(parent, "/sprints/sprints.xml");
+        SAXReader saxReader = new SAXReader();
+        try {
+            @Cleanup InputStream is = resource.getInputStream();
+            Document document = saxReader.read(is);
+
+            List<Node> nodes = document.selectNodes("sprints/sprint");
+            for (Node node : nodes) {
+                SprintVo sprintVo = new SprintVo();
+                sprintVo.setId(IDUtils.getId());
+                sprintVo.setName(node.valueOf("@name"));
+                sprintVo.setDescription(node.valueOf("@description"));
+                sprintVo.setMeaning(node.valueOf("@meaning"));
+                sprintVo.setStatus(entityResolver.findByName(node.valueOf("@status"),ObjectTypes.PROJECT_STATUS,
+                        EnumItemVo.class));
+
+                sprintVo.setOwner(entityResolver.findByName(node.valueOf("@owner"),ObjectTypes.USER,
+                        UserVo.class));
+                sprintVo.setPlanStartDate(DateUtils.toDate(node.valueOf("@planStartDate")));
+                sprintVo.setPlanEndDate(DateUtils.toDate(node.valueOf("@planEndDate")));
+                if(ObjectUtils.isNotEmpty(node.valueOf("@progress"))){
+                    sprintVo.setProgress(Integer.parseInt(node.valueOf("@progress")));
+                }
+                sprintVo.setRealStartDate(DateUtils.toDate(node.valueOf("@realStartDate")));
+                sprintVo.setRealEndDate(DateUtils.toDate(node.valueOf("@realEndDate")));
+                if(ObjectUtils.isNotEmpty(node.valueOf("@targetVersion"))){
+                    sprintVo.setTargetVersion(entityResolver.findByName(node.valueOf("@targetVersion"),
+                            ObjectTypes.TARGET_VERSION, TargetVersionVo.class));
+                }
+                sprintVos.add(sprintVo);
+            }
+        } catch (IOException | DocumentException ex) {
+            logger.error("无法读取 {}", ResourceUtils.getPath(resource),ex);
+        }
+        return sprintVos;
+    }
+
     private List<EnumItemVo> readEnums(Resource parent,EntityResolver entityResolver) {
-        ArrayList<EnumItemVo> docVos = new ArrayList<>();
+        ArrayList<EnumItemVo> enumItemVos = new ArrayList<>();
         Resource resource = ResourceUtils.getResource(parent, "/enum/enums.xml");
         SAXReader saxReader = new SAXReader();
         try {
@@ -243,9 +331,9 @@ public class ProjectTemplateReaderImpl implements ProjectTemplateReader, Applica
                 enumItemVo.setOrdinary(Integer.parseInt(node.valueOf("@ordinary")));
                 enumItemVo.setSystem(Boolean.parseBoolean(node.valueOf("@system")));
 
-                docVos.add(enumItemVo);
+                enumItemVos.add(enumItemVo);
             }
-            return docVos;
+            return enumItemVos;
         } catch (IOException | DocumentException ex) {
             logger.error("无法读取 {}", ResourceUtils.getPath(resource),ex);
         }
@@ -327,18 +415,30 @@ public class ProjectTemplateReaderImpl implements ProjectTemplateReader, Applica
         }else if(SlateElements.TRACKER_ITEM.equals(type)){
             TrackerItemSlateElement<Object> itemSlateElement = new TrackerItemSlateElement<>();
             itemSlateElement.setRef(elementNode.valueOf("@ref"));
+            if(ObjectUtils.isEmpty(itemSlateElement.getRef())){
+                return;
+            }
             slateNode=itemSlateElement;
         }else if(SlateElements.TRACKER_ITEM_TITLE.equals(type)){
             TrackerItemSlateElement.TrackerItemTitleSlateElement itemSlateElement = new TrackerItemSlateElement.TrackerItemTitleSlateElement();
             itemSlateElement.setRef(elementNode.valueOf("@ref"));
+            if(ObjectUtils.isEmpty(itemSlateElement.getRef())){
+                return;
+            }
             slateNode=itemSlateElement;
         }else if(SlateElements.TRACKER_ITEM_DESCRIPTION.equals(type)){
             TrackerItemSlateElement.TrackerItemDescriptionSlateElement itemSlateElement = new TrackerItemSlateElement.TrackerItemDescriptionSlateElement();
             itemSlateElement.setRef(elementNode.valueOf("@ref"));
+            if(ObjectUtils.isEmpty(itemSlateElement.getRef())){
+                return;
+            }
             slateNode=itemSlateElement;
         }else if(SlateElements.TRACKER_ITEM_EXTRA.equals(type)){
             TrackerItemSlateElement.TrackerItemExtraSlateElement itemSlateElement = new TrackerItemSlateElement.TrackerItemExtraSlateElement();
             itemSlateElement.setRef(elementNode.valueOf("@ref"));
+            if(ObjectUtils.isEmpty(itemSlateElement.getRef())){
+                return;
+            }
             slateNode=itemSlateElement;
         }else if(SlateElements.TITLE.equals(type)){
             slateNode=new TitleSlateElement();
@@ -449,7 +549,8 @@ public class ProjectTemplateReaderImpl implements ProjectTemplateReader, Applica
 
                 Node node = document.selectSingleNode("smart-page");
                 SmartPageVo smartPageVo = new SmartPageVo();
-                smartPageVo.setName(node.valueOf("@page"));
+                String name = node.valueOf("@page");
+                smartPageVo.setName(name.split("_")[0]);
                 smartPageVo.setScope(node.valueOf("@scope"));
                 Node definition = node.selectSingleNode("definition");
                 smartPageVo.setDefinition(definition.getStringValue());

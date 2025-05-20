@@ -89,11 +89,13 @@ public class PageXmlReader {
                     List<PageSettingTracker> pageSettingTrackers = new ArrayList<>();
                     trackers.forEach(tracker->{
                         TrackerVo trackerVo = entityResolver.findByName(tracker.valueOf("@tracker"), ObjectTypes.TRACKER, TrackerVo.class);
-                        Map<String,Long> fieldMap = trackerVo.getTrackerFields().stream().collect(Collectors.toMap(TrackerField::getName,TrackerField::getId));
-                        List<Node> list = tracker.selectNodes("fieldIds/fieldId");
-                        List<Long> fieldsIds = list.stream().map(f->fieldMap.get(f.getText())).toList();
-                        pageSettingTrackers.add(PageSettingTracker.builder().id(trackerVo.getId()).content(tracker.valueOf("@content"))
-                                .fieldIds(fieldsIds).build());
+                        if(ObjectUtils.isNotEmpty(trackerVo)){
+                            Map<String,Long> fieldMap = trackerVo.getTrackerFields().stream().collect(Collectors.toMap(TrackerField::getName,TrackerField::getId));
+                            List<Node> list = tracker.selectNodes("fieldIds/fieldId");
+                            List<Long> fieldsIds = list.stream().map(f->fieldMap.get(f.getText())).toList();
+                            pageSettingTrackers.add(PageSettingTracker.builder().id(trackerVo.getId()).content(tracker.valueOf("@content"))
+                                    .fieldIds(fieldsIds).build());
+                        }
                     });
                     page.setPageSettingTrackers(pageSettingTrackers);
 
